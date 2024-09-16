@@ -135,7 +135,7 @@ export default function Home() {
 
 ## Variables d'environnement nécessaires
 
-Assurez-vous d'avoir les variables d'environnement suivantes dans votre fichier `.env.local` :
+.env
 
 ```
 AUTH_SECRET="votre_secret_ici"
