@@ -1,7 +1,17 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import NextAuth from "next-auth";
+import NextAuth, { type DefaultSession } from "next-auth";
 import Google from "next-auth/providers/google";
 import { prisma } from "../prisma";
+
+declare module "next-auth" {
+  interface User {
+    role?: "ADMIN" | "USER";
+  }
+
+  interface Session extends DefaultSession {
+    user?: User;
+  }
+}
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -20,6 +30,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (session.user) {
         session.user.id = user.id;
         session.user.emailVerified = user.emailVerified;
+        session.user.role = user.role as "ADMIN" | "USER";
       }
       return session;
     },
