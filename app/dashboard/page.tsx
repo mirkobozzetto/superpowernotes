@@ -1,3 +1,5 @@
+"use client";
+
 import ConfirmModal from "@/src/components/dashboard/ConfirmModal";
 import NoteList from "@/src/components/dashboard/NoteList";
 import NoteModal from "@/src/components/dashboard/NoteModal";
