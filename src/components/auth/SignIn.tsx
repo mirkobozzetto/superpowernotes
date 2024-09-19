@@ -7,6 +7,7 @@ export default function SignIn() {
         "use server";
         await signIn("google");
       }}
+      className="flex flex-col items-center justify-center"
     >
       <button type="submit">Signin with Google</button>
     </form>

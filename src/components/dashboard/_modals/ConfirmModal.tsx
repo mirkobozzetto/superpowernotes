@@ -22,7 +22,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
         onClose();
       }
     },
-    [onClose],
+    [onClose]
   );
 
   const handleKeyDown = useCallback(
@@ -31,7 +31,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
         onClose();
       }
     },
-    [onClose],
+    [onClose]
   );
 
   useEffect(() => {

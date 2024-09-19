@@ -1,6 +1,6 @@
 import { VoiceNote } from "@prisma/client";
 import React, { useCallback, useEffect, useState } from "react";
-import TagInput from "./TagInput";
+import TagInput from "../TagInput";
 
 interface NoteModalProps {
   isOpen: boolean;
@@ -30,7 +30,7 @@ const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, note }) 
       onSave(editedNote);
       onClose();
     },
-    [editedNote, onSave, onClose],
+    [editedNote, onSave, onClose]
   );
 
   const handleKeyDown = useCallback(
@@ -42,7 +42,7 @@ const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, note }) 
         handleSubmit(event as unknown as React.FormEvent);
       }
     },
-    [onClose, handleSubmit],
+    [onClose, handleSubmit]
   );
 
   useEffect(() => {
@@ -59,7 +59,7 @@ const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, note }) 
       const { name, value } = e.target;
       setEditedNote((prev) => ({ ...prev, [name]: value }));
     },
-    [],
+    []
   );
 
   const handleTagsChange = useCallback((newTags: string[]) => {

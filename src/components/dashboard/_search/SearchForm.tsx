@@ -1,6 +1,6 @@
 import { SearchParams } from "@/src/hooks/useDashoard";
 import React from "react";
-import { SearchInputs } from "./_search/SearchInputs";
+import { SearchInputs } from "./SearchInputs";
 
 export interface SearchFormProps {
   searchParams: SearchParams;
