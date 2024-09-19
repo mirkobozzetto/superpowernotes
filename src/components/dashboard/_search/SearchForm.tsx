@@ -1,4 +1,4 @@
-import { SearchParams } from "@/src/hooks/useDashoard";
+import { SearchParams } from "@src/hooks/useDashoard";
 import React from "react";
 import { SearchInputs } from "./SearchInputs";
 

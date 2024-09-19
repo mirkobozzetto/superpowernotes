@@ -1,4 +1,6 @@
+import Navigation from "@src/components/navigation/Navigation";
 import type { Metadata } from "next";
+import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -14,7 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <main>{children}</main>
+        <SessionProvider>
+          <Navigation />
+          <main className="container mx-auto mt-4">{children}</main>
+        </SessionProvider>
       </body>
     </html>
   );

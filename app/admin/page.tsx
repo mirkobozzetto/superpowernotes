@@ -1,5 +1,5 @@
-import { prisma } from "@/src/lib/prisma";
 import { User, UserRole } from "@prisma/client";
+import { prisma } from "@src/lib/prisma";
 
 type UserDisplay = Pick<
   User,

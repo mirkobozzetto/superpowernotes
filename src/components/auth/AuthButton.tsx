@@ -1,15 +1,19 @@
-import { auth } from "@/src/lib/auth/auth";
+"use client";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import SignIn from "./SignIn";
 import SignOut from "./SignOut";
 
-export default async function AuthButton() {
-  const session = await auth();
-  console.log("Session:", session);
+export default function AuthButton() {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
   if (session && session.user) {
-    console.log("Session:", session);
     return (
-      <div>
+      <div className="flex space-x-4 text-white">
         {session.user.role === "ADMIN" && <Link href="/admin">Admin Panel</Link>}
         <SignOut />
       </div>

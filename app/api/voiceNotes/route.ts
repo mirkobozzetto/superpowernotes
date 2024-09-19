@@ -1,6 +1,6 @@
-import { auth } from "@/src/lib/auth/auth";
-import { prisma } from "@/src/lib/prisma";
-import { generateTags } from "@/src/lib/utils";
+import { auth } from "@src/lib/auth/auth";
+import { prisma } from "@src/lib/prisma";
+import { generateTags } from "@src/lib/utils";
 import { format } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
 

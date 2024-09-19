@@ -1,15 +1,10 @@
-import { signIn } from "@/src/lib/auth/auth";
+"use client";
+import { signInAction } from "@src/lib/actions";
 
 export default function SignIn() {
   return (
-    <form
-      action={async () => {
-        "use server";
-        await signIn("google");
-      }}
-      className="flex flex-col items-center justify-center"
-    >
-      <button type="submit">Signin with Google</button>
+    <form action={signInAction} className="flex flex-col items-center justify-center">
+      <button type="submit">Sign in with Google</button>
     </form>
   );
 }

@@ -1,13 +1,9 @@
-import { signOut } from "@/src/lib/auth/auth";
+"use client";
+import { signOutAction } from "@src/lib/actions";
 
 export default function SignOut() {
   return (
-    <form
-      action={async () => {
-        "use server";
-        await signOut();
-      }}
-    >
+    <form action={signOutAction}>
       <button type="submit">Sign out</button>
     </form>
   );

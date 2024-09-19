@@ -31,8 +31,8 @@ export function useDashboard() {
       setNotes(
         data.sort(
           (a: VoiceNote, b: VoiceNote) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        ),
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
       );
     } catch (error) {
       console.error("Error fetching notes:", error);
@@ -60,8 +60,8 @@ export function useDashboard() {
       setNotes(
         data.sort(
           (a: VoiceNote, b: VoiceNote) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
-        ),
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
       );
     } catch (error) {
       console.error("Error during search:", error);
@@ -98,7 +98,7 @@ export function useDashboard() {
       setNotes((prevNotes) =>
         updatedNote.id
           ? prevNotes.map((note) => (note.id === savedNote.id ? savedNote : note))
-          : [savedNote, ...prevNotes],
+          : [savedNote, ...prevNotes]
       );
     } catch (error) {
       console.error("Error saving note:", error);
