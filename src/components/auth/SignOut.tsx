@@ -1,9 +1,17 @@
 "use client";
-import { signOutAction } from "@src/lib/actions";
+import { signOut, useSession } from "next-auth/react";
 
 export default function SignOut() {
+  const { update } = useSession();
+
+  const handleSignOut = async (event: React.FormEvent) => {
+    event.preventDefault();
+    await signOut({ redirect: false });
+    await update();
+  };
+
   return (
-    <form action={signOutAction}>
+    <form onSubmit={handleSignOut}>
       <button type="submit">Sign out</button>
     </form>
   );
