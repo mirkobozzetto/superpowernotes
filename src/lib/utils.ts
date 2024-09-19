@@ -46,7 +46,7 @@ export async function generateTags(transcription: string): Promise<string[]> {
       .filter((tag: string) => tag.split(" ").length === 1);
 
     const uniqueTags = Array.from(new Set(rawTags)).filter(
-      (tag): tag is string => typeof tag === "string",
+      (tag): tag is string => typeof tag === "string"
     );
 
     return uniqueTags.slice(0, MAX_TAGS);
