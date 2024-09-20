@@ -12,7 +12,7 @@ export default function DynamicAudioRecorder({
   const currentSession = session ?? initialSession;
 
   if (status === "loading") {
-    return <p className="text-white">Loading...</p>;
+    return <p>Loading...</p>;
   }
 
   return (

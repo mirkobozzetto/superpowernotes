@@ -8,7 +8,7 @@ export default function AuthButton() {
   const { data: session, status } = useSession();
 
   if (status === "loading") {
-    return <div>Loading...</div>;
+    return <div className="text-white">Loading...</div>;
   }
 
   if (session && session.user) {
