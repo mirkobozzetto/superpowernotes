@@ -4,7 +4,7 @@ import { SessionProvider } from "next-auth/react";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Voice Powered Notes",
+  title: "Super Power Notes",
   description: "A note taking app with voice input",
 };
 
