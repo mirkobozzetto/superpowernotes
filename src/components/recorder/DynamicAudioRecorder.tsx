@@ -17,7 +17,11 @@ export default function DynamicAudioRecorder({
 
   return (
     <>
-      {currentSession?.user ? <AudioRecorder /> : <p>Please sign in to start recording notes.</p>}
+      {currentSession?.user ? (
+        <AudioRecorder />
+      ) : (
+        <p className="text-center">Please sign in to start recording notes.</p>
+      )}
     </>
   );
 }
