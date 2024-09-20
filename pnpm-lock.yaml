@@ -10,10 +10,10 @@ importers:
     dependencies:
       '@auth/prisma-adapter':
         specifier: ^2.5.0
-        version: 2.5.0(@prisma/client@5.12.0(prisma@5.19.1))
+        version: 2.5.0(@prisma/client@5.12.1(prisma@5.19.1))
       '@prisma/client':
-        specifier: 5.12.0
-        version: 5.12.0(prisma@5.19.1)
+        specifier: 5.12.1
+        version: 5.12.1(prisma@5.19.1)
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
@@ -64,7 +64,7 @@ importers:
         specifier: ^3.3.3
         version: 3.3.3
       prisma:
-        specifier: ^5.19.1
+        specifier: ^5.12.0
         version: 5.19.1
       tailwindcss:
         specifier: ^3.4.12
@@ -238,8 +238,8 @@ packages:
     resolution: {integrity: sha512-cq8o4cWH0ibXh9VGi5P20Tu9XF/0fFXl9EUinr9QfTM7a7p0oTA4iJRCQWppXR1Pg8dSM0UCItCkPwsk9qWWYA==}
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
 
-  '@prisma/client@5.12.0':
-    resolution: {integrity: sha512-bk/+KPpRm0+IzqFCtAxrj+/TNiHzulspnO+OkysaYY/atc/eX0Gx8V3tTLxbHKVX0LKD4Hi8KKCcSbU1U72n7Q==}
+  '@prisma/client@5.12.1':
+    resolution: {integrity: sha512-6/JnizEdlSBxDIdiLbrBdMW5NqDxOmhXAJaNXiPpgzAPr/nLZResT6MMpbOHLo5yAbQ1Vv5UU8PTPRzb0WIxdA==}
     engines: {node: '>=16.13'}
     peerDependencies:
       prisma: '*'
@@ -1864,10 +1864,10 @@ snapshots:
       preact: 10.11.3
       preact-render-to-string: 5.2.3(preact@10.11.3)
 
-  '@auth/prisma-adapter@2.5.0(@prisma/client@5.12.0(prisma@5.19.1))':
+  '@auth/prisma-adapter@2.5.0(@prisma/client@5.12.1(prisma@5.19.1))':
     dependencies:
       '@auth/core': 0.35.0
-      '@prisma/client': 5.12.0(prisma@5.19.1)
+      '@prisma/client': 5.12.1(prisma@5.19.1)
     transitivePeerDependencies:
       - '@simplewebauthn/browser'
       - '@simplewebauthn/server'
@@ -1988,7 +1988,7 @@ snapshots:
 
   '@pkgr/core@0.1.1': {}
 
-  '@prisma/client@5.12.0(prisma@5.19.1)':
+  '@prisma/client@5.12.1(prisma@5.19.1)':
     optionalDependencies:
       prisma: 5.19.1
 
