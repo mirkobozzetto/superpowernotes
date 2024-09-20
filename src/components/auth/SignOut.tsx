@@ -10,6 +10,7 @@ export default function SignOut() {
     event.preventDefault();
     await signOut({ redirect: false });
     await update();
+    router.push("/");
     router.refresh();
   };
 
