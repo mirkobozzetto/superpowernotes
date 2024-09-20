@@ -53,11 +53,24 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   if (!isOpen) return null;
 
+  /**
+   * This function escapes special HTML characters to prevent XSS attacks
+   * which automatically escapes HTML. Keeping it for reference or future use.
+   */
+  const escapeHtml = (unsafe: string) => {
+    return unsafe
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
       <div className="bg-white p-4 rounded-lg modal-content">
         <h2 className="text-xl font-bold mb-2">{title}</h2>
-        <p className="mb-4">{message}</p>
+        <p className="mb-4">{escapeHtml(message)}</p>
         <div className="flex justify-end">
           <button onClick={onClose} className="mr-2 px-4 py-2 border rounded">
             Cancel
