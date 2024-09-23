@@ -13,9 +13,12 @@ const TagInput: React.FC<TagInputProps> = ({ tags, onChange }) => {
   };
 
   const handleInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e && (e.key === "Enter" || e.key === ",")) {
+    if (e.key === "Enter" || e.key === "," || e.key === " ") {
       e.preventDefault();
       addTag();
+    } else if ((e.key === "Backspace" || e.key === "Delete") && input === "") {
+      e.preventDefault();
+      removeLastTag();
     }
   };
 
@@ -31,10 +34,16 @@ const TagInput: React.FC<TagInputProps> = ({ tags, onChange }) => {
     onChange(tags.filter((tag) => tag !== tagToRemove));
   };
 
+  const removeLastTag = () => {
+    if (tags.length > 0) {
+      onChange(tags.slice(0, -1));
+    }
+  };
+
   return (
-    <div className="flex flex-wrap items-center border p-2 rounded">
+    <div className="flex flex-wrap items-center border p-2 rounded-xl">
       {tags.map((tag) => (
-        <span key={tag} className="bg-gray-200 px-2 py-1 rounded mr-2 mb-2 flex items-center">
+        <span key={tag} className="bg-gray-200 px-2 py-1 rounded-full mr-2 my-1 flex items-center">
           {tag}
           <button onClick={() => removeTag(tag)} className="ml-1">
             &times;
@@ -47,7 +56,7 @@ const TagInput: React.FC<TagInputProps> = ({ tags, onChange }) => {
         onChange={handleInputChange}
         onKeyDown={handleInputKeyDown}
         placeholder="Add tags..."
-        className="outline-none flex-grow min-w-[100px]"
+        className="outline-none flex-grow min-w-[100px] p-1"
       />
     </div>
   );

@@ -78,32 +78,32 @@ const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, note }) 
       }}
     >
       <div
-        className="bg-white p-6 rounded-lg w-full max-w-4xl h-5/6 flex flex-col"
+        className="bg-white p-6 rounded-2xl w-full max-w-4xl h-5/6 flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl font-bold mb-4">{note ? "Edit Note" : "Create New Note"}</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col h-full">
+        <form onSubmit={handleSubmit} className="flex flex-col h-full space-y-2">
           <input
             type="text"
             name="fileName"
             value={editedNote.fileName ?? ""}
             onChange={handleChange}
             placeholder="File Name"
-            className="border p-2 mb-2 w-full"
+            className="border p-2 mb-2 w-full rounded-full"
           />
           <textarea
             name="transcription"
             value={editedNote.transcription ?? ""}
             onChange={handleChange}
             placeholder="Transcription"
-            className="border p-2 mb-2 w-full flex-grow resize-none"
+            className="border p-2 mb-2 w-full flex-grow resize-none rounded-lg"
           />
           <TagInput tags={editedNote.tags ?? []} onChange={handleTagsChange} />
           <div className="flex justify-end mt-4">
-            <button type="button" onClick={onClose} className="mr-2 px-4 py-2 border rounded">
+            <button type="button" onClick={onClose} className="mr-2 px-4 py-2 border rounded-full">
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 border rounded">
+            <button type="submit" className="px-4 py-2 border rounded-full">
               Save
             </button>
           </div>
