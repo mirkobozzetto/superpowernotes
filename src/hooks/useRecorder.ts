@@ -5,10 +5,10 @@ import { useEffect, useRef, useState } from "react";
 export const useRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  const [isCancelling, setIsCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const [micPermission, setMicPermission] = useState<boolean | null>(null);
+  const [isSuccess, setIsSuccess] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const startTimeRef = useRef<number | null>(null);
@@ -18,7 +18,7 @@ export const useRecorder = () => {
   useEffect(() => {
     const fetchRemainingTime = async () => {
       try {
-        const response = await fetch("/api/user/usage");
+        const response = await fetch("/api/users/usage");
         const data = await response.json();
         setRemainingTime(data.remainingSeconds);
       } catch (error) {
@@ -42,16 +42,13 @@ export const useRecorder = () => {
       mediaRecorderRef.current.ondataavailable = (event) => {
         chunksRef.current.push(event.data);
       };
-      mediaRecorderRef.current.onstop = () => {
-        if (!isCancelling) {
-          sendAudioToServer();
-        }
-      };
+      mediaRecorderRef.current.onstop = sendAudioToServer;
       mediaRecorderRef.current.start();
       startTimeRef.current = Date.now();
       setIsRecording(true);
       setIsPaused(false);
       setError(null);
+      setIsSuccess(false);
     } catch (error) {
       console.error("Error starting recording:", error);
       setError("Failed to start recording. Please check your microphone permissions.");
@@ -67,14 +64,18 @@ export const useRecorder = () => {
   };
 
   const cancelRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-      mediaRecorderRef.current.stop();
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.onstop = null;
+      if (mediaRecorderRef.current.state !== "inactive") {
+        mediaRecorderRef.current.stop();
+      }
       mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
     }
     chunksRef.current = [];
     setIsRecording(false);
     setIsPaused(false);
     setError(null);
+    setIsSuccess(false);
   };
 
   const pauseResumeRecording = () => {
@@ -134,9 +135,13 @@ export const useRecorder = () => {
       if (remainingTime !== null && session?.user?.role !== "ADMIN") {
         setRemainingTime(Math.max(0, remainingTime - duration));
       }
+
+      setIsSuccess(true);
+      router.push("/dashboard");
     } catch (error) {
       console.error("Error in sendAudioToServer:", error);
       setError("Failed to process or save the audio. Please try again.");
+      setIsSuccess(false);
     }
   };
 
@@ -151,6 +156,7 @@ export const useRecorder = () => {
     stopRecording,
     pauseResumeRecording,
     cancelRecording,
+    isSuccess,
     session,
   };
 };
