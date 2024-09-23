@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 export const useRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [isCancelling, setIsCancelling] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const [micPermission, setMicPermission] = useState<boolean | null>(null);
@@ -41,7 +42,11 @@ export const useRecorder = () => {
       mediaRecorderRef.current.ondataavailable = (event) => {
         chunksRef.current.push(event.data);
       };
-      mediaRecorderRef.current.onstop = sendAudioToServer;
+      mediaRecorderRef.current.onstop = () => {
+        if (!isCancelling) {
+          sendAudioToServer();
+        }
+      };
       mediaRecorderRef.current.start();
       startTimeRef.current = Date.now();
       setIsRecording(true);
@@ -59,6 +64,17 @@ export const useRecorder = () => {
       setIsRecording(false);
       setIsPaused(false);
     }
+  };
+
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+    }
+    chunksRef.current = [];
+    setIsRecording(false);
+    setIsPaused(false);
+    setError(null);
   };
 
   const pauseResumeRecording = () => {
@@ -118,23 +134,10 @@ export const useRecorder = () => {
       if (remainingTime !== null && session?.user?.role !== "ADMIN") {
         setRemainingTime(Math.max(0, remainingTime - duration));
       }
-
-      router.push("/dashboard");
     } catch (error) {
       console.error("Error in sendAudioToServer:", error);
       setError("Failed to process or save the audio. Please try again.");
     }
-  };
-
-  const cancelRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-      mediaRecorderRef.current.stop();
-      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
-    }
-    chunksRef.current = [];
-    setIsRecording(false);
-    setIsPaused(false);
-    setError(null);
   };
 
   return {
