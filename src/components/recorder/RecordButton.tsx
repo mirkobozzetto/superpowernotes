@@ -10,7 +10,7 @@ export const RecordButton = ({ isRecording, onClick }: Props) => {
     <button
       onClick={onClick}
       className={`
-        w-24 h-24 rounded-full
+        size-40 rounded-full
         flex items-center justify-center
         transition-all duration-300 ease-in-out
         focus:outline-none focus:ring-4 focus:ring-red-400 focus:ring-opacity-50
@@ -20,7 +20,7 @@ export const RecordButton = ({ isRecording, onClick }: Props) => {
       <FaMicrophone
         className={`
           transition-all duration-300 ease-in-out
-          ${isRecording ? "text-white text-3xl" : "text-white text-4xl"}
+        text-white text-7xl
         `}
       />
     </button>

@@ -2,6 +2,7 @@ import { useRecorder } from "../../hooks/useRecorder";
 import { ControlButtons } from "./ControlButtons";
 import { MicrophonePermissionCheck } from "./MicrophonePermissionCheck";
 import { RecordButton } from "./RecordButton";
+import { RecordingAnimation } from "./RecordingAnimation";
 
 export const AudioRecorder = () => {
   const {
@@ -29,6 +30,7 @@ export const AudioRecorder = () => {
       )}
       {micPermission && (
         <div className="flex flex-col items-center space-y-4">
+          <div className="h-8">{isRecording && <RecordingAnimation />}</div>
           <RecordButton
             isRecording={isRecording}
             onClick={isRecording ? stopRecording : startRecording}
@@ -43,7 +45,9 @@ export const AudioRecorder = () => {
               />
             </div>
           )}
-          {error && <p className="text-red-500 text-center">{error}</p>}
+          {error && (
+            <p className="text-red-500 text-center w-full bg-red-50 p-6 rounded-full">{error}</p>
+          )}
           {remainingTime !== null && session?.user?.role !== "ADMIN" && (
             <p className="text-sm text-gray-600">
               Remaining time: {Math.floor(remainingTime / 60)}m {remainingTime % 60}s
