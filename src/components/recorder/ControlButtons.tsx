@@ -24,7 +24,7 @@ export const ControlButtons = ({
             onClick={onPauseResume}
             className="
               w-24 px-4 py-2
-              border rounded
+              border rounded-3xl
               transition-colors
               bg-white hover:bg-gray-50
               focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-opacity-50
@@ -36,7 +36,7 @@ export const ControlButtons = ({
         <button
           onClick={onCancel}
           className="
-            w-24 px-4 py-2 rounded-md
+            w-24 px-4 py-2 rounded-3xl
             bg-red-100 hover:bg-red-200
             text-red-600 font-semibold
             transition-all duration-300 ease-in-out
@@ -48,7 +48,7 @@ export const ControlButtons = ({
         <button
           onClick={onDone}
           className="
-            w-24 px-4 py-2 rounded-md
+            w-24 px-4 py-2 rounded-3xl
             bg-green-100 hover:bg-green-200
             text-green-600 font-semibold
             transition-all duration-300 ease-in-out
