@@ -1,4 +1,5 @@
 import { useRecorder } from "../../hooks/useRecorder";
+import { CancelButton } from "./CancelButton";
 import { MicrophonePermissionCheck } from "./MicrophonePermissionCheck";
 import { PauseResumeButton } from "./PauseResumeButton";
 import { RecordButton } from "./RecordButton";
@@ -16,6 +17,7 @@ export const AudioRecorder = () => {
     startRecording,
     stopRecording,
     pauseResumeRecording,
+    cancelRecording,
     session,
   } = useRecorder();
 
@@ -23,7 +25,7 @@ export const AudioRecorder = () => {
     <div className="flex flex-col items-center justify-center space-y-6">
       <MicrophonePermissionCheck onPermissionChange={setMicPermission} />
       {micPermission === false && (
-        <p className="text-red-500">Please enable microphone access to record audio.</p>
+        <p className=" bg-red-500 text-white text-center p-4 rounded-lg"></p>
       )}
       {micPermission && (
         <>
@@ -34,7 +36,10 @@ export const AudioRecorder = () => {
           {isRecording && (
             <>
               <RecordingAnimation />
-              <PauseResumeButton isPaused={isPaused} onClick={pauseResumeRecording} />
+              <div className="flex space-x-4">
+                <PauseResumeButton isPaused={isPaused} onClick={pauseResumeRecording} />
+                <CancelButton onClick={cancelRecording} />
+              </div>
               <RecordingTimer isPaused={isPaused} />
             </>
           )}

@@ -126,6 +126,17 @@ export const useRecorder = () => {
     }
   };
 
+  const cancelRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+    }
+    chunksRef.current = [];
+    setIsRecording(false);
+    setIsPaused(false);
+    setError(null);
+  };
+
   return {
     isRecording,
     isPaused,
@@ -136,6 +147,7 @@ export const useRecorder = () => {
     startRecording,
     stopRecording,
     pauseResumeRecording,
+    cancelRecording,
     session,
   };
 };
