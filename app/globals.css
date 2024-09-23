@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.react-datepicker-wrapper,
+.react-datepicker__input-container,
+.react-datepicker__input-container input {
+  display: block;
+  width: 100%;
+}
+
+.placeholder-center::placeholder {
+  text-align: center;
+}
+
+.placeholder-center {
+  text-align: center;
+}
+
+.placeholder-center:focus {
+  text-align: left;
+}

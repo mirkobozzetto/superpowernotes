@@ -49,8 +49,8 @@ export const AudioRecorder = () => {
             <p className="text-red-500 text-center w-full bg-red-50 p-6 rounded-full">{error}</p>
           )}
           {remainingTime !== null && session?.user?.role !== "ADMIN" && (
-            <p className="text-sm text-gray-600">
-              Remaining time: {Math.floor(remainingTime / 60)}m {remainingTime % 60}s
+            <p className="text-sm text-gray-600 bg-gray-50 p-4 rounded-full border border-gray-300/20">
+              Remaining time credits : {Math.floor(remainingTime / 60)}m {remainingTime % 60}s
             </p>
           )}
         </div>

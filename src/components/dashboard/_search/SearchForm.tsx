@@ -10,15 +10,15 @@ export interface SearchFormProps {
 }
 
 const SearchForm: React.FC<SearchFormProps> = ({ handleSearch, handleInputChange, isLoading }) => (
-  <form onSubmit={handleSearch} className="mb-6 space-y-4">
-    <SearchInputs handleInputChange={handleInputChange} />
+  <form onSubmit={handleSearch}>
     <button
       type="submit"
-      className="w-full border font-bold py-2 px-4 rounded mb-4"
+      className="w-full border font-bold py-2 px-4 rounded-full mb-2"
       disabled={isLoading}
     >
       Search
     </button>
+    <SearchInputs handleInputChange={handleInputChange} />
   </form>
 );
 

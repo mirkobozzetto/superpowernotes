@@ -35,19 +35,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      {error && <div className="text-red-500 mb-4">{error}</div>}
-
-      <button
-        onClick={() => {
-          setEditingNote(undefined);
-          setIsNoteModalOpen(true);
-        }}
-        className="w-full border font-bold py-2 px-4 rounded mb-4"
-        disabled={isLoading}
-      >
-        Create New Note
-      </button>
+    <div className="container mx-auto p-4 space-y-2">
+      {error && <div className="text-red-500 mb-2">{error}</div>}
 
       <SearchForm
         searchParams={searchParams}
@@ -55,6 +44,17 @@ export default function Dashboard() {
         handleInputChange={handleInputChange}
         isLoading={isLoading}
       />
+
+      <button
+        onClick={() => {
+          setEditingNote(undefined);
+          setIsNoteModalOpen(true);
+        }}
+        className="w-full border font-bold py-2 px-4 rounded-full"
+        disabled={isLoading}
+      >
+        Create New Note
+      </button>
 
       <NoteList
         notes={notes}
