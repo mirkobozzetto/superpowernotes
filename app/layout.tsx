@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Super Power Notes",
-  description: "A note taking app with voice input",
+  description: "Magical note taking app",
 };
 
 export default function RootLayout({
@@ -15,10 +15,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
+      <body className="flex flex-col min-h-screen">
         <SessionProvider>
           <Navigation />
-          <main className="container mx-auto mt-4">{children}</main>
+          <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">{children}</main>
         </SessionProvider>
       </body>
     </html>

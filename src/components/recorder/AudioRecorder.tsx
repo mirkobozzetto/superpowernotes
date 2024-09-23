@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 
 export default function AudioRecorder() {
@@ -6,6 +7,7 @@ export default function AudioRecorder() {
   const [error, setError] = useState<string | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const router = useRouter();
 
   const startRecording = async () => {
     try {
@@ -67,6 +69,8 @@ export default function AudioRecorder() {
       const savedData = await saveResponse.json();
       console.log("Note saved successfully:", savedData);
       setError(null);
+
+      router.push("/dashboard");
     } catch (error) {
       console.error("Error in sendAudioToServer:", error);
       setError("Failed to process or save the audio. Please try again.");
@@ -74,13 +78,40 @@ export default function AudioRecorder() {
   };
 
   return (
-    <div>
-      {isRecording ? (
-        <button onClick={stopRecording}>Stop Recording</button>
-      ) : (
-        <button onClick={startRecording}>Start Recording</button>
-      )}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+    <div className="flex flex-col items-center justify-center space-y-6">
+      <button
+        onClick={isRecording ? stopRecording : startRecording}
+        className={`
+          w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full
+          bg-transparent border-8 border-gray-800
+          flex items-center justify-center
+          transition-colors duration-200 ease-in-out
+          focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-opacity-50
+          group
+        `}
+      >
+        <div
+          className={`
+            w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 rounded-full
+            bg-gradient-to-br from-red-100 to-red-900
+            transition-all duration-300 ease-in-out
+            group-hover:scale-105
+            ${isRecording ? "scale-110" : ""}
+          `}
+        >
+          <div
+            className={`
+              w-full h-full rounded-full
+              bg-gradient-to-tr from-red-400 to-red-700 opacity-80
+              ${isRecording ? "animate-pulse-gradient" : ""}
+            `}
+          ></div>
+        </div>
+      </button>
+      <p className="text-lg sm:text-xl lg:text-2xl text-center font-semibold">
+        {isRecording ? "Stop Recording" : "Start Recording"}
+      </p>
+      {error && <p className="text-red-500 text-center">{error}</p>}
     </div>
   );
 }

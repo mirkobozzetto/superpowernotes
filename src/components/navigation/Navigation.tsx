@@ -14,7 +14,7 @@ export default function Navigation() {
         {status === "authenticated" && (
           <div className="flex space-x-4">
             <Link href="/" className={`text-white ${pathname === "/" ? "font-bold" : ""}`}>
-              Home
+              Record
             </Link>
             <Link
               href="/dashboard"
