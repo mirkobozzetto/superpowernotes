@@ -23,5 +23,9 @@ export const RecordingTimer = ({ isPaused }: Props) => {
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
-  return <div className="text-lg font-semibold">{formatTime(seconds)}</div>;
+  return (
+    <div className="w-16 text-center text-lg font-semibold text-gray-800">
+      {formatTime(seconds)}
+    </div>
+  );
 };

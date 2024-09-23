@@ -90,6 +90,14 @@ export const useRecorder = () => {
     }
   };
 
+  const finishRecording = () => {
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      setIsPaused(false);
+    }
+  };
+
   const sendAudioToServer = async () => {
     const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
     const formData = new FormData();
@@ -155,6 +163,7 @@ export const useRecorder = () => {
     startRecording,
     stopRecording,
     pauseResumeRecording,
+    finishRecording,
     cancelRecording,
     isSuccess,
     session,

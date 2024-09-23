@@ -1,10 +1,7 @@
 import { useRecorder } from "../../hooks/useRecorder";
-import { CancelButton } from "./CancelButton";
+import { ControlButtons } from "./ControlButtons";
 import { MicrophonePermissionCheck } from "./MicrophonePermissionCheck";
-import { PauseResumeButton } from "./PauseResumeButton";
 import { RecordButton } from "./RecordButton";
-import { RecordingAnimation } from "./RecordingAnimation";
-import { RecordingTimer } from "./RecordingTimer";
 
 export const AudioRecorder = () => {
   const {
@@ -18,6 +15,7 @@ export const AudioRecorder = () => {
     stopRecording,
     pauseResumeRecording,
     cancelRecording,
+    finishRecording,
     session,
   } = useRecorder();
 
@@ -25,23 +23,25 @@ export const AudioRecorder = () => {
     <div className="flex flex-col items-center justify-center space-y-6">
       <MicrophonePermissionCheck onPermissionChange={setMicPermission} />
       {micPermission === false && (
-        <p className=" bg-red-500 text-white text-center p-4 rounded-lg"></p>
+        <p className="bg-red-500 text-white text-center p-4 rounded-lg">
+          Please enable microphone access to record audio.
+        </p>
       )}
       {micPermission && (
-        <>
+        <div className="flex flex-col items-center space-y-4">
           <RecordButton
             isRecording={isRecording}
             onClick={isRecording ? stopRecording : startRecording}
           />
           {isRecording && (
-            <>
-              <RecordingAnimation />
-              <div className="flex space-x-4">
-                <PauseResumeButton isPaused={isPaused} onClick={pauseResumeRecording} />
-                <CancelButton onClick={cancelRecording} />
-              </div>
-              <RecordingTimer isPaused={isPaused} />
-            </>
+            <div className="bg-white p-6">
+              <ControlButtons
+                isPaused={isPaused}
+                onPauseResume={pauseResumeRecording}
+                onCancel={cancelRecording}
+                onDone={finishRecording}
+              />
+            </div>
           )}
           {error && <p className="text-red-500 text-center">{error}</p>}
           {remainingTime !== null && session?.user?.role !== "ADMIN" && (
@@ -49,7 +49,7 @@ export const AudioRecorder = () => {
               Remaining time: {Math.floor(remainingTime / 60)}m {remainingTime % 60}s
             </p>
           )}
-        </>
+        </div>
       )}
     </div>
   );
