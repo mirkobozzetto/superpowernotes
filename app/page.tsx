@@ -1,4 +1,4 @@
-import DynamicAudioRecorder from "@src/components/recorder/DynamicAudioRecorder";
+import { DynamicAudioRecorder } from "@src/components/recorder/DynamicAudioRecorder";
 import { auth } from "@src/lib/auth/auth";
 
 export default async function Home() {

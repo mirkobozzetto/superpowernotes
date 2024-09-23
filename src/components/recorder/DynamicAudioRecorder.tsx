@@ -1,13 +1,9 @@
 "use client";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
-import AudioRecorder from "./AudioRecorder";
+import { AudioRecorder } from "./AudioRecorder";
 
-export default function DynamicAudioRecorder({
-  initialSession,
-}: {
-  initialSession: Session | null;
-}) {
+export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Session | null }) => {
   const { data: session, status } = useSession();
   const currentSession = session ?? initialSession;
 
@@ -17,11 +13,7 @@ export default function DynamicAudioRecorder({
 
   return (
     <>
-      {currentSession?.user ? (
-        <AudioRecorder />
-      ) : (
-        <p className="text-center">Please sign in to start recording notes.</p>
-      )}
+      {currentSession?.user ? <AudioRecorder /> : <p>Please sign in to start recording notes.</p>}
     </>
   );
-}
+};
