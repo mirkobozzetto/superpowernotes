@@ -7,6 +7,7 @@ export default function AudioRecorder() {
   const [error, setError] = useState<string | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
+  const startTimeRef = useRef<number | null>(null);
   const router = useRouter();
 
   const startRecording = async () => {
@@ -19,6 +20,7 @@ export default function AudioRecorder() {
       };
       mediaRecorderRef.current.onstop = sendAudioToServer;
       mediaRecorderRef.current.start();
+      startTimeRef.current = Date.now();
       setIsRecording(true);
       setError(null);
     } catch (error) {
@@ -38,6 +40,11 @@ export default function AudioRecorder() {
     const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
     const formData = new FormData();
     formData.append("audio", audioBlob, "recording.webm");
+    const duration = startTimeRef.current
+      ? Math.round((Date.now() - startTimeRef.current) / 1000)
+      : 0;
+    formData.append("duration", duration.toString());
+
     try {
       console.log("Sending audio to server for transcription...");
       const response = await fetch("/api/transcribe", {
@@ -61,6 +68,7 @@ export default function AudioRecorder() {
           transcription: data.transcription,
           fileName: "AudioNote",
           tags: [],
+          duration: data.duration,
         }),
       });
       if (!saveResponse.ok) {
