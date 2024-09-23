@@ -1,16 +1,38 @@
 "use client";
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function AudioRecorder() {
   const [isRecording, setIsRecording] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const startTimeRef = useRef<number | null>(null);
   const router = useRouter();
+  const { data: session } = useSession();
+
+  useEffect(() => {
+    const fetchRemainingTime = async () => {
+      try {
+        const response = await fetch("/api/user/usage");
+        const data = await response.json();
+        setRemainingTime(data.remainingSeconds);
+      } catch (error) {
+        console.error("Error fetching remaining time:", error);
+      }
+    };
+
+    fetchRemainingTime();
+  }, []);
 
   const startRecording = async () => {
+    if (remainingTime !== null && remainingTime <= 0 && session?.user?.role !== "ADMIN") {
+      setError("You have reached your monthly limit. Please upgrade your plan.");
+      return;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       mediaRecorderRef.current = new MediaRecorder(stream);
@@ -78,6 +100,10 @@ export default function AudioRecorder() {
       console.log("Note saved successfully:", savedData);
       setError(null);
 
+      if (remainingTime !== null && session?.user?.role !== "ADMIN") {
+        setRemainingTime(Math.max(0, remainingTime - duration));
+      }
+
       router.push("/dashboard");
     } catch (error) {
       console.error("Error in sendAudioToServer:", error);
@@ -89,6 +115,7 @@ export default function AudioRecorder() {
     <div className="flex flex-col items-center justify-center space-y-6">
       <button
         onClick={isRecording ? stopRecording : startRecording}
+        disabled={remainingTime !== null && remainingTime <= 0 && session?.user?.role !== "ADMIN"}
         className={`
           w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 rounded-full
           bg-transparent border-8 border-gray-800
@@ -96,6 +123,7 @@ export default function AudioRecorder() {
           transition-colors duration-200 ease-in-out
           focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-opacity-50
           group
+          ${remainingTime !== null && remainingTime <= 0 && session?.user?.role !== "ADMIN" ? "opacity-50 cursor-not-allowed" : ""}
         `}
       >
         <div
@@ -120,6 +148,11 @@ export default function AudioRecorder() {
         {isRecording ? "Stop Recording" : "Start Recording"}
       </p>
       {error && <p className="text-red-500 text-center">{error}</p>}
+      {remainingTime !== null && session?.user?.role !== "ADMIN" && (
+        <p className="text-sm text-gray-600">
+          Remaining time: {Math.floor(remainingTime / 60)}m {remainingTime % 60}s
+        </p>
+      )}
     </div>
   );
 }
