@@ -2,7 +2,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-const MAX_RECORDING_DURATION = 180; // 3 minutes in seconds
+const MAX_RECORDING_DURATION = 180;
 
 export const useRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
@@ -12,13 +12,20 @@ export const useRecorder = () => {
   const [micPermission, setMicPermission] = useState<boolean | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const startTimeRef = useRef<number | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const isIOSRef = useRef(false);
+
   const router = useRouter();
   const { data: session } = useSession();
-  const [isProcessing, setIsProcessing] = useState(false);
+
+  useEffect(() => {
+    isIOSRef.current = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+  }, []);
 
   useEffect(() => {
     const fetchRemainingTime = async () => {
@@ -34,6 +41,10 @@ export const useRecorder = () => {
     fetchRemainingTime();
   }, []);
 
+  const getAudioMimeType = () => {
+    return isIOSRef.current ? "audio/wav" : "audio/webm";
+  };
+
   const startRecording = async () => {
     if (remainingTime !== null && remainingTime <= 0 && session?.user?.role !== "ADMIN") {
       setError("You have reached your monthly limit. Please upgrade your plan.");
@@ -42,13 +53,18 @@ export const useRecorder = () => {
 
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorderRef.current = new MediaRecorder(stream);
+      const mimeType = getAudioMimeType();
+
+      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
       chunksRef.current = [];
+
       mediaRecorderRef.current.ondataavailable = (event) => {
         chunksRef.current.push(event.data);
       };
+
       mediaRecorderRef.current.onstop = sendAudioToServer;
       mediaRecorderRef.current.start();
+
       startTimeRef.current = Date.now();
       setIsRecording(true);
       setIsPaused(false);
@@ -135,11 +151,12 @@ export const useRecorder = () => {
     setError(null);
     setIsSuccess(false);
 
-    const audioBlob = new Blob(chunksRef.current, { type: "audio/mpeg" });
+    const mimeType = getAudioMimeType();
+    const audioBlob = new Blob(chunksRef.current, { type: mimeType });
     const formData = new FormData();
-    formData.append("audio", audioBlob, "recording.mp3");
-    const duration = recordingTime;
-    formData.append("duration", duration.toString());
+    formData.append("audio", audioBlob, `recording.${mimeType.split("/")[1]}`);
+    formData.append("duration", recordingTime.toString());
+    formData.append("isIOS", isIOSRef.current.toString());
 
     try {
       console.log("Sending audio to server for transcription...");
@@ -176,7 +193,9 @@ export const useRecorder = () => {
       console.log("Note saved successfully:", savedData);
 
       if (remainingTime !== null && session?.user?.role !== "ADMIN") {
-        setRemainingTime((prevTime) => (prevTime !== null ? Math.max(0, prevTime - duration) : 0));
+        setRemainingTime((prevTime) =>
+          prevTime !== null ? Math.max(0, prevTime - recordingTime) : 0
+        );
       }
 
       setIsSuccess(true);
@@ -187,7 +206,6 @@ export const useRecorder = () => {
       setIsSuccess(false);
     } finally {
       setIsProcessing(false);
-      // Reset recording state
       setIsRecording(false);
       setIsPaused(false);
       setRecordingTime(0);
@@ -223,5 +241,6 @@ export const useRecorder = () => {
     recordingTime,
     maxRecordingDuration: MAX_RECORDING_DURATION,
     isProcessing,
+    isIOS: isIOSRef.current,
   };
 };
