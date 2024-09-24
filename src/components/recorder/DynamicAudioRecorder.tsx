@@ -8,7 +8,13 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
   const currentSession = session ?? initialSession;
 
   if (status === "loading") {
-    return <p>Loading...</p>;
+    return (
+      <div className="flex justify-center">
+        <p className="inline-block text-center text-gray-500 text-sm animate-pulse bg-gray-50 border border-gray-100 rounded-full px-4 py-2">
+          Loading...
+        </p>
+      </div>
+    );
   }
 
   return (

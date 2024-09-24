@@ -99,9 +99,9 @@ export const useRecorder = () => {
   };
 
   const sendAudioToServer = async () => {
-    const audioBlob = new Blob(chunksRef.current, { type: "audio/webm" });
+    const audioBlob = new Blob(chunksRef.current, { type: "audio/mpeg" });
     const formData = new FormData();
-    formData.append("audio", audioBlob, "recording.webm");
+    formData.append("audio", audioBlob, "recording.mp3");
     const duration = startTimeRef.current
       ? Math.round((Date.now() - startTimeRef.current) / 1000)
       : 0;

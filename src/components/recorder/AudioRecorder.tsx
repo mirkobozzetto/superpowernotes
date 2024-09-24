@@ -21,7 +21,7 @@ export const AudioRecorder = () => {
   } = useRecorder();
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-6">
+    <div className="flex flex-col items-center justify-center space-y-6 w-full">
       <MicrophonePermissionCheck onPermissionChange={setMicPermission} />
       {micPermission === false && (
         <p className="bg-red-500 text-white text-center p-4 rounded-lg">
@@ -35,16 +35,18 @@ export const AudioRecorder = () => {
             isRecording={isRecording}
             onClick={isRecording ? stopRecording : startRecording}
           />
-          {isRecording && (
-            <div className="bg-white p-6">
-              <ControlButtons
-                isPaused={isPaused}
-                onPauseResume={pauseResumeRecording}
-                onCancel={cancelRecording}
-                onDone={finishRecording}
-              />
-            </div>
-          )}
+          <div className="h-24 flex items-center justify-center">
+            {isRecording && (
+              <div className="bg-white p-6">
+                <ControlButtons
+                  isPaused={isPaused}
+                  onPauseResume={pauseResumeRecording}
+                  onCancel={cancelRecording}
+                  onDone={finishRecording}
+                />
+              </div>
+            )}
+          </div>
           {error && (
             <p className="text-red-500 text-center w-full bg-red-50 p-6 rounded-full">{error}</p>
           )}

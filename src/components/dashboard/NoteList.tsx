@@ -22,7 +22,11 @@ const NoteList: React.FC<NoteListProps> = ({
   setIsDeleteModalOpen,
 }) =>
   isLoading ? (
-    <div className="text-center">Loading...</div>
+    <div className="flex justify-center">
+      <p className="inline-block text-center text-gray-500 text-sm animate-pulse bg-gray-50 border border-gray-100 rounded-full px-4 py-2">
+        Loading...
+      </p>
+    </div>
   ) : (
     <ul className="space-y-4">
       {notes.map((note) => (

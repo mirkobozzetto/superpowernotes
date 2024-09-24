@@ -15,13 +15,13 @@ export const RecordButton = ({ isRecording, onClick }: Props) => {
         transition-all duration-300 ease-in-out
         focus:outline-none focus:ring-4 focus:ring-red-400 focus:ring-opacity-50
         ${isRecording ? "bg-red-600 scale-105" : "bg-red-600 hover:scale-105"}
-      `}
+        `}
     >
       <FaMicrophone
         className={`
           transition-all duration-300 ease-in-out
-        text-white text-7xl
-        `}
+          text-white text-7xl
+          `}
       />
     </button>
   );
