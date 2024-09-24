@@ -1,9 +1,9 @@
 "use client";
 import { VoiceNote } from "@prisma/client";
-import ConfirmModal from "@src/components/dashboard/_modals/ConfirmModal";
-import NoteModal from "@src/components/dashboard/_modals/NoteModal";
-import SearchForm from "@src/components/dashboard/_search/SearchForm";
-import NoteList from "@src/components/dashboard/NoteList";
+import { ConfirmModal } from "@src/components/dashboard/_modals/ConfirmModal";
+import { NoteModal } from "@src/components/dashboard/_modals/NoteModal";
+import { SearchForm } from "@src/components/dashboard/_search/SearchForm";
+import { NoteList } from "@src/components/dashboard/NoteList";
 import { useDashboard } from "@src/hooks/useDashoard";
 import { useState } from "react";
 

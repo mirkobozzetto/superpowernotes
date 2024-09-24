@@ -9,7 +9,11 @@ export interface SearchFormProps {
   isLoading: boolean;
 }
 
-const SearchForm: React.FC<SearchFormProps> = ({ handleSearch, handleInputChange, isLoading }) => (
+export const SearchForm: React.FC<SearchFormProps> = ({
+  handleSearch,
+  handleInputChange,
+  isLoading,
+}) => (
   <form onSubmit={handleSearch}>
     <button
       type="submit"
@@ -21,5 +25,3 @@ const SearchForm: React.FC<SearchFormProps> = ({ handleSearch, handleInputChange
     <SearchInputs handleInputChange={handleInputChange} />
   </form>
 );
-
-export default SearchForm;

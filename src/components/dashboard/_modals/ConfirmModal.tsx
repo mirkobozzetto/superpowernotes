@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -8,13 +8,15 @@ interface ConfirmModalProps {
   message: string;
 }
 
-const ConfirmModal: React.FC<ConfirmModalProps> = ({
+export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   isOpen,
   onClose,
   onConfirm,
   title,
   message,
 }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
   const handleOutsideClick = useCallback(
     (event: MouseEvent) => {
       const modalContent = document.querySelector(".modal-content");
@@ -47,16 +49,23 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   }, [isOpen, handleOutsideClick, handleKeyDown]);
 
   const handleConfirm = async () => {
-    await onConfirm();
-    onClose();
+    setIsLoading(true);
+    try {
+      await onConfirm();
+    } finally {
+      setIsLoading(false);
+      onClose();
+    }
+  };
+
+  const handleCancel = () => {
+    if (!isLoading) {
+      onClose();
+    }
   };
 
   if (!isOpen) return null;
 
-  /**
-   * This function escapes special HTML characters to prevent XSS attacks
-   * which automatically escapes HTML. Keeping it for reference or future use.
-   */
   const escapeHtml = (unsafe: string) => {
     return unsafe
       .replace(/&/g, "&amp;")
@@ -72,16 +81,24 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
         <h2 className="text-xl font-bold mb-2">{title}</h2>
         <p className="mb-4">{escapeHtml(message)}</p>
         <div className="flex justify-end">
-          <button onClick={onClose} className="mr-2 px-4 py-2 border rounded-full">
+          <button
+            onClick={handleCancel}
+            className="mr-2 px-4 py-2 border rounded-full"
+            disabled={isLoading}
+          >
             Cancel
           </button>
-          <button onClick={handleConfirm} className="px-4 py-2 border rounded-full">
-            Confirm
+          <button
+            onClick={handleConfirm}
+            className={`px-4 py-2 border rounded-full bg-red-100 hover:bg-red-200 text-red-600 font-semibold transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50 ${
+              isLoading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            disabled={isLoading}
+          >
+            {isLoading ? "Processing..." : "Confirm"}
           </button>
         </div>
       </div>
     </div>
   );
 };
-
-export default ConfirmModal;

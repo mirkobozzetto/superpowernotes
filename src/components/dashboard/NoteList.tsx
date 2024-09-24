@@ -12,7 +12,7 @@ interface NoteListProps {
   setIsDeleteModalOpen: (isOpen: boolean) => void;
 }
 
-const NoteList: React.FC<NoteListProps> = ({
+export const NoteList: React.FC<NoteListProps> = ({
   notes,
   isLoading,
   handleNoteClick,
@@ -53,7 +53,7 @@ const NoteList: React.FC<NoteListProps> = ({
               Edit
             </button>
             <button
-              className="border py-1 px-3 rounded-full"
+              className="border py-1 px-3 rounded-full "
               onClick={(e) => {
                 e.stopPropagation();
                 setDeleteNoteId(note.id);
@@ -67,5 +67,3 @@ const NoteList: React.FC<NoteListProps> = ({
       ))}
     </ul>
   );
-
-export default NoteList;

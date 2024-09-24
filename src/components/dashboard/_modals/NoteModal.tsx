@@ -9,7 +9,7 @@ interface NoteModalProps {
   note?: VoiceNote;
 }
 
-const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, note }) => {
+export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, note }) => {
   const [editedNote, setEditedNote] = useState<Partial<VoiceNote>>({
     fileName: "",
     transcription: "",
@@ -112,5 +112,3 @@ const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, note }) 
     </div>
   );
 };
-
-export default NoteModal;
