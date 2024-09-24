@@ -40,8 +40,8 @@ export const AudioRecorder = () => {
               onClick={isRecording ? stopRecording : startRecording}
             />
           )}
-          <div className="flex flex-col items-center space-y-4 w-full">
-            <div className="h-2 flex items-center justify-center">
+          <div className="flex flex-col items-center w-full">
+            <div className="h-12 flex items-center justify-center">
               {isRecording && !isProcessing && <RecordingAnimation />}
               {isProcessing && <AudioProcessingAnimation />}
             </div>
