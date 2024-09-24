@@ -2,7 +2,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-const MAX_RECORDING_DURATION = 180;
+const MAX_RECORDING_DURATION = 120;
 
 export const useRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
