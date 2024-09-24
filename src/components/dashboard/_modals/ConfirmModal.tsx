@@ -17,16 +17,6 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleOutsideClick = useCallback(
-    (event: MouseEvent) => {
-      const modalContent = document.querySelector(".modal-content");
-      if (modalContent && event.target && !modalContent.contains(event.target as Node)) {
-        onClose();
-      }
-    },
-    [onClose]
-  );
-
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -38,15 +28,12 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      document.addEventListener("mousedown", handleOutsideClick);
       document.addEventListener("keydown", handleKeyDown);
     }
-
     return () => {
-      document.removeEventListener("mousedown", handleOutsideClick);
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, handleOutsideClick, handleKeyDown]);
+  }, [isOpen, handleKeyDown]);
 
   const handleConfirm = async () => {
     setIsLoading(true);
@@ -66,31 +53,28 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   if (!isOpen) return null;
 
-  const escapeHtml = (unsafe: string) => {
-    return unsafe
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  };
-
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-4 rounded-2xl modal-content">
-        <h2 className="text-xl font-bold mb-2">{title}</h2>
-        <p className="mb-4">{escapeHtml(message)}</p>
-        <div className="flex justify-end">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 className="text-2xl font-bold mb-4 text-gray-800">{title}</h2>
+        <p className="mb-6 text-gray-600">{message}</p>
+        <div className="flex justify-end space-x-4">
           <button
             onClick={handleCancel}
-            className="mr-2 px-4 py-2 border rounded-full"
+            className="px-6 py-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-100 transition-colors duration-200"
             disabled={isLoading}
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className={`px-4 py-2 border rounded-full bg-red-100 hover:bg-red-200 text-red-600 font-semibold transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50 ${
+            className={`px-6 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors duration-200 ${
               isLoading ? "opacity-50 cursor-not-allowed" : ""
             }`}
             disabled={isLoading}

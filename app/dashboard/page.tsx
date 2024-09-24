@@ -77,7 +77,7 @@ export default function Dashboard() {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={() => (deleteNoteId ? handleDelete(deleteNoteId) : Promise.resolve())}
         title="Confirm Deletion"
-        message="Are you sure you want to delete this note? This action cannot be undone."
+        message="Are you sure you want to delete this note?."
       />
     </div>
   );
