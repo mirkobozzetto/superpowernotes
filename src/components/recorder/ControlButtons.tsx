@@ -1,11 +1,13 @@
 import { FaPause, FaPlay } from "react-icons/fa";
-import { RecordingTimer } from "./RecordingTimer";
+import { RecordingTimeLimit } from "./RecordingTimeLimit";
 
 interface ControlButtonsProps {
   isPaused: boolean;
   onPauseResume: () => void;
   onCancel: () => void;
   onDone: () => void;
+  recordingTime: number;
+  maxRecordingDuration: number;
 }
 
 export const ControlButtons = ({
@@ -13,11 +15,16 @@ export const ControlButtons = ({
   onPauseResume,
   onCancel,
   onDone,
+  recordingTime,
+  maxRecordingDuration,
 }: ControlButtonsProps) => {
   return (
     <div className="flex items-center space-x-4 w-full">
       <div className="flex items-center space-x-2">
-        <RecordingTimer isPaused={isPaused} />
+        <RecordingTimeLimit
+          recordingTime={recordingTime}
+          maxRecordingDuration={maxRecordingDuration}
+        />
         <button
           onClick={onPauseResume}
           className="

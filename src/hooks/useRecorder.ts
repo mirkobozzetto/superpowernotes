@@ -2,6 +2,8 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
+const MAX_RECORDING_DURATION = 180; // 3 minutes in seconds
+
 export const useRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -9,9 +11,11 @@ export const useRecorder = () => {
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const [micPermission, setMicPermission] = useState<boolean | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const startTimeRef = useRef<number | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -49,6 +53,17 @@ export const useRecorder = () => {
       setIsPaused(false);
       setError(null);
       setIsSuccess(false);
+      setRecordingTime(0);
+
+      timerRef.current = setInterval(() => {
+        setRecordingTime((prevTime) => {
+          if (prevTime >= MAX_RECORDING_DURATION - 1) {
+            finishRecording();
+            return MAX_RECORDING_DURATION;
+          }
+          return prevTime + 1;
+        });
+      }, 1000);
     } catch (error) {
       console.error("Error starting recording:", error);
       setError("Failed to start recording. Please check your microphone permissions.");
@@ -60,6 +75,9 @@ export const useRecorder = () => {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       setIsPaused(false);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
     }
   };
 
@@ -76,6 +94,10 @@ export const useRecorder = () => {
     setIsPaused(false);
     setError(null);
     setIsSuccess(false);
+    setRecordingTime(0);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
   };
 
   const pauseResumeRecording = () => {
@@ -83,9 +105,15 @@ export const useRecorder = () => {
       if (isPaused) {
         mediaRecorderRef.current.resume();
         setIsPaused(false);
+        timerRef.current = setInterval(() => {
+          setRecordingTime((prevTime) => prevTime + 1);
+        }, 1000);
       } else {
         mediaRecorderRef.current.pause();
         setIsPaused(true);
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
       }
     }
   };
@@ -95,6 +123,9 @@ export const useRecorder = () => {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
       setIsPaused(false);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
     }
   };
 
@@ -102,9 +133,7 @@ export const useRecorder = () => {
     const audioBlob = new Blob(chunksRef.current, { type: "audio/mpeg" });
     const formData = new FormData();
     formData.append("audio", audioBlob, "recording.mp3");
-    const duration = startTimeRef.current
-      ? Math.round((Date.now() - startTimeRef.current) / 1000)
-      : 0;
+    const duration = recordingTime;
     formData.append("duration", duration.toString());
 
     try {
@@ -153,6 +182,14 @@ export const useRecorder = () => {
     }
   };
 
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
   return {
     isRecording,
     isPaused,
@@ -167,5 +204,7 @@ export const useRecorder = () => {
     cancelRecording,
     isSuccess,
     session,
+    recordingTime,
+    maxRecordingDuration: MAX_RECORDING_DURATION,
   };
 };

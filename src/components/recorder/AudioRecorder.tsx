@@ -18,6 +18,8 @@ export const AudioRecorder = () => {
     cancelRecording,
     finishRecording,
     session,
+    recordingTime,
+    maxRecordingDuration,
   } = useRecorder();
 
   return (
@@ -35,16 +37,20 @@ export const AudioRecorder = () => {
             isRecording={isRecording}
             onClick={isRecording ? stopRecording : startRecording}
           />
-          <div className="h-24 flex items-center justify-center">
+          <div className="flex flex-col items-center">
             {isRecording && (
-              <div className="bg-white p-6">
-                <ControlButtons
-                  isPaused={isPaused}
-                  onPauseResume={pauseResumeRecording}
-                  onCancel={cancelRecording}
-                  onDone={finishRecording}
-                />
-              </div>
+              <>
+                <div className="bg-white p-6">
+                  <ControlButtons
+                    isPaused={isPaused}
+                    onPauseResume={pauseResumeRecording}
+                    onCancel={cancelRecording}
+                    onDone={finishRecording}
+                    recordingTime={recordingTime}
+                    maxRecordingDuration={maxRecordingDuration}
+                  />
+                </div>
+              </>
             )}
           </div>
           {error && (
