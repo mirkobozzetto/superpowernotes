@@ -16,7 +16,9 @@ export default function SignOut() {
 
   return (
     <form onSubmit={handleSignOut}>
-      <button type="submit">Sign out</button>
+      <button className="px-3" type="submit">
+        Sign out
+      </button>
     </form>
   );
 }

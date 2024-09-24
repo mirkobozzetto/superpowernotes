@@ -25,7 +25,7 @@ export const AudioRecorder = () => {
   } = useRecorder();
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-6 w-full">
+    <div className="flex flex-col items-center justify-start space-y-6 w-full min-h-[300px]">
       <MicrophonePermissionCheck onPermissionChange={setMicPermission} />
       {micPermission === false && (
         <p className="bg-red-500 text-white text-center p-4 rounded-lg">
@@ -33,39 +33,40 @@ export const AudioRecorder = () => {
         </p>
       )}
       {micPermission && (
-        <div className="flex flex-col items-center space-y-4 w-full">
-          <div className="h-12 flex items-center justify-center">
-            {isRecording && !isProcessing && <RecordingAnimation />}
-            {isProcessing && <AudioProcessingAnimation />}
-            {!isRecording && !isProcessing && <div className="h-16" />}
-          </div>
+        <>
           {!isProcessing && (
             <RecordButton
               isRecording={isRecording}
               onClick={isRecording ? stopRecording : startRecording}
             />
           )}
-          <div className="flex flex-col items-center w-full">
-            {isRecording && !isProcessing && (
-              <div className="bg-white p-6">
-                <ControlButtons
-                  isPaused={isPaused}
-                  onPauseResume={pauseResumeRecording}
-                  onCancel={cancelRecording}
-                  onDone={finishRecording}
-                  recordingTime={recordingTime}
-                  maxRecordingDuration={maxRecordingDuration}
-                />
-              </div>
+          <div className="flex flex-col items-center space-y-4 w-full">
+            <div className="h-2 flex items-center justify-center">
+              {isRecording && !isProcessing && <RecordingAnimation />}
+              {isProcessing && <AudioProcessingAnimation />}
+            </div>
+            <div className="flex flex-col items-center w-full">
+              {isRecording && !isProcessing && (
+                <div className="bg-white">
+                  <ControlButtons
+                    isPaused={isPaused}
+                    onPauseResume={pauseResumeRecording}
+                    onCancel={cancelRecording}
+                    onDone={finishRecording}
+                    recordingTime={recordingTime}
+                    maxRecordingDuration={maxRecordingDuration}
+                  />
+                </div>
+              )}
+            </div>
+            {error && (
+              <p className="text-red-500 text-center w-full bg-red-50 p-6 rounded-full">{error}</p>
             )}
           </div>
-          {error && (
-            <p className="text-red-500 text-center w-full bg-red-50 p-6 rounded-full">{error}</p>
-          )}
-        </div>
+        </>
       )}
       {remainingTime !== null && session?.user?.role !== "ADMIN" && (
-        <div className="fixed bottom-16 left-0 right-0 flex justify-center pb-4">
+        <div className="fixed bottom-2 left-0 right-0 flex justify-center pb-4">
           <p className="text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-full border border-gray-300/20 inline-block">
             Remaining time credits : {Math.floor(remainingTime / 60)}m {remainingTime % 60}s
           </p>

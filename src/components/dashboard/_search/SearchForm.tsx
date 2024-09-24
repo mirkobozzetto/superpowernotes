@@ -14,7 +14,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({
   handleInputChange,
   isLoading,
 }) => (
-  <form onSubmit={handleSearch}>
+  <form style={{ marginBottom: "-8px" }} onSubmit={handleSearch}>
     <button
       type="submit"
       className="w-full border font-bold py-2 px-4 rounded-full mb-2 hover:bg-gray-100 transition-colors duration-200 mt-2"
