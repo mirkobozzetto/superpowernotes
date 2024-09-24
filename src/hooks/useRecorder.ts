@@ -18,6 +18,7 @@ export const useRecorder = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const router = useRouter();
   const { data: session } = useSession();
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     const fetchRemainingTime = async () => {
@@ -130,6 +131,10 @@ export const useRecorder = () => {
   };
 
   const sendAudioToServer = async () => {
+    setIsProcessing(true);
+    setError(null);
+    setIsSuccess(false);
+
     const audioBlob = new Blob(chunksRef.current, { type: "audio/mpeg" });
     const formData = new FormData();
     formData.append("audio", audioBlob, "recording.mp3");
@@ -143,13 +148,15 @@ export const useRecorder = () => {
         body: formData,
       });
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        throw new Error(`Transcription error: ${response.status} ${response.statusText}`);
       }
       const data = await response.json();
       console.log("Transcription received:", data.transcription);
       if (!data.transcription) {
         throw new Error("No transcription received from server");
       }
+
+      console.log("Saving voice note...");
       const saveResponse = await fetch("/api/voiceNotes", {
         method: "POST",
         headers: {
@@ -163,22 +170,31 @@ export const useRecorder = () => {
         }),
       });
       if (!saveResponse.ok) {
-        throw new Error(`HTTP error! status: ${saveResponse.status}`);
+        throw new Error(`Save error: ${saveResponse.status} ${saveResponse.statusText}`);
       }
       const savedData = await saveResponse.json();
       console.log("Note saved successfully:", savedData);
-      setError(null);
 
       if (remainingTime !== null && session?.user?.role !== "ADMIN") {
-        setRemainingTime(Math.max(0, remainingTime - duration));
+        setRemainingTime((prevTime) => (prevTime !== null ? Math.max(0, prevTime - duration) : 0));
       }
 
       setIsSuccess(true);
       router.push("/dashboard");
     } catch (error) {
       console.error("Error in sendAudioToServer:", error);
-      setError("Failed to process or save the audio. Please try again.");
+      setError(error instanceof Error ? error.message : "An unknown error occurred");
       setIsSuccess(false);
+    } finally {
+      setIsProcessing(false);
+      // Reset recording state
+      setIsRecording(false);
+      setIsPaused(false);
+      setRecordingTime(0);
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
+      }
+      chunksRef.current = [];
     }
   };
 
@@ -206,5 +222,6 @@ export const useRecorder = () => {
     session,
     recordingTime,
     maxRecordingDuration: MAX_RECORDING_DURATION,
+    isProcessing,
   };
 };

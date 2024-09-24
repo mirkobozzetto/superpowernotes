@@ -17,7 +17,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({
   <form onSubmit={handleSearch}>
     <button
       type="submit"
-      className="w-full border font-bold py-2 px-4 rounded-full mb-2"
+      className="w-full border font-bold py-2 px-4 rounded-full mb-2 hover:bg-gray-100 transition-colors duration-200 mt-2"
       disabled={isLoading}
     >
       Search

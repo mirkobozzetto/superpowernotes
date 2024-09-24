@@ -1,3 +1,4 @@
+import React from "react";
 import { FaPause, FaPlay } from "react-icons/fa";
 import { RecordingTimeLimit } from "./RecordingTimeLimit";
 
@@ -10,57 +11,46 @@ interface ControlButtonsProps {
   maxRecordingDuration: number;
 }
 
-export const ControlButtons = ({
+export const ControlButtons: React.FC<ControlButtonsProps> = ({
   isPaused,
   onPauseResume,
   onCancel,
   onDone,
   recordingTime,
   maxRecordingDuration,
-}: ControlButtonsProps) => {
+}) => {
   return (
-    <div className="flex items-center space-x-4 w-full">
-      <div className="flex items-center space-x-2">
+    <div className="flex items-center justify-between w-full space-x-2 sm:space-x-4">
+      <div className="flex items-center space-x-1 sm:space-x-2">
         <RecordingTimeLimit
           recordingTime={recordingTime}
           maxRecordingDuration={maxRecordingDuration}
         />
         <button
           onClick={onPauseResume}
-          className="
-            size-10
-            flex items-center justify-center
-            border border-gray-300 rounded-3xl
-            hover:bg-gray-50/50
-          "
+          className="size-8 sm:size-10 flex items-center justify-center border border-gray-300 rounded-full hover:bg-gray-50/50"
         >
-          {isPaused ? <FaPlay className="text-gray-900" /> : <FaPause className="text-gray-900" />}
+          {isPaused ? (
+            <FaPlay className="text-gray-900 text-xs sm:text-sm" />
+          ) : (
+            <FaPause className="text-gray-900 text-xs sm:text-sm" />
+          )}
         </button>
       </div>
-      <button
-        onClick={onCancel}
-        className="
-          w-24 px-4 py-2 rounded-3xl
-          bg-red-100 hover:bg-red-200
-          text-red-600 font-semibold
-          transition-all duration-300 ease-in-out
-          focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50
-        "
-      >
-        Cancel
-      </button>
-      <button
-        onClick={onDone}
-        className="
-          w-24 px-4 py-2 rounded-3xl
-          bg-green-100 hover:bg-green-200
-          text-green-600 font-semibold
-          transition-all duration-300 ease-in-out
-          focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-opacity-50
-        "
-      >
-        Done
-      </button>
+      <div className="flex space-x-1 sm:space-x-2">
+        <button
+          onClick={onCancel}
+          className="w-16 sm:w-24 px-2 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm bg-red-100 hover:bg-red-200 text-red-600 font-semibold transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-red-300 focus:ring-opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={onDone}
+          className="w-16 sm:w-24 px-2 sm:px-4 py-1 sm:py-2 rounded-full text-xs sm:text-sm bg-green-100 hover:bg-green-200 text-green-600 font-semibold transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-green-300 focus:ring-opacity-50"
+        >
+          Done
+        </button>
+      </div>
     </div>
   );
 };

@@ -5,14 +5,14 @@ export default async function Home() {
   const session = await auth();
 
   return (
-    <div className="flex flex-col items-center px-4 sm:px-8">
+    <div className="flex flex-col items-center min-h-screen px-4 sm:px-8">
       <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 text-center">
         Super Power Notes
       </h1>
-      <p className="text-lg sm:text-xl lg:text-2xl text-center font-light mb-24">
+      <p className="text-lg sm:text-xl lg:text-2xl text-center font-light mb-20">
         Remember everything you need
       </p>
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-sm">
         <DynamicAudioRecorder initialSession={session} />
       </div>
     </div>
