@@ -23,7 +23,7 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
         <AudioRecorder />
       ) : (
         <div className=" mx-auto ">
-          <p className="text-center bg-green-50 p-4 rounded-full text-green-500">
+          <p className="text-center bg-green-50 p-4 rounded-full text-green-500 text-sm md:text-base">
             {`Don't wait a moment longer to get connected !`}
           </p>
         </div>
