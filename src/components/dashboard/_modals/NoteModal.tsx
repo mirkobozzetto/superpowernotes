@@ -17,12 +17,14 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
   });
 
   useEffect(() => {
-    if (note) {
-      setEditedNote(note);
-    } else {
-      setEditedNote({ fileName: "", transcription: "", tags: [] });
+    if (isOpen) {
+      if (note) {
+        setEditedNote(note);
+      } else {
+        setEditedNote({ fileName: "", transcription: "", tags: [] });
+      }
     }
-  }, [note]);
+  }, [isOpen, note]);
 
   const handleSubmit = useCallback(
     (e: React.FormEvent) => {
