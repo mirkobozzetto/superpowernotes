@@ -8,7 +8,6 @@ export const useRecorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const [micPermission, setMicPermission] = useState<boolean | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
@@ -27,30 +26,11 @@ export const useRecorder = () => {
     isIOSRef.current = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
   }, []);
 
-  useEffect(() => {
-    const fetchRemainingTime = async () => {
-      try {
-        const response = await fetch("/api/users/usage");
-        const data = await response.json();
-        setRemainingTime(data.remainingSeconds);
-      } catch (error) {
-        console.error("Error fetching remaining time:", error);
-      }
-    };
-
-    fetchRemainingTime();
-  }, []);
-
   const getAudioMimeType = () => {
     return isIOSRef.current ? "audio/wav" : "audio/webm";
   };
 
   const startRecording = async () => {
-    if (remainingTime !== null && remainingTime <= 0 && session?.user?.role !== "ADMIN") {
-      setError("You have reached your monthly limit. Please upgrade your plan.");
-      return;
-    }
-
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mimeType = getAudioMimeType();
@@ -148,18 +128,12 @@ export const useRecorder = () => {
 
   const sendAudioToServer = async () => {
     setIsProcessing(true);
-    setError(null);
-    setIsSuccess(false);
-
-    const mimeType = getAudioMimeType();
-    const audioBlob = new Blob(chunksRef.current, { type: mimeType });
+    const audioBlob = new Blob(chunksRef.current, { type: getAudioMimeType() });
     const formData = new FormData();
-    formData.append("audio", audioBlob, `recording.${mimeType.split("/")[1]}`);
-    formData.append("duration", recordingTime.toString());
+    formData.append("audio", audioBlob, `recording.${getAudioMimeType().split("/")[1]}`);
     formData.append("isIOS", isIOSRef.current.toString());
 
     try {
-      console.log("Sending audio to server for transcription...");
       const response = await fetch("/api/transcribe", {
         method: "POST",
         body: formData,
@@ -168,12 +142,10 @@ export const useRecorder = () => {
         throw new Error(`Transcription error: ${response.status} ${response.statusText}`);
       }
       const data = await response.json();
-      console.log("Transcription received:", data.transcription);
       if (!data.transcription) {
         throw new Error("No transcription received from server");
       }
 
-      console.log("Saving voice note...");
       const saveResponse = await fetch("/api/voiceNotes", {
         method: "POST",
         headers: {
@@ -183,7 +155,6 @@ export const useRecorder = () => {
           transcription: data.transcription,
           fileName: "AudioNote",
           tags: [],
-          duration: data.duration,
         }),
       });
       if (!saveResponse.ok) {
@@ -191,12 +162,6 @@ export const useRecorder = () => {
       }
       const savedData = await saveResponse.json();
       console.log("Note saved successfully:", savedData);
-
-      if (remainingTime !== null && session?.user?.role !== "ADMIN") {
-        setRemainingTime((prevTime) =>
-          prevTime !== null ? Math.max(0, prevTime - recordingTime) : 0
-        );
-      }
 
       setIsSuccess(true);
       router.push("/dashboard");
@@ -228,7 +193,6 @@ export const useRecorder = () => {
     isRecording,
     isPaused,
     error,
-    remainingTime,
     micPermission,
     setMicPermission,
     startRecording,

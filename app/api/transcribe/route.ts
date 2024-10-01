@@ -21,10 +21,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
-  if (user.role !== "ADMIN" && user.usedSeconds >= user.monthlySecondsLimit) {
-    return NextResponse.json({ error: "Monthly limit reached" }, { status: 403 });
-  }
-
   const formData = await req.formData();
   const audioFile = formData.get("audio") as File;
 
@@ -38,16 +34,8 @@ export async function POST(req: Request) {
       model: "whisper-1",
     });
 
-    const audioDuration = Number(formData.get("duration")) || 0;
-
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { usedSeconds: { increment: audioDuration } },
-    });
-
     return NextResponse.json({
       transcription: transcription.text,
-      duration: audioDuration,
     });
   } catch (error) {
     console.error("Error in transcription:", error);

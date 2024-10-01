@@ -14,22 +14,23 @@ enum UserRole {
 }
 
 model User {
-  id                  String          @id @default(cuid())
-  name                String?
-  email               String          @unique
-  emailVerified       DateTime?
-  image               String?
-  role                UserRole        @default(BETA)
-  monthlySecondsLimit Int             @default(1800)
-  usedSeconds         Int             @default(0)
-  lastResetDate       DateTime        @default(now())
-  accounts            Account[]
-  sessions            Session[]
-  Authenticator       Authenticator[]
-  voiceNotes          VoiceNote[]
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  role          UserRole        @default(BETA)
+  accounts      Account[]
+  sessions      Session[]
+  Authenticator Authenticator[]
+  voiceNotes    VoiceNote[]
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 }
+
+// monthlySecondsLimit Int             @default(1800)
+// usedSeconds         Int             @default(0)
+// lastResetDate       DateTime        @default(now())
 
 model Account {
   userId            String

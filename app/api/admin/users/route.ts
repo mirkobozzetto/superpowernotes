@@ -17,9 +17,6 @@ export async function GET() {
       emailVerified: true,
       createdAt: true,
       updatedAt: true,
-      monthlySecondsLimit: true,
-      usedSeconds: true,
-      lastResetDate: true,
     },
     orderBy: {
       createdAt: "desc",

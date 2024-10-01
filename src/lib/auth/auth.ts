@@ -6,9 +6,6 @@ import { prisma } from "../prisma";
 declare module "next-auth" {
   interface User {
     role?: "ADMIN" | "USER" | "BETA";
-    monthlySecondsLimit?: number;
-    usedSeconds?: number;
-    lastResetDate?: Date;
   }
   interface Session extends DefaultSession {
     user?: User;
@@ -34,9 +31,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 image: user.image,
                 emailVerified: new Date(),
                 role: "BETA",
-                monthlySecondsLimit: 1800,
-                usedSeconds: 0,
-                lastResetDate: new Date(),
               },
             });
           } else {
@@ -93,9 +87,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = user.id;
         session.user.emailVerified = user.emailVerified;
         session.user.role = user.role as "ADMIN" | "USER" | "BETA";
-        session.user.monthlySecondsLimit = user.monthlySecondsLimit;
-        session.user.usedSeconds = user.usedSeconds;
-        session.user.lastResetDate = user.lastResetDate;
       }
       return session;
     },

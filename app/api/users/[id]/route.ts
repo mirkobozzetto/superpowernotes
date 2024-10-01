@@ -16,7 +16,6 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       where: { id },
       data: {
         role: data.role,
-        monthlySecondsLimit: data.monthlySecondsLimit,
       },
     });
 
