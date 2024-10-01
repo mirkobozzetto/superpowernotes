@@ -18,7 +18,7 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
   }
 
   return (
-    <>
+    <div>
       {currentSession?.user ? (
         <AudioRecorder />
       ) : (
@@ -28,6 +28,6 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
           </p>
         </div>
       )}
-    </>
+    </div>
   );
 };

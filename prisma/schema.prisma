@@ -20,6 +20,8 @@ model User {
   emailVerified DateTime?
   image         String?
   role          UserRole        @default(BETA)
+  timeLimit     Int             @default(1800)
+  timeUsed      Int             @default(0)
   accounts      Account[]
   sessions      Session[]
   Authenticator Authenticator[]
@@ -27,10 +29,6 @@ model User {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 }
-
-// monthlySecondsLimit Int             @default(1800)
-// usedSeconds         Int             @default(0)
-// lastResetDate       DateTime        @default(now())
 
 model Account {
   userId            String
