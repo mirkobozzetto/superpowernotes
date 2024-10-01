@@ -36,21 +36,6 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
           </select>
         </td>
         <td className="px-6 py-4">
-          {user.role !== UserRole.ADMIN ? (
-            <input
-              type="number"
-              value={user.monthlySecondsLimit}
-              onChange={(e) =>
-                updateUser(user.id, { monthlySecondsLimit: parseInt(e.target.value) })
-              }
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          ) : (
-            <span>Unlimited</span>
-          )}
-        </td>
-        <td className="px-6 py-4">{user.role !== UserRole.ADMIN ? user.usedSeconds : "N/A"}</td>
-        <td className="px-6 py-4">
           <button
             onClick={() => toggleExpand(user.id)}
             className="text-indigo-600 hover:text-indigo-900"
@@ -61,7 +46,7 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
       </tr>
       {isExpanded && (
         <tr>
-          <td colSpan={7}>
+          <td colSpan={5}>
             <UserDetails user={user} />
           </td>
         </tr>
