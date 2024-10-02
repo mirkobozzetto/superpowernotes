@@ -1,9 +1,10 @@
 import { useRecorder } from "../../hooks/useRecorder";
-import { AudioProcessingAnimation } from "./AudioProcessingAnimation";
-import { ControlButtons } from "./ControlButtons";
-import { MicrophonePermissionCheck } from "./MicrophonePermissionCheck";
-import { RecordButton } from "./RecordButton";
-import { RecordingAnimation } from "./RecordingAnimation";
+import { RemainingTimeDisplay } from "../utils/RemainingTimeDisplay";
+import { AudioProcessingAnimation } from "./_ui/AudioProcessingAnimation";
+import { RecordButton } from "./_ui/RecordButton";
+import { RecordingAnimation } from "./_ui/RecordingAnimation";
+import { ControlButtons } from "./_utils/ControlButtons";
+import { MicrophonePermissionCheck } from "./_utils/MicrophonePermissionCheck";
 
 export const AudioRecorder = () => {
   const {
@@ -20,6 +21,7 @@ export const AudioRecorder = () => {
     recordingTime,
     maxRecordingDuration,
     isProcessing,
+    remainingTime,
   } = useRecorder();
 
   return (
@@ -61,6 +63,7 @@ export const AudioRecorder = () => {
               <p className="text-red-500 text-center w-full bg-red-50 p-6 rounded-full">{error}</p>
             )}
           </div>
+          <RemainingTimeDisplay remainingTime={remainingTime} />
         </div>
       )}
     </div>

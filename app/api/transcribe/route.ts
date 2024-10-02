@@ -1,3 +1,4 @@
+import { User, VoiceNote } from "@prisma/client";
 import { auth } from "@src/lib/auth/auth";
 import { prisma } from "@src/lib/prisma";
 import { NextResponse } from "next/server";
@@ -7,6 +8,11 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
+const calculateRemainingTime = (user: User, voiceNotes: VoiceNote[], newDuration: number = 0) => {
+  const totalUsedTime = voiceNotes.reduce((acc, note) => acc + note.duration, 0) + newDuration;
+  return Math.max(0, user.timeLimit - totalUsedTime);
+};
+
 export async function POST(req: Request) {
   const session = await auth();
   if (!session || !session.user) {
@@ -15,6 +21,7 @@ export async function POST(req: Request) {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
+    include: { voiceNotes: true },
   });
 
   if (!user) {
@@ -23,9 +30,15 @@ export async function POST(req: Request) {
 
   const formData = await req.formData();
   const audioFile = formData.get("audio") as File;
+  const duration = Number(formData.get("duration") || 0);
 
   if (!audioFile) {
     return NextResponse.json({ error: "No audio file provided" }, { status: 400 });
+  }
+
+  const remainingTime = calculateRemainingTime(user, user.voiceNotes, duration);
+  if (remainingTime < duration) {
+    return NextResponse.json({ error: "Time limit exceeded" }, { status: 403 });
   }
 
   try {
@@ -36,6 +49,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       transcription: transcription.text,
+      duration: duration,
     });
   } catch (error) {
     console.error("Error in transcription:", error);

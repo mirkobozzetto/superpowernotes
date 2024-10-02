@@ -10,7 +10,6 @@ CREATE TABLE "User" (
     "image" TEXT,
     "role" "UserRole" NOT NULL DEFAULT 'BETA',
     "timeLimit" INTEGER NOT NULL DEFAULT 1800,
-    "timeUsed" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -76,6 +75,7 @@ CREATE TABLE "voice_notes" (
     "fileName" TEXT,
     "transcription" TEXT NOT NULL,
     "tags" TEXT[],
+    "duration" INTEGER NOT NULL,
     "userId" TEXT NOT NULL,
 
     CONSTRAINT "voice_notes_pkey" PRIMARY KEY ("id")

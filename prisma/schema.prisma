@@ -21,7 +21,6 @@ model User {
   image         String?
   role          UserRole        @default(BETA)
   timeLimit     Int             @default(1800)
-  timeUsed      Int             @default(0)
   accounts      Account[]
   sessions      Session[]
   Authenticator Authenticator[]
@@ -87,6 +86,7 @@ model VoiceNote {
   fileName      String?
   transcription String
   tags          String[]
+  duration      Int
   userId        String
   user          User      @relation(fields: [userId], references: [id])
 

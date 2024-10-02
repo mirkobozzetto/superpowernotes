@@ -23,17 +23,21 @@ export function useDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/voiceNotes");
+      const response = await fetch("/api/voice-notes");
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setNotes(
-        data.sort(
-          (a: VoiceNote, b: VoiceNote) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-      );
+      if (Array.isArray(data.voiceNotes)) {
+        setNotes(
+          data.voiceNotes.sort(
+            (a: VoiceNote, b: VoiceNote) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        );
+      } else {
+        throw new Error("Received data is not in the expected format");
+      }
     } catch (error) {
       console.error("Error fetching notes:", error);
       setError("Failed to fetch notes. Please try again.");
@@ -80,7 +84,7 @@ export function useDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      const url = updatedNote.id ? `/api/voiceNotes/${updatedNote.id}` : "/api/voiceNotes";
+      const url = updatedNote.id ? `/api/voice-notes/${updatedNote.id}` : "/api/voice-notes";
       const method = updatedNote.id ? "PUT" : "POST";
       const response = await fetch(url, {
         method,
@@ -112,7 +116,7 @@ export function useDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/voiceNotes/${deleteNoteId}`, {
+      const response = await fetch(`/api/voice-notes/${deleteNoteId}`, {
         method: "DELETE",
       });
 

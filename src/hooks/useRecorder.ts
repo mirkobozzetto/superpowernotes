@@ -1,49 +1,63 @@
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
+import { useAudioHandling } from "./_useRecorder/useAudioHandling";
+import { useRecordingState } from "./_useRecorder/useRecordingState";
+import { useServerCommunication } from "./_useRecorder/useServerCommunication";
+import { useTimeManagement } from "./_useRecorder/useTimeManagement";
 
 const MAX_RECORDING_DURATION = 120;
 
 export const useRecorder = () => {
-  const [isRecording, setIsRecording] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [micPermission, setMicPermission] = useState<boolean | null>(null);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
-  const startTimeRef = useRef<number | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const isIOSRef = useRef(false);
-
-  const router = useRouter();
   const { data: session } = useSession();
+  const {
+    micPermission,
+    setMicPermission,
+    startRecording: startAudioRecording,
+    stopRecording: stopAudioRecording,
+    pauseRecording: pauseAudioRecording,
+    resumeRecording: resumeAudioRecording,
+    getAudioMimeType,
+    chunksRef,
+    isIOSRef,
+  } = useAudioHandling();
 
-  useEffect(() => {
-    isIOSRef.current = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-  }, []);
+  const { remainingTime, setRemainingTime, recordingTime, setRecordingTime, fetchRemainingTime } =
+    useTimeManagement();
 
-  const getAudioMimeType = () => {
-    return isIOSRef.current ? "audio/wav" : "audio/webm";
-  };
+  const {
+    isRecording,
+    setIsRecording,
+    isPaused,
+    setIsPaused,
+    isProcessing,
+    setIsProcessing,
+    error,
+    setError,
+    isSuccess,
+    setIsSuccess,
+    startTimeRef,
+    timerRef,
+  } = useRecordingState();
+
+  const { sendAudioToServer } = useServerCommunication(setError, setIsSuccess, setRemainingTime);
+
+  const actualRecordingTimeRef = useRef(0);
 
   const startRecording = async () => {
+    if (remainingTime !== null && remainingTime <= 0) {
+      setError("You have reached your time limit. Please contact support for more time.");
+      return;
+    }
+
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mimeType = getAudioMimeType();
-
-      mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
-      chunksRef.current = [];
-
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        chunksRef.current.push(event.data);
-      };
-
-      mediaRecorderRef.current.onstop = sendAudioToServer;
-      mediaRecorderRef.current.start();
+      await startAudioRecording(
+        (event) => chunksRef.current.push(event.data),
+        () =>
+          sendAudioToServer(
+            new Blob(chunksRef.current, { type: getAudioMimeType() }),
+            actualRecordingTimeRef.current
+          )
+      );
 
       startTimeRef.current = Date.now();
       setIsRecording(true);
@@ -51,27 +65,50 @@ export const useRecorder = () => {
       setError(null);
       setIsSuccess(false);
       setRecordingTime(0);
+      actualRecordingTimeRef.current = 0;
 
       timerRef.current = setInterval(() => {
         setRecordingTime((prevTime) => {
-          if (prevTime >= MAX_RECORDING_DURATION - 1) {
+          const newTime = prevTime + 1;
+          actualRecordingTimeRef.current = newTime;
+          if (newTime >= MAX_RECORDING_DURATION - 1) {
             finishRecording();
             return MAX_RECORDING_DURATION;
           }
-          return prevTime + 1;
+          return newTime;
         });
       }, 1000);
     } catch (error) {
       console.error("Error starting recording:", error);
       setError("Failed to start recording. Please check your microphone permissions.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
+    stopAudioRecording();
+    setIsRecording(false);
+    setIsPaused(false);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+  };
+
+  const pauseResumeRecording = () => {
+    if (isPaused) {
+      resumeAudioRecording();
       setIsPaused(false);
+      timerRef.current = setInterval(() => {
+        setRecordingTime((prevTime) => {
+          const newTime = prevTime + 1;
+          actualRecordingTimeRef.current = newTime;
+          return newTime;
+        });
+      }, 1000);
+    } else {
+      pauseAudioRecording();
+      setIsPaused(true);
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
@@ -79,115 +116,34 @@ export const useRecorder = () => {
   };
 
   const cancelRecording = () => {
-    if (mediaRecorderRef.current) {
-      mediaRecorderRef.current.onstop = null;
-      if (mediaRecorderRef.current.state !== "inactive") {
-        mediaRecorderRef.current.stop();
-      }
-      mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
-    }
+    stopAudioRecording();
     chunksRef.current = [];
     setIsRecording(false);
     setIsPaused(false);
     setError(null);
     setIsSuccess(false);
     setRecordingTime(0);
+    actualRecordingTimeRef.current = 0;
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
   };
 
-  const pauseResumeRecording = () => {
-    if (mediaRecorderRef.current) {
-      if (isPaused) {
-        mediaRecorderRef.current.resume();
-        setIsPaused(false);
-        timerRef.current = setInterval(() => {
-          setRecordingTime((prevTime) => prevTime + 1);
-        }, 1000);
-      } else {
-        mediaRecorderRef.current.pause();
-        setIsPaused(true);
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
-        }
-      }
-    }
-  };
-
   const finishRecording = () => {
-    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
-      mediaRecorderRef.current.stop();
-      setIsRecording(false);
-      setIsPaused(false);
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    }
-  };
-
-  const sendAudioToServer = async () => {
-    setIsProcessing(true);
-    const audioBlob = new Blob(chunksRef.current, { type: getAudioMimeType() });
-    const formData = new FormData();
-    formData.append("audio", audioBlob, `recording.${getAudioMimeType().split("/")[1]}`);
-    formData.append("isIOS", isIOSRef.current.toString());
-
-    try {
-      const response = await fetch("/api/transcribe", {
-        method: "POST",
-        body: formData,
-      });
-      if (!response.ok) {
-        throw new Error(`Transcription error: ${response.status} ${response.statusText}`);
-      }
-      const data = await response.json();
-      if (!data.transcription) {
-        throw new Error("No transcription received from server");
-      }
-
-      const saveResponse = await fetch("/api/voiceNotes", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          transcription: data.transcription,
-          fileName: "AudioNote",
-          tags: [],
-        }),
-      });
-      if (!saveResponse.ok) {
-        throw new Error(`Save error: ${saveResponse.status} ${saveResponse.statusText}`);
-      }
-      const savedData = await saveResponse.json();
-      console.log("Note saved successfully:", savedData);
-
-      setIsSuccess(true);
-      router.push("/dashboard");
-    } catch (error) {
-      console.error("Error in sendAudioToServer:", error);
-      setError(error instanceof Error ? error.message : "An unknown error occurred");
-      setIsSuccess(false);
-    } finally {
-      setIsProcessing(false);
-      setIsRecording(false);
-      setIsPaused(false);
-      setRecordingTime(0);
-      if (mediaRecorderRef.current) {
-        mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop());
-      }
-      chunksRef.current = [];
+    stopRecording();
+    if (chunksRef.current.length > 0) {
+      sendAudioToServer(
+        new Blob(chunksRef.current, { type: getAudioMimeType() }),
+        actualRecordingTimeRef.current
+      );
     }
   };
 
   useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    };
-  }, []);
+    if (isSuccess) {
+      fetchRemainingTime();
+    }
+  }, [isSuccess, fetchRemainingTime]);
 
   return {
     isRecording,
@@ -202,9 +158,10 @@ export const useRecorder = () => {
     cancelRecording,
     isSuccess,
     session,
-    recordingTime,
+    recordingTime: actualRecordingTimeRef.current,
     maxRecordingDuration: MAX_RECORDING_DURATION,
     isProcessing,
     isIOS: isIOSRef.current,
+    remainingTime,
   };
 };
