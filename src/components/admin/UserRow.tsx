@@ -11,6 +11,9 @@ interface UserRowProps {
 export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand, isExpanded }) => {
   const [role, setRole] = useState(user.role);
   const [totalUsedTime, setTotalUsedTime] = useState(0);
+  const [remainingTime, setRemainingTime] = useState(user.timeLimit);
+
+  const TIME_LIMIT = 1800; // 30 minutes in seconds
 
   useEffect(() => {
     const fetchTotalUsedTime = async () => {
@@ -18,7 +21,9 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
         const response = await fetch(`/api/users/${user.id}/total-used-time`);
         if (response.ok) {
           const data = await response.json();
-          setTotalUsedTime(data.totalUsedTime || 0);
+          const usedTime = data.totalUsedTime || 0;
+          setTotalUsedTime(usedTime);
+          setRemainingTime(Math.max(0, TIME_LIMIT - usedTime));
         }
       } catch (error) {
         console.error("Error fetching total used time:", error);
@@ -44,8 +49,11 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
     return `${minutes}m ${remainingSeconds}s`;
   };
 
-  const timeLimit = typeof user.timeLimit === "number" ? user.timeLimit : 1800; // Default to 1800 if not set
-  const remainingTime = Math.max(0, timeLimit - totalUsedTime);
+  const resetRemainingTime = async () => {
+    const newRemainingTime = TIME_LIMIT;
+    setRemainingTime(newRemainingTime);
+    await updateUser(user.id, { timeLimit: newRemainingTime });
+  };
 
   return (
     <>
@@ -77,13 +85,19 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
                 <strong>Email Verified:</strong> {user.emailVerified ? "Yes" : "No"}
               </p>
               <p>
-                <strong>Time Limit:</strong> {formatTime(timeLimit)}
+                <strong>Time Limit:</strong> {formatTime(TIME_LIMIT)}
               </p>
               <p>
                 <strong>Total Used Time:</strong> {formatTime(totalUsedTime)}
               </p>
               <p>
                 <strong>Remaining Time:</strong> {formatTime(remainingTime)}
+                <button
+                  onClick={resetRemainingTime}
+                  className="ml-2 px-1.5  bg-blue-500/80 text-white rounded-full hover:bg-blue-600/90 text-sm"
+                >
+                  Reset Time
+                </button>
               </p>
               <p>
                 <strong>Created At:</strong> {new Date(user.createdAt).toLocaleString()}
