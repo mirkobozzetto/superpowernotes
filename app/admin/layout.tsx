@@ -1,6 +1,7 @@
 import { auth } from "@src/lib/auth/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import React from "react";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const headersList = headers();

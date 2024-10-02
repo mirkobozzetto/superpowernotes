@@ -8,6 +8,7 @@ export default function AdminPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
   const [modifiedUsers, setModifiedUsers] = useState<Set<string>>(new Set());
+  const [activeRole, setActiveRole] = useState<UserRole | "ALL">("ALL");
   const router = useRouter();
 
   useEffect(() => {
@@ -62,23 +63,39 @@ export default function AdminPage() {
     router.refresh();
   };
 
-  const renderUserSection = (title: string, filteredUsers: User[]) => (
-    <section>
-      <h2 className="text-2xl font-semibold mb-4">{title}</h2>
+  const filteredUsers =
+    activeRole === "ALL" ? users : users.filter((user) => user.role === activeRole);
+
+  return (
+    <div className="p-4 max-w-full mx-auto">
+      <h1 className="text-2xl md:text-3xl font-bold mb-6">User Management</h1>
+
+      <div className="mb-4 flex flex-wrap gap-2">
+        {["ALL", ...Object.values(UserRole)].map((role) => (
+          <button
+            key={role}
+            onClick={() => setActiveRole(role as UserRole | "ALL")}
+            className={`px-3 py-1 rounded-full text-sm ${
+              activeRole === role ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
+            }`}
+          >
+            {role}
+          </button>
+        ))}
+      </div>
+
       <div className="overflow-x-auto bg-white shadow-md rounded-lg">
-        <table className="w-full table-fixed">
+        <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              {["Name", "Email", "Email Verified", "Role", "Monthly Limit", "Used", "Actions"].map(
-                (header) => (
-                  <th
-                    key={header}
-                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                  >
-                    {header}
-                  </th>
-                )
-              )}
+              {["Name", "Email", "Role", "Actions"].map((header) => (
+                <th
+                  key={header}
+                  className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                >
+                  {header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
@@ -94,33 +111,14 @@ export default function AdminPage() {
           </tbody>
         </table>
       </div>
-    </section>
-  );
 
-  return (
-    <div className="p-6 max-w-full mx-auto">
-      <h1 className="text-3xl font-bold mb-8">User Management</h1>
-      <div className="space-y-12">
-        {renderUserSection(
-          "Admins",
-          users.filter((user) => user.role === UserRole.ADMIN)
-        )}
-        {renderUserSection(
-          "Regular Users",
-          users.filter((user) => user.role === UserRole.USER)
-        )}
-        {renderUserSection(
-          "Beta Users",
-          users.filter((user) => user.role === UserRole.BETA)
-        )}
-      </div>
       {modifiedUsers.size > 0 && (
-        <div className="mt-8">
+        <div className="mt-6 flex justify-center">
           <button
             onClick={saveAllChanges}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
           >
-            Save All Changes ({modifiedUsers.size})
+            Save Changes ({modifiedUsers.size})
           </button>
         </div>
       )}
