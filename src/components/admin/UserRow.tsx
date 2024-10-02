@@ -18,7 +18,7 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
         const response = await fetch(`/api/users/${user.id}/total-used-time`);
         if (response.ok) {
           const data = await response.json();
-          setTotalUsedTime(data.totalUsedTime);
+          setTotalUsedTime(data.totalUsedTime || 0);
         }
       } catch (error) {
         console.error("Error fetching total used time:", error);
@@ -36,10 +36,16 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
   };
 
   const formatTime = (seconds: number) => {
+    if (typeof seconds !== "number" || isNaN(seconds)) {
+      return "0m 0s";
+    }
     const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
+    const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}m ${remainingSeconds}s`;
   };
+
+  const timeLimit = typeof user.timeLimit === "number" ? user.timeLimit : 1800; // Default to 1800 if not set
+  const remainingTime = Math.max(0, timeLimit - totalUsedTime);
 
   return (
     <>
@@ -71,14 +77,13 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
                 <strong>Email Verified:</strong> {user.emailVerified ? "Yes" : "No"}
               </p>
               <p>
-                <strong>Time Limit:</strong> {formatTime(user.timeLimit)}
+                <strong>Time Limit:</strong> {formatTime(timeLimit)}
               </p>
               <p>
                 <strong>Total Used Time:</strong> {formatTime(totalUsedTime)}
               </p>
               <p>
-                <strong>Remaining Time:</strong>{" "}
-                {formatTime(Math.max(0, user.timeLimit - totalUsedTime))}
+                <strong>Remaining Time:</strong> {formatTime(remainingTime)}
               </p>
               <p>
                 <strong>Created At:</strong> {new Date(user.createdAt).toLocaleString()}
