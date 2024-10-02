@@ -13,7 +13,7 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
   const [totalUsedTime, setTotalUsedTime] = useState(0);
   const [remainingTime, setRemainingTime] = useState(user.timeLimit);
 
-  const TIME_LIMIT = 1800; // 30 minutes in seconds
+  const TIME_LIMIT = 1800;
 
   useEffect(() => {
     const fetchTotalUsedTime = async () => {
