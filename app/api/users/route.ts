@@ -15,21 +15,20 @@ export async function GET() {
       },
     });
 
-    const usersWithTimeInfo = users.map((user) => {
-      const totalUsedTime = user.voiceNotes.reduce((acc, note) => acc + note.duration, 0);
-      const remainingTime = Math.max(0, user.timeLimit - totalUsedTime);
-
-      return {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-        timeLimit: user.timeLimit,
-        totalUsedTime,
-        remainingTime,
-        notesCount: user.voiceNotes.length,
-      };
-    });
+    const usersWithTimeInfo = users.map((user) => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      timeLimit: user.timeLimit,
+      currentPeriodUsedTime: user.currentPeriodUsedTime,
+      currentPeriodRemainingTime: user.currentPeriodRemainingTime,
+      lastResetDate: user.lastResetDate,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      emailVerified: user.emailVerified,
+      notesCount: user.voiceNotes.length,
+    }));
 
     return NextResponse.json(usersWithTimeInfo);
   } catch (error) {

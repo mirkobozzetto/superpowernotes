@@ -12,7 +12,7 @@ export default function AdminPage() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch("/api/admin/users")
+    fetch("/api/users")
       .then((response) => response.json())
       .then((data) => setUsers(data));
   }, []);
@@ -88,7 +88,15 @@ export default function AdminPage() {
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
-              {["Name", "Email", "Role", "Actions"].map((header) => (
+              {[
+                "Name",
+                "Email",
+                "Role",
+                "Time Limit",
+                "Used Time",
+                "Remaining Time",
+                "Actions",
+              ].map((header) => (
                 <th
                   key={header}
                   className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"

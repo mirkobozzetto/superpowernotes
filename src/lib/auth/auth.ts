@@ -31,6 +31,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 image: user.image,
                 emailVerified: new Date(),
                 role: "BETA",
+                createdAt: new Date(),
+                updatedAt: new Date(),
               },
             });
           } else {

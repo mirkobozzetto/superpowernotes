@@ -1,5 +1,6 @@
 import { User } from "@prisma/client";
-import React, { useEffect, useState } from "react";
+import { useAdminUser } from "@src/hooks/admin/useAdminUser";
+import React from "react";
 
 interface UserRowProps {
   user: User;
@@ -9,50 +10,16 @@ interface UserRowProps {
 }
 
 export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand, isExpanded }) => {
-  const [role, setRole] = useState(user.role);
-  const [totalUsedTime, setTotalUsedTime] = useState(0);
-  const [remainingTime, setRemainingTime] = useState(user.timeLimit);
+  const { role, timeInfo, handleRoleChange, resetRemainingTime, formatTime } = useAdminUser(
+    user,
+    isExpanded,
+    updateUser
+  );
 
-  const TIME_LIMIT = 1800;
-
-  useEffect(() => {
-    const fetchTotalUsedTime = async () => {
-      try {
-        const response = await fetch(`/api/users/${user.id}/total-used-time`);
-        if (response.ok) {
-          const data = await response.json();
-          const usedTime = data.totalUsedTime || 0;
-          setTotalUsedTime(usedTime);
-          setRemainingTime(Math.max(0, TIME_LIMIT - usedTime));
-        }
-      } catch (error) {
-        console.error("Error fetching total used time:", error);
-      }
-    };
-
-    if (isExpanded) {
-      fetchTotalUsedTime();
-    }
-  }, [user.id, isExpanded]);
-
-  const handleRoleChange = (newRole: string) => {
-    setRole(newRole as User["role"]);
-    updateUser(user.id, { role: newRole as User["role"] });
-  };
-
-  const formatTime = (seconds: number) => {
-    if (typeof seconds !== "number" || isNaN(seconds)) {
-      return "0m 0s";
-    }
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}m ${remainingSeconds}s`;
-  };
-
-  const resetRemainingTime = async () => {
-    const newRemainingTime = TIME_LIMIT;
-    setRemainingTime(newRemainingTime);
-    await updateUser(user.id, { timeLimit: newRemainingTime });
+  const formatDate = (dateValue: Date | string | null | undefined) => {
+    if (!dateValue) return "Not set";
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
   };
 
   return (
@@ -63,7 +30,7 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
         <td className="px-4 py-2 whitespace-nowrap">
           <select
             value={role}
-            onChange={(e) => handleRoleChange(e.target.value)}
+            onChange={(e) => handleRoleChange(e.target.value as User["role"])}
             className="block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
             <option value="ADMIN">Admin</option>
@@ -71,39 +38,37 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
             <option value="BETA">Beta</option>
           </select>
         </td>
+        <td className="px-4 py-2 whitespace-nowrap">{formatTime(user.timeLimit)}</td>
+        <td className="px-4 py-2 whitespace-nowrap">{formatTime(timeInfo.totalUsedTime)}</td>
+        <td className="px-4 py-2 whitespace-nowrap">{formatTime(timeInfo.remainingTime)}</td>
         <td className="px-4 py-2 whitespace-nowrap">
-          <button onClick={toggleExpand} className="text-blue-600 hover:text-blue-900">
+          <button onClick={toggleExpand} className="text-blue-600 hover:text-blue-900 mr-2">
             {isExpanded ? "Hide Details" : "Show Details"}
+          </button>
+          <button
+            onClick={resetRemainingTime}
+            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Reset Time
           </button>
         </td>
       </tr>
       {isExpanded && (
         <tr>
-          <td colSpan={4} className="px-4 py-2 bg-gray-50">
+          <td colSpan={7} className="px-4 py-2 bg-gray-50">
             <div className="text-sm">
               <p>
-                <strong>Email Verified:</strong> {user.emailVerified ? "Yes" : "No"}
+                <strong>Email Verified:</strong>{" "}
+                {user.emailVerified ? formatDate(user.emailVerified) : "No"}
               </p>
               <p>
-                <strong>Time Limit:</strong> {formatTime(TIME_LIMIT)}
+                <strong>Last Reset Date:</strong> {formatDate(user.lastResetDate)}
               </p>
               <p>
-                <strong>Total Used Time:</strong> {formatTime(totalUsedTime)}
+                <strong>Created At:</strong> {formatDate(user.createdAt)}
               </p>
               <p>
-                <strong>Remaining Time:</strong> {formatTime(remainingTime)}
-                <button
-                  onClick={resetRemainingTime}
-                  className="ml-2 px-1.5  bg-blue-500/80 text-white rounded-full hover:bg-blue-600/90 text-sm"
-                >
-                  Reset Time
-                </button>
-              </p>
-              <p>
-                <strong>Created At:</strong> {new Date(user.createdAt).toLocaleString()}
-              </p>
-              <p>
-                <strong>Updated At:</strong> {new Date(user.updatedAt).toLocaleString()}
+                <strong>Updated At:</strong> {formatDate(user.updatedAt)}
               </p>
             </div>
           </td>

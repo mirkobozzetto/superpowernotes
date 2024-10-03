@@ -17,6 +17,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
       data: {
         role: data.role,
         timeLimit: data.timeLimit ? parseInt(data.timeLimit, 10) : undefined,
+        currentPeriodRemainingTime: data.currentPeriodRemainingTime,
+        currentPeriodUsedTime: data.currentPeriodUsedTime,
+        lastResetDate: data.lastResetDate ? new Date(data.lastResetDate) : undefined,
       },
     });
 

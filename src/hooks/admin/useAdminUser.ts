@@ -6,57 +6,51 @@ interface TimeInfo {
   remainingTime: number;
 }
 
-export const useAdminUser = (user: User, isExpanded: boolean) => {
+export const useAdminUser = (
+  user: User,
+  isExpanded: boolean,
+  updateUser: (userId: string, data: Partial<User>) => Promise<void>
+) => {
   const [role, setRole] = useState<UserRole>(user.role);
   const [timeInfo, setTimeInfo] = useState<TimeInfo>({
-    totalUsedTime: 0,
-    remainingTime: user.timeLimit,
+    totalUsedTime: user.currentPeriodUsedTime,
+    remainingTime: user.currentPeriodRemainingTime,
   });
-  const TIME_LIMIT = 1800;
 
   useEffect(() => {
-    const fetchTotalUsedTime = async () => {
+    const fetchCurrentUsage = async () => {
       if (!isExpanded) return;
       try {
-        const response = await fetch(`/api/users/${user.id}/total-used-time`);
+        const response = await fetch(`/api/users/${user.id}/usage`);
         if (response.ok) {
           const data = await response.json();
-          const usedTime = data.totalUsedTime || 0;
           setTimeInfo({
-            totalUsedTime: usedTime,
-            remainingTime: Math.max(0, TIME_LIMIT - usedTime),
+            totalUsedTime: data.currentPeriodUsedTime,
+            remainingTime: data.currentPeriodRemainingTime,
           });
+          // Mettez à jour d'autres champs si nécessaire
         }
       } catch (error) {
-        console.error("Error fetching total used time:", error);
+        console.error("Error fetching current usage:", error);
       }
     };
 
-    fetchTotalUsedTime();
+    fetchCurrentUsage();
   }, [user.id, isExpanded]);
 
   const handleRoleChange = async (newRole: UserRole) => {
     setRole(newRole);
-    await updateUser({ role: newRole });
+    await updateUser(user.id, { role: newRole });
   };
 
   const resetRemainingTime = async () => {
-    const newTimeLimit = TIME_LIMIT;
-    setTimeInfo((prev) => ({ ...prev, remainingTime: newTimeLimit }));
-    await updateUser({ timeLimit: newTimeLimit });
-  };
-
-  const updateUser = async (data: Partial<User>) => {
-    try {
-      const response = await fetch(`/api/users/${user.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-      if (!response.ok) throw new Error("Failed to update user");
-    } catch (error) {
-      console.error("Error updating user:", error);
-    }
+    const newTimeLimit = user.timeLimit;
+    setTimeInfo({ totalUsedTime: 0, remainingTime: newTimeLimit });
+    await updateUser(user.id, {
+      currentPeriodRemainingTime: newTimeLimit,
+      currentPeriodUsedTime: 0,
+      lastResetDate: new Date(),
+    });
   };
 
   const formatTime = (seconds: number) => {
@@ -74,6 +68,5 @@ export const useAdminUser = (user: User, isExpanded: boolean) => {
     handleRoleChange,
     resetRemainingTime,
     formatTime,
-    TIME_LIMIT,
   };
 };
