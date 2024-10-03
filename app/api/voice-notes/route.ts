@@ -54,15 +54,18 @@ export async function POST(request: NextRequest) {
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      include: { voiceNotes: true },
+      select: {
+        timeLimit: true,
+        currentPeriodUsedTime: true,
+        currentPeriodRemainingTime: true,
+      },
     });
 
     if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    const remainingTime = calculateRemainingTime(user, user.voiceNotes, duration);
-    if (remainingTime < duration) {
+    if (user.currentPeriodRemainingTime < duration) {
       return NextResponse.json({ error: "Time limit exceeded" }, { status: 403 });
     }
 
@@ -73,19 +76,32 @@ export async function POST(request: NextRequest) {
       tags = await generateTags(transcription);
     }
 
-    const voiceNote = await prisma.voiceNote.create({
-      data: {
-        transcription,
-        fileName: fileName || formattedDate,
-        tags,
-        duration: Math.round(duration),
-        userId: session.user.id,
+    const [voiceNote, updatedUser] = await prisma.$transaction([
+      prisma.voiceNote.create({
+        data: {
+          transcription,
+          fileName: fileName || formattedDate,
+          tags,
+          duration: Math.round(duration),
+          userId: session.user.id,
+        },
+      }),
+      prisma.user.update({
+        where: { id: session.user.id },
+        data: {
+          currentPeriodUsedTime: { increment: Math.round(duration) },
+          currentPeriodRemainingTime: { decrement: Math.round(duration) },
+        },
+      }),
+    ]);
+
+    return NextResponse.json(
+      {
+        voiceNote,
+        remainingTime: updatedUser.currentPeriodRemainingTime,
       },
-    });
-
-    const updatedRemainingTime = calculateRemainingTime(user, [...user.voiceNotes, voiceNote]);
-
-    return NextResponse.json({ voiceNote, remainingTime: updatedRemainingTime }, { status: 201 });
+      { status: 201 }
+    );
   } catch (error) {
     console.error("Error creating voice note:", error);
     return NextResponse.json({ error: "Error creating voice note" }, { status: 500 });

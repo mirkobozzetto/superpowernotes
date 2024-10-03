@@ -22,6 +22,7 @@ export const AudioRecorder = () => {
     maxRecordingDuration,
     isProcessing,
     remainingTime,
+    isCancelling,
   } = useRecorder();
 
   return (
