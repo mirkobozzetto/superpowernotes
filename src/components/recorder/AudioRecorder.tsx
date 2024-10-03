@@ -55,6 +55,7 @@ export const AudioRecorder = () => {
                     onDone={finishRecording}
                     recordingTime={recordingTime}
                     maxRecordingDuration={maxRecordingDuration}
+                    isCancelling={false}
                   />
                 </div>
               )}
