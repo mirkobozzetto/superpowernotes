@@ -1,30 +1,22 @@
 import { Prisma } from "@prisma/client";
 import { auth } from "@src/lib/auth/auth";
 import { prisma } from "@src/lib/prisma";
-import console from "console";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
-  console.log("Received GET request");
-
   const session = await auth();
   if (!session || !session.user || !session.user.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const userId = session.user.id;
-
   const { searchParams } = new URL(request.url);
   const tags = searchParams.get("tags");
   const startDate = searchParams.get("startDate");
   const endDate = searchParams.get("endDate");
   const keyword = searchParams.get("keyword");
 
-  console.log("Query params:", { tags, startDate, endDate, keyword });
-
-  const whereClause: Prisma.VoiceNoteWhereInput = {
-    userId: userId,
-  };
+  const whereClause: Prisma.VoiceNoteWhereInput = { userId };
 
   if (tags) {
     whereClause.tags = { hasSome: tags.split(",") };
@@ -44,11 +36,11 @@ export async function GET(request: NextRequest) {
     };
   }
 
-  console.log("Where clause:", whereClause);
-
   try {
-    const notes = await prisma.voiceNote.findMany({ where: whereClause });
-    console.log("Found notes:", notes.length);
+    const notes = await prisma.voiceNote.findMany({
+      where: whereClause,
+      orderBy: { createdAt: "desc" },
+    });
     return NextResponse.json(notes);
   } catch (error) {
     console.error("Search error:", error);

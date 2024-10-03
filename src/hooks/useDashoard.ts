@@ -50,30 +50,28 @@ export function useDashboard() {
     fetchAllNotes();
   }, [fetchAllNotes]);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-    const queryParams = new URLSearchParams({ ...searchParams });
-    try {
-      const response = await fetch(`/api/notes?${queryParams}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  const handleSearch = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setIsLoading(true);
+      setError(null);
+      const queryParams = new URLSearchParams({ ...searchParams });
+      try {
+        const response = await fetch(`/api/notes?${queryParams}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        setNotes(data);
+      } catch (error) {
+        console.error("Error during search:", error);
+        setError("Search failed. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
-      const data = await response.json();
-      setNotes(
-        data.sort(
-          (a: VoiceNote, b: VoiceNote) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-      );
-    } catch (error) {
-      console.error("Error during search:", error);
-      setError("Search failed. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [searchParams]
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;

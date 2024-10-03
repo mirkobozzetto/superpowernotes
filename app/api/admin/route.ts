@@ -17,6 +17,13 @@ export async function GET() {
       emailVerified: true,
       createdAt: true,
       updatedAt: true,
+      timeLimit: true,
+      currentPeriodUsedTime: true,
+      currentPeriodRemainingTime: true,
+      lastResetDate: true,
+      _count: {
+        select: { voiceNotes: true },
+      },
     },
     orderBy: {
       createdAt: "desc",
