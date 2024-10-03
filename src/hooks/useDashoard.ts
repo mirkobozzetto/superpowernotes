@@ -28,11 +28,11 @@ export function useDashboard() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      if (Array.isArray(data.voiceNotes)) {
+      const notesArray = Array.isArray(data) ? data : data.voiceNotes;
+      if (Array.isArray(notesArray)) {
         setNotes(
-          data.voiceNotes.sort(
-            (a: VoiceNote, b: VoiceNote) =>
-              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          notesArray.sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           )
         );
       } else {
@@ -62,7 +62,16 @@ export function useDashboard() {
           throw new Error(`HTTP error! status: ${response.status}`);
         }
         const data = await response.json();
-        setNotes(data);
+        const notesArray = Array.isArray(data) ? data : data.voiceNotes;
+        if (Array.isArray(notesArray)) {
+          setNotes(
+            notesArray.sort(
+              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            )
+          );
+        } else {
+          throw new Error("Received data is not in the expected format");
+        }
       } catch (error) {
         console.error("Error during search:", error);
         setError("Search failed. Please try again.");
