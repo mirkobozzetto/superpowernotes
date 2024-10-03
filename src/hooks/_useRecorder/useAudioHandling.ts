@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 export const useAudioHandling = () => {
   const [micPermission, setMicPermission] = useState<boolean | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const isIOSRef = useRef(false);
 
@@ -16,13 +17,17 @@ export const useAudioHandling = () => {
   ) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
       const mimeType = getAudioMimeType();
 
       mediaRecorderRef.current = new MediaRecorder(stream, { mimeType });
       chunksRef.current = [];
 
       mediaRecorderRef.current.ondataavailable = onDataAvailable;
-      mediaRecorderRef.current.onstop = onStop;
+      mediaRecorderRef.current.onstop = () => {
+        onStop();
+        cleanupAudioResources();
+      };
       mediaRecorderRef.current.start();
 
       setMicPermission(true);
@@ -36,6 +41,14 @@ export const useAudioHandling = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== "inactive") {
       mediaRecorderRef.current.stop();
     }
+  };
+
+  const cleanupAudioResources = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((track) => track.stop());
+      streamRef.current = null;
+    }
+    mediaRecorderRef.current = null;
   };
 
   const pauseRecording = () => {
@@ -60,5 +73,6 @@ export const useAudioHandling = () => {
     getAudioMimeType,
     chunksRef,
     isIOSRef,
+    cleanupAudioResources,
   };
 };

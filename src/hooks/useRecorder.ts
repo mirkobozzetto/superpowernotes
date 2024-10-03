@@ -21,6 +21,7 @@ export const useRecorder = () => {
     getAudioMimeType,
     chunksRef,
     isIOSRef,
+    cleanupAudioResources,
   } = useAudioHandling();
 
   const { remainingTime, setRemainingTime, recordingTime, setRecordingTime, fetchRemainingTime } =
@@ -101,6 +102,7 @@ export const useRecorder = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
+    cleanupAudioResources();
   };
 
   const pauseResumeRecording = () => {
@@ -136,6 +138,7 @@ export const useRecorder = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
+    cleanupAudioResources();
     setTimeout(() => {
       setIsProcessing(false);
       setIsCancelling(false);
@@ -150,6 +153,7 @@ export const useRecorder = () => {
         actualRecordingTimeRef.current
       );
     }
+    cleanupAudioResources();
   };
 
   useEffect(() => {
