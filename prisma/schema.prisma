@@ -89,7 +89,7 @@ model VoiceNote {
   fileName      String?
   transcription String
   tags          String[]
-  duration      Int
+  duration      Int?
   userId        String
   user          User      @relation(fields: [userId], references: [id])
 

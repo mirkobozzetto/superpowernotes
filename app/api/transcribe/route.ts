@@ -9,7 +9,8 @@ const openai = new OpenAI({
 });
 
 const calculateRemainingTime = (user: User, voiceNotes: VoiceNote[], newDuration: number = 0) => {
-  const totalUsedTime = voiceNotes.reduce((acc, note) => acc + note.duration, 0) + newDuration;
+  const totalUsedTime =
+    voiceNotes.reduce((acc, note) => acc + (note.duration ?? 0), 0) + newDuration;
   return Math.max(0, user.timeLimit - totalUsedTime);
 };
 

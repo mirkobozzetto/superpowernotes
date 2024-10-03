@@ -6,7 +6,8 @@ import { format } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
 
 const calculateRemainingTime = (user: User, voiceNotes: VoiceNote[], newDuration: number = 0) => {
-  const totalUsedTime = voiceNotes.reduce((acc, note) => acc + note.duration, 0) + newDuration;
+  const totalUsedTime =
+    voiceNotes.reduce((acc, note) => acc + (note.duration ?? 0), 0) + newDuration;
   return Math.max(0, user.timeLimit - totalUsedTime);
 };
 
@@ -27,7 +28,7 @@ export async function GET() {
       select: { timeLimit: true },
     });
 
-    const totalUsedTime = voiceNotes.reduce((acc, note) => acc + note.duration, 0);
+    const totalUsedTime = voiceNotes.reduce((acc, note) => acc + (note.duration ?? 0), 0);
     const remainingTime = user ? user.timeLimit - totalUsedTime : 0;
 
     return NextResponse.json({ voiceNotes, remainingTime });
