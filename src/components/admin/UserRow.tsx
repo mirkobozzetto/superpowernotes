@@ -1,68 +1,76 @@
-import { User, UserRole } from "@prisma/client";
+import { User } from "@prisma/client";
+import { useAdminUser } from "@src/hooks/admin/useAdminUser";
 import React from "react";
-import { UserDetails } from "./UserDetails";
 
 interface UserRowProps {
   user: User;
   updateUser: (userId: string, data: Partial<User>) => Promise<void>;
-  toggleExpand: (userId: string) => void;
+  toggleExpand: () => void;
   isExpanded: boolean;
 }
 
 export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand, isExpanded }) => {
+  const { role, timeInfo, handleRoleChange, resetRemainingTime, formatTime } = useAdminUser(
+    user,
+    isExpanded,
+    updateUser
+  );
+
+  const formatDate = (dateValue: Date | string | null | undefined) => {
+    if (!dateValue) return "Not set";
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleString();
+  };
+
   return (
     <>
       <tr className="hover:bg-gray-50">
-        <td className="px-6 py-4 truncate">{user.name || "N/A"}</td>
-        <td className="px-6 py-4 truncate">{user.email}</td>
-        <td className="px-6 py-4">
-          <span
-            className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${user.emailVerified ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
-          >
-            {user.emailVerified ? "Yes" : "No"}
-          </span>
-        </td>
-        <td className="px-6 py-4">
+        <td className="px-4 py-2 whitespace-nowrap">{user.name || "N/A"}</td>
+        <td className="px-4 py-2 whitespace-nowrap">{user.email}</td>
+        <td className="px-4 py-2 whitespace-nowrap">
           <select
-            value={user.role}
-            onChange={(e) => updateUser(user.id, { role: e.target.value as UserRole })}
-            className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            value={role}
+            onChange={(e) => handleRoleChange(e.target.value as User["role"])}
+            className="block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
           >
-            {Object.values(UserRole).map((role) => (
-              <option key={role} value={role}>
-                {role}
-              </option>
-            ))}
+            <option value="ADMIN">Admin</option>
+            <option value="USER">User</option>
+            <option value="BETA">Beta</option>
           </select>
         </td>
-        <td className="px-6 py-4">
-          {user.role !== UserRole.ADMIN ? (
-            <input
-              type="number"
-              value={user.monthlySecondsLimit}
-              onChange={(e) =>
-                updateUser(user.id, { monthlySecondsLimit: parseInt(e.target.value) })
-              }
-              className="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-            />
-          ) : (
-            <span>Unlimited</span>
-          )}
-        </td>
-        <td className="px-6 py-4">{user.role !== UserRole.ADMIN ? user.usedSeconds : "N/A"}</td>
-        <td className="px-6 py-4">
-          <button
-            onClick={() => toggleExpand(user.id)}
-            className="text-indigo-600 hover:text-indigo-900"
-          >
+        <td className="px-4 py-2 whitespace-nowrap">{formatTime(user.timeLimit)}</td>
+        <td className="px-4 py-2 whitespace-nowrap">{formatTime(timeInfo.totalUsedTime)}</td>
+        <td className="px-4 py-2 whitespace-nowrap">{formatTime(timeInfo.remainingTime)}</td>
+        <td className="px-4 py-2 whitespace-nowrap">
+          <button onClick={toggleExpand} className="text-blue-600 hover:text-blue-900 mr-2">
             {isExpanded ? "Hide Details" : "Show Details"}
+          </button>
+          <button
+            onClick={resetRemainingTime}
+            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Reset Time
           </button>
         </td>
       </tr>
       {isExpanded && (
         <tr>
-          <td colSpan={7}>
-            <UserDetails user={user} />
+          <td colSpan={7} className="px-4 py-2 bg-gray-50">
+            <div className="text-sm">
+              <p>
+                <strong>Email Verified:</strong>{" "}
+                {user.emailVerified ? formatDate(user.emailVerified) : "No"}
+              </p>
+              <p>
+                <strong>Last Reset Date:</strong> {formatDate(user.lastResetDate)}
+              </p>
+              <p>
+                <strong>Created At:</strong> {formatDate(user.createdAt)}
+              </p>
+              <p>
+                <strong>Updated At:</strong> {formatDate(user.updatedAt)}
+              </p>
+            </div>
           </td>
         </tr>
       )}

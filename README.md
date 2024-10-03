@@ -36,7 +36,7 @@ NoteList
 API Routes
 
     •	/api/transcribe: Handles audio file uploads and returns transcriptions.
-    •	/api/voiceNotes: CRUD operations for managing voice notes.
+    •	/api/voice-notes: CRUD operations for managing voice notes.
     •	/api/searchNotes: Advanced search endpoint to filter notes based on tags, keywords, and dates.
     •	/api/auth: Authentication routes managed by NextAuth.js.
 

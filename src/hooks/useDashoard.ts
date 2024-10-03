@@ -23,17 +23,21 @@ export function useDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/voiceNotes");
+      const response = await fetch("/api/voice-notes");
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      setNotes(
-        data.sort(
-          (a: VoiceNote, b: VoiceNote) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-      );
+      const notesArray = Array.isArray(data) ? data : data.voiceNotes;
+      if (Array.isArray(notesArray)) {
+        setNotes(
+          notesArray.sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        );
+      } else {
+        throw new Error("Received data is not in the expected format");
+      }
     } catch (error) {
       console.error("Error fetching notes:", error);
       setError("Failed to fetch notes. Please try again.");
@@ -46,30 +50,37 @@ export function useDashboard() {
     fetchAllNotes();
   }, [fetchAllNotes]);
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-    const queryParams = new URLSearchParams({ ...searchParams });
-    try {
-      const response = await fetch(`/api/searchNotes?${queryParams}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+  const handleSearch = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setIsLoading(true);
+      setError(null);
+      const queryParams = new URLSearchParams({ ...searchParams });
+      try {
+        const response = await fetch(`/api/notes?${queryParams}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        const notesArray = Array.isArray(data) ? data : data.voiceNotes;
+        if (Array.isArray(notesArray)) {
+          setNotes(
+            notesArray.sort(
+              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            )
+          );
+        } else {
+          throw new Error("Received data is not in the expected format");
+        }
+      } catch (error) {
+        console.error("Error during search:", error);
+        setError("Search failed. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
-      const data = await response.json();
-      setNotes(
-        data.sort(
-          (a: VoiceNote, b: VoiceNote) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
-      );
-    } catch (error) {
-      console.error("Error during search:", error);
-      setError("Search failed. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+    [searchParams]
+  );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -80,7 +91,7 @@ export function useDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      const url = updatedNote.id ? `/api/voiceNotes/${updatedNote.id}` : "/api/voiceNotes";
+      const url = updatedNote.id ? `/api/voice-notes/${updatedNote.id}` : "/api/voice-notes";
       const method = updatedNote.id ? "PUT" : "POST";
       const response = await fetch(url, {
         method,
@@ -112,7 +123,7 @@ export function useDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/voiceNotes/${deleteNoteId}`, {
+      const response = await fetch(`/api/voice-notes/${deleteNoteId}`, {
         method: "DELETE",
       });
 

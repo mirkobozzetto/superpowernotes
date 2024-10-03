@@ -12,7 +12,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const { id } = params;
     const body = await request.json();
     console.log("PUT request received", { params, body });
-    const { transcription, tags, fileName } = body;
+    const { transcription, tags, fileName, duration } = body;
 
     const existingNote = await prisma.voiceNote.findUnique({
       where: { id },
@@ -28,6 +28,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         transcription,
         tags,
         fileName,
+        duration,
         modifiedAt: new Date(),
       },
     });
