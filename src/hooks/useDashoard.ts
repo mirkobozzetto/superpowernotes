@@ -56,7 +56,7 @@ export function useDashboard() {
     setError(null);
     const queryParams = new URLSearchParams({ ...searchParams });
     try {
-      const response = await fetch(`/api/searchNotes?${queryParams}`);
+      const response = await fetch(`/api/notes?${queryParams}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
