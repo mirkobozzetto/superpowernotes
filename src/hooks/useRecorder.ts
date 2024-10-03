@@ -1,14 +1,16 @@
 import { useSession } from "next-auth/react";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAudioHandling } from "./_useRecorder/useAudioHandling";
 import { useRecordingState } from "./_useRecorder/useRecordingState";
 import { useServerCommunication } from "./_useRecorder/useServerCommunication";
 import { useTimeManagement } from "./_useRecorder/useTimeManagement";
 
-const MAX_RECORDING_DURATION = 120;
+const MAX_RECORDING_DURATION = 120; // seconds
+const CANCEL_DELAY = 500; // milliseconds
 
 export const useRecorder = () => {
   const { data: session } = useSession();
+  const [isCancelling, setIsCancelling] = useState(false);
   const {
     micPermission,
     setMicPermission,
@@ -44,19 +46,26 @@ export const useRecorder = () => {
   const actualRecordingTimeRef = useRef(0);
 
   const startRecording = async () => {
+    if (isCancelling) return;
     if (remainingTime !== null && remainingTime <= 0) {
       setError("You have reached your time limit. Please contact support for more time.");
       return;
     }
 
+    chunksRef.current = [];
+    actualRecordingTimeRef.current = 0;
+
     try {
       await startAudioRecording(
         (event) => chunksRef.current.push(event.data),
-        () =>
-          sendAudioToServer(
-            new Blob(chunksRef.current, { type: getAudioMimeType() }),
-            actualRecordingTimeRef.current
-          )
+        () => {
+          if (chunksRef.current.length > 0 && actualRecordingTimeRef.current > 0) {
+            sendAudioToServer(
+              new Blob(chunksRef.current, { type: getAudioMimeType() }),
+              actualRecordingTimeRef.current
+            );
+          }
+        }
       );
 
       startTimeRef.current = Date.now();
@@ -65,7 +74,6 @@ export const useRecorder = () => {
       setError(null);
       setIsSuccess(false);
       setRecordingTime(0);
-      actualRecordingTimeRef.current = 0;
 
       timerRef.current = setInterval(() => {
         setRecordingTime((prevTime) => {
@@ -116,6 +124,7 @@ export const useRecorder = () => {
   };
 
   const cancelRecording = () => {
+    setIsCancelling(true);
     stopAudioRecording();
     chunksRef.current = [];
     setIsRecording(false);
@@ -127,11 +136,15 @@ export const useRecorder = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
+    setTimeout(() => {
+      setIsProcessing(false);
+      setIsCancelling(false);
+    }, CANCEL_DELAY);
   };
 
   const finishRecording = () => {
     stopRecording();
-    if (chunksRef.current.length > 0) {
+    if (chunksRef.current.length > 0 && actualRecordingTimeRef.current > 0) {
       sendAudioToServer(
         new Blob(chunksRef.current, { type: getAudioMimeType() }),
         actualRecordingTimeRef.current
@@ -163,5 +176,6 @@ export const useRecorder = () => {
     isProcessing,
     isIOS: isIOSRef.current,
     remainingTime,
+    isCancelling,
   };
 };
