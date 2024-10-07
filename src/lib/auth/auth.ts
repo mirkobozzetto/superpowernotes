@@ -3,6 +3,7 @@ import NextAuth, { type DefaultSession } from "next-auth";
 import Google from "next-auth/providers/google";
 import Resend from "next-auth/providers/resend";
 import { prisma } from "../prisma";
+import { sendVerificationRequest } from "./email";
 
 declare module "next-auth" {
   interface User {
@@ -19,7 +20,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Google,
     Resend({
       apiKey: process.env.AUTH_RESEND_KEY,
-      from: process.env.EMAIL_FROM,
+      from: process.env.EMAIL_FROM || "",
+      sendVerificationRequest: async (params) => {
+        const { identifier, url, provider, theme } = params;
+        await sendVerificationRequest({
+          identifier,
+          url,
+          provider: {
+            ...provider,
+            from: provider.from || "",
+          },
+        });
+      },
     }),
   ],
   callbacks: {
