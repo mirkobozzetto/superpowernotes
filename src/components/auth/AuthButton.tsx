@@ -1,11 +1,13 @@
 "use client";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
-import SignIn from "./SignIn";
+import React, { useState } from "react";
+import { AuthModal } from "./AuthModal";
 import SignOut from "./SignOut";
 
-export default function AuthButton() {
+const AuthButton: React.FC = () => {
   const { data: session, status } = useSession();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   if (status === "loading") {
     return <div className="text-white text-center">Loading...</div>;
@@ -19,6 +21,15 @@ export default function AuthButton() {
       </div>
     );
   } else {
-    return <SignIn />;
+    return (
+      <>
+        <button onClick={() => setIsAuthModalOpen(true)} className="text-white">
+          Sign In
+        </button>
+        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+      </>
+    );
   }
-}
+};
+
+export default AuthButton;
