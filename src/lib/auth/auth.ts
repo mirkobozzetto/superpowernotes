@@ -21,8 +21,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     Resend({
       apiKey: process.env.AUTH_RESEND_KEY,
       from: process.env.EMAIL_FROM || "",
+      // EMAIL_FROM=contact@superpowertnot.es
       sendVerificationRequest: async (params) => {
-        const { identifier, url, provider, theme } = params;
+        const { identifier, url, provider } = params;
         await sendVerificationRequest({
           identifier,
           url,
@@ -113,4 +114,3 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     },
   },
 });
-//

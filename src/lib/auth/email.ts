@@ -27,6 +27,7 @@ export async function sendVerificationRequest({
           <p>Click the link below to sign in:</p>
           <a href="${url}">Sign In</a>
           <p>If you didn't request this email, you can safely ignore it.</p>
+          <a>contatc: bozzettomirko88@gmail.com</a>
         </body>
       `,
     });
