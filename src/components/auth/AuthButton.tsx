@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@chadcn/components/ui/button";
+import { cn } from "@chadcn/lib/utils";
 import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
@@ -8,13 +9,23 @@ import React, { useState } from "react";
 import { AuthModal } from "./AuthModal";
 import SignOut from "./SignOut";
 
-const AuthButton: React.FC = () => {
+interface AuthButtonProps {
+  children?: React.ReactNode;
+  className?: string;
+  useCustomStyles?: boolean;
+}
+
+const AuthButton: React.FC<AuthButtonProps> = ({
+  children,
+  className,
+  useCustomStyles = false,
+}) => {
   const { data: session, status } = useSession();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   if (status === "loading") {
     return (
-      <Button variant="ghost" className="text-white" disabled>
+      <Button variant="ghost" className={cn("text-white", className)} disabled>
         <Loader2 className="mr-2 w-4 h-4 animate-spin" />
         Loading...
       </Button>
@@ -28,7 +39,7 @@ const AuthButton: React.FC = () => {
           <Button
             variant="ghost"
             asChild
-            className="hover:bg-gray-800 rounded-full text-white hover:text-white"
+            className={cn("hover:bg-gray-800 rounded-full text-white hover:text-white", className)}
           >
             <Link href="/admin">Admin Panel</Link>
           </Button>
@@ -37,15 +48,22 @@ const AuthButton: React.FC = () => {
       </div>
     );
   } else {
+    const buttonContent = children || "Sign In";
     return (
       <>
-        <Button
-          variant="ghost"
-          onClick={() => setIsAuthModalOpen(true)}
-          className="hover:bg-gray-800 text-white hover:text-white"
-        >
-          Sign In
-        </Button>
+        {useCustomStyles ? (
+          <button onClick={() => setIsAuthModalOpen(true)} className={className}>
+            {buttonContent}
+          </button>
+        ) : (
+          <Button
+            variant="ghost"
+            onClick={() => setIsAuthModalOpen(true)}
+            className={cn("hover:bg-gray-800 text-white hover:text-white", className)}
+          >
+            {buttonContent}
+          </Button>
+        )}
         <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       </>
     );
