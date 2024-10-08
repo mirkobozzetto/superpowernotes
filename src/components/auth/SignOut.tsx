@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@chadcn/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
@@ -16,9 +17,13 @@ export default function SignOut() {
 
   return (
     <form onSubmit={handleSignOut}>
-      <button className="px-3" type="submit">
+      <Button
+        type="submit"
+        variant="ghost"
+        className="hover:bg-gray-800 rounded-full text-white hover:text-white"
+      >
         Sign out
-      </button>
+      </Button>
     </form>
   );
 }

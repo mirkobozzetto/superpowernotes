@@ -8,6 +8,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@chadcn/components/ui/navigation-menu";
 
+import { cn } from "@chadcn/lib/utils";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -26,14 +27,24 @@ export const Navigation: React.FC = () => {
             <NavigationMenuList>
               <NavigationMenuItem>
                 <Link href="/" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <NavigationMenuLink
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      "text-white hover:text-white hover:bg-gray-800 rounded-full"
+                    )}
+                  >
                     Record
                   </NavigationMenuLink>
                 </Link>
               </NavigationMenuItem>
               <NavigationMenuItem>
                 <Link href="/dashboard" legacyBehavior passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  <NavigationMenuLink
+                    className={cn(
+                      navigationMenuTriggerStyle(),
+                      "text-white hover:text-white hover:bg-gray-800 rounded-full"
+                    )}
+                  >
                     Dashboard
                   </NavigationMenuLink>
                 </Link>

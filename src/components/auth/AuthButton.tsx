@@ -1,4 +1,7 @@
 "use client";
+
+import { Button } from "@chadcn/components/ui/button";
+import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React, { useState } from "react";
@@ -10,22 +13,39 @@ const AuthButton: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   if (status === "loading") {
-    return <div className="text-center text-white">Loading...</div>;
+    return (
+      <Button variant="ghost" className="text-white" disabled>
+        <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+        Loading...
+      </Button>
+    );
   }
 
   if (session && session.user) {
     return (
-      <div className="flex space-x-4 text-white">
-        {session.user.role === "ADMIN" && <Link href="/admin">Admin Panel</Link>}
+      <div className="flex items-center space-x-4">
+        {session.user.role === "ADMIN" && (
+          <Button
+            variant="ghost"
+            asChild
+            className="hover:bg-gray-800 rounded-full text-white hover:text-white"
+          >
+            <Link href="/admin">Admin Panel</Link>
+          </Button>
+        )}
         <SignOut />
       </div>
     );
   } else {
     return (
       <>
-        <button onClick={() => setIsAuthModalOpen(true)} className="text-white">
+        <Button
+          variant="ghost"
+          onClick={() => setIsAuthModalOpen(true)}
+          className="hover:bg-gray-800 text-white hover:text-white"
+        >
           Sign In
-        </button>
+        </Button>
         <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
       </>
     );
