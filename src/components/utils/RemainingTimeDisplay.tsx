@@ -14,9 +14,9 @@ export const RemainingTimeDisplay: React.FC<RemainingTimeDisplayProps> = ({ rema
 
   return (
     <div className="flex justify-center items-center my-4">
-      <div className="bg-blue-100 text-blue-800 text-sm font-medium px-4 py-2 rounded-full flex items-center">
+      <div className="flex items-center bg-blue-100 px-4 py-2 rounded-full font-medium text-blue-800 text-sm">
         <svg
-          className="w-4 h-4 mr-2"
+          className="mr-2 w-4 h-4"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"

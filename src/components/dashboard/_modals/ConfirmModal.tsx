@@ -55,19 +55,19 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm"
+      className="z-50 fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full mx-4"
+        className="bg-white shadow-xl mx-4 p-8 rounded-lg w-full max-w-md"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-2xl font-bold mb-4 text-gray-800">{title}</h2>
+        <h2 className="mb-4 font-bold text-2xl text-gray-800">{title}</h2>
         <p className="mb-6 text-gray-600">{message}</p>
         <div className="flex justify-end space-x-4">
           <button
             onClick={handleCancel}
-            className="px-6 py-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+            className="border-gray-300 hover:bg-gray-100 px-6 py-2 border rounded-full text-gray-700 transition-colors duration-200"
             disabled={isLoading}
           >
             Cancel

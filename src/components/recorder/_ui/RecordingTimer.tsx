@@ -24,7 +24,7 @@ export const RecordingTimer = ({ isPaused }: Props) => {
   };
 
   return (
-    <div className="w-16 text-center text-lg font-semibold text-gray-800">
+    <div className="w-16 font-semibold text-center text-gray-800 text-lg">
       {formatTime(seconds)}
     </div>
   );

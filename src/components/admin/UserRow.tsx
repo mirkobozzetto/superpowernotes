@@ -31,7 +31,7 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
           <select
             value={role}
             onChange={(e) => handleRoleChange(e.target.value as User["role"])}
-            className="block w-full bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+            className="block border-gray-300 focus:border-indigo-500 bg-white shadow-sm border rounded-md focus:ring-indigo-500 w-full focus:outline-none sm:text-sm"
           >
             <option value="ADMIN">Admin</option>
             <option value="USER">User</option>
@@ -42,12 +42,12 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
         <td className="px-4 py-2 whitespace-nowrap">{formatTime(timeInfo.totalUsedTime)}</td>
         <td className="px-4 py-2 whitespace-nowrap">{formatTime(timeInfo.remainingTime)}</td>
         <td className="px-4 py-2 whitespace-nowrap">
-          <button onClick={toggleExpand} className="text-blue-600 hover:text-blue-900 mr-2">
+          <button onClick={toggleExpand} className="mr-2 text-blue-600 hover:text-blue-900">
             {isExpanded ? "Hide Details" : "Show Details"}
           </button>
           <button
             onClick={resetRemainingTime}
-            className="px-2 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            className="bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded text-white"
           >
             Reset Time
           </button>
@@ -55,7 +55,7 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
       </tr>
       {isExpanded && (
         <tr>
-          <td colSpan={7} className="px-4 py-2 bg-gray-50">
+          <td colSpan={7} className="bg-gray-50 px-4 py-2">
             <div className="text-sm">
               <p>
                 <strong>Email Verified:</strong>{" "}

@@ -41,9 +41,9 @@ const TagInput: React.FC<TagInputProps> = ({ tags, onChange }) => {
   };
 
   return (
-    <div className="flex flex-wrap items-center border p-2 rounded-xl">
+    <div className="flex flex-wrap items-center p-2 border rounded-xl">
       {tags.map((tag) => (
-        <span key={tag} className="bg-gray-200 px-2 py-1 rounded-full mr-2 my-1 flex items-center">
+        <span key={tag} className="flex items-center bg-gray-200 my-1 mr-2 px-2 py-1 rounded-full">
           {tag}
           <button onClick={() => removeTag(tag)} className="ml-1">
             &times;
@@ -56,7 +56,7 @@ const TagInput: React.FC<TagInputProps> = ({ tags, onChange }) => {
         onChange={handleInputChange}
         onKeyDown={handleInputKeyDown}
         placeholder="Add tags..."
-        className="outline-none flex-grow min-w-[100px] p-1"
+        className="flex-grow p-1 min-w-[100px] outline-none"
       />
     </div>
   );

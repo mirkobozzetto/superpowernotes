@@ -69,14 +69,14 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50 backdrop-blur-sm"
+      className="z-50 fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="bg-white p-8 rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+        className="bg-white shadow-xl mx-4 p-8 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="text-2xl font-bold mb-6 text-gray-800">
+        <h2 className="mb-6 font-bold text-2xl text-gray-800">
           {note ? "Edit Note" : "Create New Note"}
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
@@ -86,27 +86,27 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
             value={editedNote.fileName ?? ""}
             onChange={handleChange}
             placeholder="File Name"
-            className="border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="border-gray-300 p-3 border focus:border-transparent rounded-lg focus:ring-2 focus:ring-blue-500"
           />
           <textarea
             name="transcription"
             value={editedNote.transcription ?? ""}
             onChange={handleChange}
             placeholder="Transcription"
-            className="border border-gray-300 p-3 rounded-lg h-48 resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="border-gray-300 p-3 border focus:border-transparent rounded-lg focus:ring-2 focus:ring-blue-500 h-48 resize-none"
           />
           <TagInput tags={editedNote.tags ?? []} onChange={handleTagsChange} />
-          <div className="flex justify-end mt-6 space-x-4">
+          <div className="flex justify-end space-x-4 mt-6">
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 border border-gray-300 rounded-full text-gray-700 hover:bg-gray-100 transition-colors duration-200"
+              className="border-gray-300 hover:bg-gray-100 px-6 py-2 border rounded-full text-gray-700 transition-colors duration-200"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-6 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors duration-200"
+              className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded-full text-white transition-colors duration-200"
             >
               Save
             </button>

@@ -10,7 +10,7 @@ const AuthButton: React.FC = () => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   if (status === "loading") {
-    return <div className="text-white text-center">Loading...</div>;
+    return <div className="text-center text-white">Loading...</div>;
   }
 
   if (session && session.user) {

@@ -12,7 +12,7 @@ export const Navigation: React.FC = () => {
 
   return (
     <nav className="bg-gradient-to-bl from-gray-900/95 to-gray-950/95 p-3">
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="flex justify-between items-center mx-auto container">
         {status === "authenticated" && (
           <div className="flex space-x-2">
             <NavLink href="/" active={pathname === "/"}>

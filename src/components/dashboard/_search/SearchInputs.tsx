@@ -21,20 +21,20 @@ export const SearchInputs: React.FC<Pick<SearchFormProps, "handleInputChange">> 
 
   return (
     <div className="flex flex-col space-y-2">
-      <div className="flex flex-col sm:flex-row sm:space-x-2 space-y-2 sm:space-y-0">
+      <div className="flex sm:flex-row flex-col sm:space-x-2 space-y-2 sm:space-y-0">
         <input
           type="text"
           name="tags"
           placeholder="Search tags (comma-separated)"
           onChange={handleInputChange}
-          className="flex-grow border p-2 rounded-full text-center placeholder-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-grow p-2 border rounded-full focus:ring-2 focus:ring-blue-500 text-center placeholder-center focus:outline-none"
         />
         <input
           type="text"
           name="keyword"
           placeholder="Search keyword"
           onChange={handleInputChange}
-          className="flex-grow border p-2 rounded-full text-center placeholder-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-grow p-2 border rounded-full focus:ring-2 focus:ring-blue-500 text-center placeholder-center focus:outline-none"
         />
       </div>
       <div className="w-full">
@@ -43,7 +43,7 @@ export const SearchInputs: React.FC<Pick<SearchFormProps, "handleInputChange">> 
           startDate={startDate ?? undefined}
           endDate={endDate ?? undefined}
           onChange={handleDateRangeChange}
-          className="w-full border p-2 rounded-full text-center focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="p-2 border rounded-full focus:ring-2 focus:ring-blue-500 w-full text-center focus:outline-none"
           dateFormat="MMM d, yyyy"
           isClearable
           showMonthDropdown

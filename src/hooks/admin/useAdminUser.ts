@@ -28,7 +28,6 @@ export const useAdminUser = (
             totalUsedTime: data.currentPeriodUsedTime,
             remainingTime: data.currentPeriodRemainingTime,
           });
-          // Mettez à jour d'autres champs si nécessaire
         }
       } catch (error) {
         console.error("Error fetching current usage:", error);

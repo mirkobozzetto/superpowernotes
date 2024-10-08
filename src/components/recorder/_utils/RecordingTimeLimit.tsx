@@ -10,9 +10,9 @@ export const RecordingTimeLimit = ({
   const seconds = remainingTime % 60;
 
   return (
-    <div className="inline-flex items-center px-4 py-2 rounded-full text-gray-600 text-base justify-center w-16">
+    <div className="inline-flex justify-center items-center px-4 py-2 rounded-full w-16 text-base text-gray-600">
       <svg
-        className="w-4 h-4 mr-2 flex-shrink-0"
+        className="flex-shrink-0 mr-2 w-4 h-4"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"

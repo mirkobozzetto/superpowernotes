@@ -35,8 +35,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="container mx-auto p-4 space-y-4">
-      {error && <div className="text-red-500 mb-4">{error}</div>}
+    <div className="space-y-4 mx-auto p-4 container">
+      {error && <div className="mb-4 text-red-500">{error}</div>}
 
       <SearchForm
         searchParams={searchParams}
@@ -50,7 +50,7 @@ export default function Dashboard() {
           setEditingNote(undefined);
           setIsNoteModalOpen(true);
         }}
-        className="w-full border font-bold py-2 px-4 rounded-full hover:bg-gray-100 transition-colors duration-200"
+        className="hover:bg-gray-100 px-4 py-2 border rounded-full w-full font-bold transition-colors duration-200"
         disabled={isLoading}
       >
         Create New Note
