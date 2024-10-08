@@ -1,7 +1,7 @@
 import { User, VoiceNote } from "@prisma/client";
 import { auth } from "@src/lib/auth/auth";
+import { generateTags } from "@src/lib/noteUtils";
 import { prisma } from "@src/lib/prisma";
-import { generateTags } from "@src/lib/utils";
 import { format } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
 
