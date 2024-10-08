@@ -18,7 +18,7 @@ export default function RootLayout({
       <body className="flex flex-col min-h-screen">
         <SessionProvider>
           <Navigation />
-          {children}
+          <div className="mt-16">{children}</div>
         </SessionProvider>
       </body>
     </html>
