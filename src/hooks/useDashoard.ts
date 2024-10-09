@@ -28,16 +28,12 @@ export function useDashboard() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
-      const notesArray = Array.isArray(data) ? data : data.voiceNotes;
-      if (Array.isArray(notesArray)) {
-        setNotes(
-          notesArray.sort(
-            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-          )
-        );
-      } else {
-        throw new Error("Received data is not in the expected format");
-      }
+      setNotes(
+        data.voiceNotes.sort(
+          (a: VoiceNote, b: VoiceNote) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+      );
     } catch (error) {
       console.error("Error fetching notes:", error);
       setError("Failed to fetch notes. Please try again.");
@@ -93,6 +89,7 @@ export function useDashboard() {
     try {
       const url = updatedNote.id ? `/api/voice-notes/${updatedNote.id}` : "/api/voice-notes";
       const method = updatedNote.id ? "PUT" : "POST";
+
       const response = await fetch(url, {
         method,
         headers: {
@@ -105,12 +102,8 @@ export function useDashboard() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      const savedNote = await response.json();
-      setNotes((prevNotes) =>
-        updatedNote.id
-          ? prevNotes.map((note) => (note.id === savedNote.id ? savedNote : note))
-          : [savedNote, ...prevNotes]
-      );
+      // Après avoir sauvegardé la note, rechargez toutes les notes
+      await fetchAllNotes();
     } catch (error) {
       console.error("Error saving note:", error);
       setError("Failed to save note. Please try again.");
@@ -149,5 +142,6 @@ export function useDashboard() {
     handleInputChange,
     handleSaveNote,
     handleDelete,
+    fetchAllNotes,
   };
 }

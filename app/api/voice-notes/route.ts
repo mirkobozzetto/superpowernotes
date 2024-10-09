@@ -46,11 +46,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const { transcription, fileName, tags: userTags, duration } = await request.json();
-    if (!transcription || typeof duration !== "number" || duration <= 0) {
-      return NextResponse.json(
-        { error: "Transcription and valid duration are required" },
-        { status: 400 }
-      );
+    if (!transcription) {
+      return NextResponse.json({ error: "Transcription is required" }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({
@@ -66,7 +63,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    if (user.currentPeriodRemainingTime < duration) {
+    if (duration && duration > 0 && user.currentPeriodRemainingTime < duration) {
       return NextResponse.json({ error: "Time limit exceeded" }, { status: 403 });
     }
 
@@ -83,15 +80,15 @@ export async function POST(request: NextRequest) {
           transcription,
           fileName: fileName || formattedDate,
           tags,
-          duration: Math.round(duration),
+          duration: duration || 0,
           userId: session.user.id,
         },
       }),
       prisma.user.update({
         where: { id: session.user.id },
         data: {
-          currentPeriodUsedTime: { increment: Math.round(duration) },
-          currentPeriodRemainingTime: { decrement: Math.round(duration) },
+          currentPeriodUsedTime: { increment: Math.max(0, duration || 0) },
+          currentPeriodRemainingTime: { decrement: Math.max(0, duration || 0) },
         },
       }),
     ]);
@@ -104,7 +101,7 @@ export async function POST(request: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    console.error("Error creating voice note:", error);
-    return NextResponse.json({ error: "Error creating voice note" }, { status: 500 });
+    console.error("Error creating note:", error);
+    return NextResponse.json({ error: "Error creating note" }, { status: 500 });
   }
 }

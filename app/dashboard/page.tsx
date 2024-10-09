@@ -3,6 +3,7 @@ import { VoiceNote } from "@prisma/client";
 import { ConfirmModal } from "@src/components/dashboard/_modals/ConfirmModal";
 import { NoteModal } from "@src/components/dashboard/_modals/NoteModal";
 import { SearchForm } from "@src/components/dashboard/_search/SearchForm";
+import { CreateNoteButton } from "@src/components/dashboard/CreateNoteButton";
 import { NoteList } from "@src/components/dashboard/NoteList";
 import { useDashboard } from "@src/hooks/useDashoard";
 import { useState } from "react";
@@ -17,6 +18,7 @@ export default function Dashboard() {
     handleInputChange,
     handleSaveNote,
     handleDelete,
+    fetchAllNotes,
   } = useDashboard();
 
   const [editingNote, setEditingNote] = useState<VoiceNote | undefined>(undefined);
@@ -34,6 +36,16 @@ export default function Dashboard() {
     setEditingNote(undefined);
   };
 
+  const handleSaveAndClose = async (note: Partial<VoiceNote>) => {
+    try {
+      await handleSaveNote(note);
+      closeNoteModal();
+      await fetchAllNotes();
+    } catch (error) {
+      console.error("Failed to save note:", error);
+    }
+  };
+
   return (
     <div className="space-y-4 mx-auto p-4 container">
       {error && <div className="mb-4 text-red-500">{error}</div>}
@@ -45,16 +57,11 @@ export default function Dashboard() {
         isLoading={isLoading}
       />
 
-      <button
-        onClick={() => {
-          setEditingNote(undefined);
-          setIsNoteModalOpen(true);
-        }}
-        className="hover:bg-gray-100 px-4 py-2 border rounded-full w-full font-bold transition-colors duration-200"
-        disabled={isLoading}
-      >
-        Create New Note
-      </button>
+      <CreateNoteButton
+        isLoading={isLoading}
+        setEditingNote={(note) => setEditingNote(note as VoiceNote)}
+        setIsNoteModalOpen={setIsNoteModalOpen}
+      />
 
       <NoteList
         notes={notes}
@@ -69,9 +76,10 @@ export default function Dashboard() {
       <NoteModal
         isOpen={isNoteModalOpen}
         onClose={closeNoteModal}
-        onSave={handleSaveNote}
+        onSave={handleSaveAndClose}
         note={editingNote}
       />
+
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}

@@ -6,7 +6,7 @@ interface NoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (note: Partial<VoiceNote>) => void;
-  note?: VoiceNote;
+  note?: Partial<VoiceNote>;
 }
 
 export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, note }) => {
@@ -14,6 +14,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
     fileName: "",
     transcription: "",
     tags: [],
+    duration: 0,
   });
 
   useEffect(() => {
@@ -21,18 +22,22 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
       if (note) {
         setEditedNote(note);
       } else {
-        setEditedNote({ fileName: "", transcription: "", tags: [] });
+        setEditedNote({ fileName: "", transcription: "", tags: [], duration: 0 });
       }
     }
   }, [isOpen, note]);
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
-      onSave(editedNote);
-      onClose();
+      if (!editedNote.fileName || !editedNote.transcription) {
+        alert("Please fill in both title and content");
+        return;
+      }
+      await onSave(editedNote);
+      // Ne fermez pas la modal ici, cela sera fait dans le composant parent
     },
-    [editedNote, onSave, onClose]
+    [editedNote, onSave]
   );
 
   const handleKeyDown = useCallback(
@@ -67,6 +72,8 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
 
   if (!isOpen) return null;
 
+  const isTextNote = editedNote.duration === 0;
+
   return (
     <div
       className="z-50 fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50 backdrop-blur-sm"
@@ -77,7 +84,11 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="mb-6 font-bold text-2xl text-gray-800">
-          {note ? "Edit Note" : "Create New Note"}
+          {isTextNote
+            ? editedNote.id
+              ? "Edit Text Note"
+              : "Create New Text Note"
+            : "Edit Voice Note"}
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <input
@@ -85,14 +96,14 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
             name="fileName"
             value={editedNote.fileName ?? ""}
             onChange={handleChange}
-            placeholder="File Name"
+            placeholder="Note Title"
             className="border-gray-300 p-3 border focus:border-transparent rounded-lg focus:ring-2 focus:ring-blue-500"
           />
           <textarea
             name="transcription"
             value={editedNote.transcription ?? ""}
             onChange={handleChange}
-            placeholder="Transcription"
+            placeholder={isTextNote ? "Note Content" : "Transcription"}
             className="border-gray-300 p-3 border focus:border-transparent rounded-lg focus:ring-2 focus:ring-blue-500 h-48 resize-none"
           />
           <TagInput tags={editedNote.tags ?? []} onChange={handleTagsChange} />

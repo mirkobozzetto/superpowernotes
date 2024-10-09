@@ -1,5 +1,5 @@
 import { VoiceNote } from "@prisma/client";
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 import React from "react";
 
 interface NoteListProps {
@@ -20,8 +20,13 @@ export const NoteList: React.FC<NoteListProps> = ({
   setIsNoteModalOpen,
   setDeleteNoteId,
   setIsDeleteModalOpen,
-}) =>
-  isLoading ? (
+}) => {
+  const formatDate = (dateString: string | Date) => {
+    const date = new Date(dateString);
+    return isValid(date) ? format(date, "PPpp") : "Invalid date";
+  };
+
+  return isLoading ? (
     <div className="flex justify-center">
       <p className="inline-block border-gray-100 bg-gray-50 px-4 py-2 border rounded-full text-center text-gray-500 text-sm animate-pulse">
         Loading...
@@ -37,10 +42,8 @@ export const NoteList: React.FC<NoteListProps> = ({
         >
           <h3 className="mb-4 font-bold text-lg">{note.fileName || "Untitled"}</h3>
           <p className="mb-4 text-gray-700">{note.transcription}</p>
-          <p className="mb-4 text-gray-500 text-sm">Tags: {note.tags.join(", ")}</p>
-          <p className="mb-4 text-gray-400 text-xs">
-            Created: {format(new Date(note.createdAt), "PPpp")}
-          </p>
+          <p className="mb-4 text-gray-500 text-sm">Tags: {note.tags?.join(", ") || ""}</p>
+          <p className="mb-4 text-gray-400 text-xs">Created: {formatDate(note.createdAt)}</p>
           <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
             <button
               className="px-3 py-1 border rounded-full"
@@ -67,3 +70,4 @@ export const NoteList: React.FC<NoteListProps> = ({
       ))}
     </ul>
   );
+};
