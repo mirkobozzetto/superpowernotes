@@ -67,10 +67,10 @@ export default function AdminPage() {
     activeRole === "ALL" ? users : users.filter((user) => user.role === activeRole);
 
   return (
-    <div className="p-4 max-w-full mx-auto">
-      <h1 className="text-2xl md:text-3xl font-bold mb-6">User Management</h1>
+    <div className="mx-auto p-4 max-w-full">
+      <h1 className="mb-6 font-bold text-2xl md:text-3xl">User Management</h1>
 
-      <div className="mb-4 flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2 mb-4">
         {["ALL", ...Object.values(UserRole)].map((role) => (
           <button
             key={role}
@@ -84,7 +84,7 @@ export default function AdminPage() {
         ))}
       </div>
 
-      <div className="overflow-x-auto bg-white shadow-md rounded-lg">
+      <div className="bg-white shadow-md rounded-lg overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
             <tr>
@@ -99,7 +99,7 @@ export default function AdminPage() {
               ].map((header) => (
                 <th
                   key={header}
-                  className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  className="px-4 py-2 font-medium text-gray-500 text-left text-xs uppercase tracking-wider"
                 >
                   {header}
                 </th>
@@ -121,10 +121,10 @@ export default function AdminPage() {
       </div>
 
       {modifiedUsers.size > 0 && (
-        <div className="mt-6 flex justify-center">
+        <div className="flex justify-center mt-6">
           <button
             onClick={saveAllChanges}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105"
+            className="bg-blue-500 hover:bg-blue-700 shadow-lg px-4 py-2 rounded-full font-bold text-white transform transition duration-300 ease-in-out hover:scale-105"
           >
             Save Changes ({modifiedUsers.size})
           </button>

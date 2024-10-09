@@ -6,11 +6,10 @@ export default async function Home() {
 
   return (
     <main className="flex flex-col flex-grow items-center mx-auto px-4 sm:px-6 lg:px-8 py-8 h-[calc(100vh-64px)] overflow-hidden container">
-      <h1 className="mb-4 font-bold text-2xl text-center lg:text-5xl">Super Power Notes</h1>
-      <p className="mb-12 font-light text-center text-sm lg:text-2xl">
-        Remember everything you need
-      </p>
-      <div className="w-full max-w-sm">
+      <h1 className="bg-clip-text bg-gradient-to-r from-blue-950 to-blue-500 mb-4 font-extrabold text-3xl text-center text-transparent md:text-5xl lg:text-7xl">
+        Super Power Notes
+      </h1>
+      <div className="w-full">
         <DynamicAudioRecorder initialSession={session} />
       </div>
     </main>

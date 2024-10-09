@@ -52,6 +52,9 @@ const config: Config = {
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+      fontFamily: {
+        afcad: ["var(--font-afcad-flux)"],
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],

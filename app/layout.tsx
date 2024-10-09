@@ -1,7 +1,15 @@
+import { cn } from "@chadcn/lib/utils";
 import { Navigation } from "@src/components/navigation/Navigation";
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
+import localFont from "next/font/local";
 import "./globals.css";
+
+const afcadFlux = localFont({
+  src: "./fonts/AfacadFlux-VariableFont_slnt,wght.ttf",
+  variable: "--font-afcad-flux",
+  weight: "100 1000",
+});
 
 export const metadata: Metadata = {
   title: "Super Power Notes",
@@ -15,7 +23,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="flex flex-col min-h-screen">
+      <body
+        className={cn("flex flex-col min-h-screen", `${afcadFlux.variable} antialiased`)}
+        style={afcadFlux.style}
+      >
         <SessionProvider>
           <Navigation />
           <div className="mt-16">{children}</div>

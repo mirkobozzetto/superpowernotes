@@ -18,13 +18,16 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
   }
 
   return (
-    <div>
+    <div className="">
       {currentSession?.user ? (
         <AudioRecorder />
       ) : (
         <div className="mx-auto">
-          <p className="bg-green-50 p-4 rounded-full text-center text-green-500 text-sm md:text-base">
-            {`Don't wait a moment longer to get connected !`}
+          <p
+            className="p-4 font-light text-blue-700 text-center text-xs md:text-sm
+           lg:text-2xl italic"
+          >
+            {"Sign in to start recording your audio notes"}
           </p>
         </div>
       )}
