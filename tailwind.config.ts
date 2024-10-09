@@ -55,6 +55,24 @@ const config: Config = {
       fontFamily: {
         afcad: ["var(--font-afcad-flux)"],
       },
+      keyframes: {
+        "gradient-x": {
+          "0%, 100%": {
+            "background-size": "200% 200%",
+            "background-position": "left center",
+          },
+          "50%": {
+            "background-size": "200% 200%",
+            "background-position": "right center",
+          },
+        },
+      },
+      scale: {
+        "102": "1.02",
+      },
+      animation: {
+        "pulse-slow": "pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+      },
     },
   },
   plugins: [require("tailwindcss-animate")],
