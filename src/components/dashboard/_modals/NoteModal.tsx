@@ -1,5 +1,5 @@
 import { VoiceNote } from "@prisma/client";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import TagInput from "../TagInput";
 
 interface NoteModalProps {
@@ -16,6 +16,8 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
     tags: [],
     duration: 0,
   });
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -35,7 +37,6 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
         return;
       }
       await onSave(editedNote);
-      // Ne fermez pas la modal ici, cela sera fait dans le composant parent
     },
     [editedNote, onSave]
   );
@@ -92,6 +93,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <input
+            ref={inputRef}
             type="text"
             name="fileName"
             value={editedNote.fileName ?? ""}
