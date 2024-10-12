@@ -57,7 +57,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
   return (
     <ModalPortal>
       <div
-        className="z-50 fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50 backdrop-blur-sm"
+        className="z-50 fixed inset-0 flex justify-center items-start md:items-center bg-gray-900 bg-opacity-50 backdrop-blur-sm pt-[5vh] md:pt-0"
         style={{
           top: "64px",
           height: "calc(100vh - 64px)",
