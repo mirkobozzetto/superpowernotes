@@ -16,6 +16,7 @@ export const useDemoRecorder = () => {
     cleanupAudioResources,
   } = useDemoAudioHandling();
 
+  const shouldProcessRef = useRef(true);
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -24,9 +25,7 @@ export const useDemoRecorder = () => {
     null
   );
   const [recordingTime, setRecordingTime] = useState(0);
-
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const shouldProcessRef = useRef(true);
 
   const finishRecording = useCallback(async () => {
     stopAudioRecording();
@@ -66,7 +65,7 @@ export const useDemoRecorder = () => {
     }
     cleanupAudioResources();
     shouldProcessRef.current = true;
-  }, [stopAudioRecording, getAudioMimeType, recordingTime, cleanupAudioResources]);
+  }, [stopAudioRecording, chunksRef, cleanupAudioResources, getAudioMimeType, recordingTime]);
 
   const startRecording = useCallback(async () => {
     setError(null);
@@ -134,7 +133,7 @@ export const useDemoRecorder = () => {
       clearInterval(timerRef.current);
     }
     cleanupAudioResources();
-  }, [stopAudioRecording, cleanupAudioResources]);
+  }, [stopAudioRecording, chunksRef, cleanupAudioResources]);
 
   return {
     isRecording,
