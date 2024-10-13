@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-export const VerifyRequestPage = () => {
+export default function VerifyRequestPage() {
   return (
     <div className="flex flex-col justify-center items-center bg-gradient-to-b from-blue-50 to-white p-4 pt-16">
       <div className="space-y-8 bg-white shadow-xl p-6 sm:p-8 md:p-10 rounded-lg w-9/10 text-center">
@@ -39,6 +39,4 @@ export const VerifyRequestPage = () => {
       </div>
     </div>
   );
-};
-
-export default VerifyRequestPage;
+}
