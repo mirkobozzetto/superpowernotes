@@ -23,6 +23,7 @@ export const DemoRecorder: React.FC = () => {
     stopRecording,
     pauseResumeRecording,
     finishRecording,
+    cancelRecording,
   } = useDemoRecorder();
 
   return (
@@ -46,25 +47,23 @@ export const DemoRecorder: React.FC = () => {
               {isRecording && !isProcessing && <RecordingAnimation />}
               {isProcessing && <AudioProcessingAnimation />}
             </div>
-            <div className="flex flex-col items-center w-full">
-              {isRecording && !isProcessing && (
-                <div className="bg-white">
-                  <ControlButtons
-                    isPaused={isPaused}
-                    onPauseResume={pauseResumeRecording}
-                    onCancel={stopRecording}
-                    onDone={finishRecording}
-                    recordingTime={recordingTime}
-                    maxRecordingDuration={maxRecordingDuration}
-                    isCancelling={false}
-                  />
-                </div>
-              )}
-            </div>
-            {error && (
-              <p className="bg-red-50 p-6 rounded-full w-full text-center text-red-500">{error}</p>
+            {isRecording && !isProcessing && (
+              <div className="bg-white">
+                <ControlButtons
+                  isPaused={isPaused}
+                  onPauseResume={pauseResumeRecording}
+                  onCancel={cancelRecording}
+                  onDone={finishRecording}
+                  recordingTime={recordingTime}
+                  maxRecordingDuration={maxRecordingDuration}
+                  isCancelling={false}
+                />
+              </div>
             )}
           </div>
+          {error && (
+            <p className="bg-red-50 p-6 rounded-full w-full text-center text-red-500">{error}</p>
+          )}
           {demoResult && (
             <div className="bg-blue-50 mt-4 p-4 rounded-lg w-full max-w-md">
               <h3 className="mb-2 font-bold text-lg">Transcription Result</h3>

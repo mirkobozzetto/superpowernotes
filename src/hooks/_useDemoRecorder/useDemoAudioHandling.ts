@@ -13,7 +13,8 @@ export const useDemoAudioHandling = () => {
 
   const startRecording = async (
     onDataAvailable: (event: BlobEvent) => void,
-    onStop: () => void
+    onStop: () => void,
+    shouldProcessAudio: () => boolean
   ) => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -25,7 +26,9 @@ export const useDemoAudioHandling = () => {
 
       mediaRecorderRef.current.ondataavailable = onDataAvailable;
       mediaRecorderRef.current.onstop = () => {
-        onStop();
+        if (shouldProcessAudio()) {
+          onStop();
+        }
         cleanupAudioResources();
       };
       mediaRecorderRef.current.start();

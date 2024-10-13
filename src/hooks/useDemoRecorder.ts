@@ -26,6 +26,7 @@ export const useDemoRecorder = () => {
   const [recordingTime, setRecordingTime] = useState(0);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const shouldProcessRef = useRef(true);
 
   const finishRecording = useCallback(async () => {
     stopAudioRecording();
@@ -34,7 +35,7 @@ export const useDemoRecorder = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
-    if (chunksRef.current.length > 0) {
+    if (chunksRef.current.length > 0 && shouldProcessRef.current) {
       setIsProcessing(true);
       const audioBlob = new Blob(chunksRef.current, { type: getAudioMimeType() });
       const formData = new FormData();
@@ -64,16 +65,22 @@ export const useDemoRecorder = () => {
       }
     }
     cleanupAudioResources();
-  }, [stopAudioRecording, chunksRef, getAudioMimeType, recordingTime, cleanupAudioResources]);
+    shouldProcessRef.current = true;
+  }, [stopAudioRecording, getAudioMimeType, recordingTime, cleanupAudioResources]);
 
   const startRecording = useCallback(async () => {
     setError(null);
     setDemoResult(null);
     chunksRef.current = [];
     setRecordingTime(0);
+    shouldProcessRef.current = true;
 
     try {
-      await startAudioRecording((event) => chunksRef.current.push(event.data), finishRecording);
+      await startAudioRecording(
+        (event) => chunksRef.current.push(event.data),
+        finishRecording,
+        () => shouldProcessRef.current
+      );
 
       setIsRecording(true);
       setIsPaused(false);
@@ -92,7 +99,7 @@ export const useDemoRecorder = () => {
       console.error("Error starting demo recording:", error);
       setError("Failed to start recording. Please check your microphone permissions.");
     }
-  }, [startAudioRecording, chunksRef, finishRecording]);
+  }, [startAudioRecording, finishRecording, chunksRef]);
 
   const stopRecording = useCallback(() => {
     finishRecording();
@@ -114,6 +121,21 @@ export const useDemoRecorder = () => {
     }
   }, [isPaused, resumeRecording, pauseRecording]);
 
+  const cancelRecording = useCallback(() => {
+    shouldProcessRef.current = false;
+    stopAudioRecording();
+    chunksRef.current = [];
+    setIsRecording(false);
+    setIsPaused(false);
+    setError(null);
+    setDemoResult(null);
+    setRecordingTime(0);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+    }
+    cleanupAudioResources();
+  }, [stopAudioRecording, cleanupAudioResources]);
+
   return {
     isRecording,
     isPaused,
@@ -128,5 +150,6 @@ export const useDemoRecorder = () => {
     stopRecording,
     pauseResumeRecording,
     finishRecording,
+    cancelRecording,
   };
 };
