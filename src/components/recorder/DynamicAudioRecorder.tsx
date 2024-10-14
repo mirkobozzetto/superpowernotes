@@ -1,11 +1,16 @@
 "use client";
+import { useLastRecordedMessage } from "@src/hooks/useLastRecordedMessage";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { AudioRecorder } from "./AudioRecorder";
+import { LastRecordedMessage } from "./_ui/LastRecordedMessage";
 
 export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Session | null }) => {
   const { data: session, status } = useSession();
   const currentSession = session ?? initialSession;
+  const userId = currentSession?.user?.id;
+
+  const { lastMessage, isLoading, error } = useLastRecordedMessage(userId || "");
 
   if (status === "loading") {
     return (
@@ -18,15 +23,23 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
   }
 
   return (
-    <div className="">
+    <div className="flex flex-col items-center w-full">
       {currentSession?.user ? (
-        <AudioRecorder />
+        <>
+          <AudioRecorder />
+          <div className="mt-8 w-full max-w-md">
+            {isLoading ? (
+              <p className="text-center">Loading last message...</p>
+            ) : error ? (
+              <p className="text-center text-red-500">{error}</p>
+            ) : (
+              <LastRecordedMessage voiceNote={lastMessage} />
+            )}
+          </div>
+        </>
       ) : (
         <div className="mx-auto">
-          <p
-            className="p-4 font-light text-blue-700 text-center text-xs md:text-sm
-           lg:text-2xl italic"
-          >
+          <p className="p-4 font-light text-blue-700 text-center text-xs md:text-sm lg:text-2xl italic">
             {"Sign in to start recording your audio notes"}
           </p>
         </div>

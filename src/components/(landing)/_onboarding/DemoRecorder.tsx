@@ -77,6 +77,7 @@ export const DemoRecorder: React.FC = () => {
                   recordingTime={recordingTime}
                   maxRecordingDuration={maxRecordingDuration}
                   isCancelling={false}
+                  isProcessing={false}
                 />
               </div>
             )}

@@ -96,8 +96,6 @@ export const useRecorder = () => {
     } catch (error) {
       console.error("Error starting recording:", error);
       setError("Failed to start recording. Please check your microphone permissions.");
-    } finally {
-      console.log(setIsProcessing, isProcessing);
     }
   };
 
