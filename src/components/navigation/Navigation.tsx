@@ -27,7 +27,7 @@ export const Navigation: React.FC = () => {
         "backdrop-blur-sm"
       )}
     >
-      <div className="relative flex justify-between items-center mx-auto px-3 h-full container">
+      <div className="relative flex justify-end items-center mx-auto px-3 h-full container">
         {status === "authenticated" && (
           <NavigationMenu>
             <NavigationMenuList>
