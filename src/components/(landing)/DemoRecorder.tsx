@@ -1,7 +1,7 @@
 "use client";
 
 import { useDemoRecorder } from "@src/hooks/useDemoRecorder";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { AudioProcessingAnimation } from "../recorder/_ui/AudioProcessingAnimation";
 import { RecordButton } from "../recorder/_ui/RecordButton";
 import { RecordingAnimation } from "../recorder/_ui/RecordingAnimation";
@@ -26,15 +26,15 @@ export const DemoRecorder: React.FC = () => {
     finishRecording,
     cancelRecording,
     trialLimitReached,
+    showLimitModal,
+    setShowLimitModal,
   } = useDemoRecorder();
-
-  const [showLimitModal, setShowLimitModal] = useState(false);
 
   useEffect(() => {
     if (trialLimitReached) {
       setShowLimitModal(true);
     }
-  }, [trialLimitReached]);
+  }, [trialLimitReached, setShowLimitModal]);
 
   return (
     <div className="flex flex-col justify-start items-center space-y-6 w-full min-h-[300px]">
@@ -44,14 +44,13 @@ export const DemoRecorder: React.FC = () => {
           Please enable microphone access to try the demo.
         </p>
       )}
-      {micPermission && !trialLimitReached && (
+      {micPermission && (
         <div className="flex flex-col items-center w-full">
-          {!isProcessing && (
-            <RecordButton
-              isRecording={isRecording}
-              onClick={isRecording ? stopRecording : startRecording}
-            />
-          )}
+          <RecordButton
+            isRecording={isRecording}
+            onClick={isRecording ? stopRecording : startRecording}
+            disabled={trialLimitReached}
+          />
           <div className="flex flex-col items-center w-full">
             <div className="flex justify-center items-center h-12">
               {isRecording && !isProcessing && <RecordingAnimation />}
@@ -74,7 +73,6 @@ export const DemoRecorder: React.FC = () => {
           {error && (
             <p className="bg-red-50 p-6 rounded-full w-full text-center text-red-500">{error}</p>
           )}
-
           {demoResult && demoResult.tags && demoResult.tags.length > 0 && (
             <div className="bg-blue-50 mt-4 p-4 rounded-lg w-full max-w-md">
               <h3 className="mb-2 font-bold text-lg">Transcription Result</h3>

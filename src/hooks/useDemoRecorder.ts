@@ -24,6 +24,7 @@ export const useDemoRecorder = () => {
   });
 
   const [trialLimitReached, setTrialLimitReached] = useState(() => trialCount >= MAX_TRIAL_COUNT);
+  const [showLimitModal, setShowLimitModal] = useState(false);
 
   const shouldProcessRef = useRef(true);
   const [isRecording, setIsRecording] = useState(false);
@@ -96,6 +97,7 @@ export const useDemoRecorder = () => {
 
   const startRecording = useCallback(async () => {
     if (trialLimitReached) {
+      setShowLimitModal(true);
       setError("Limite d'essais atteinte. Veuillez réessayer plus tard ou vous inscrire.");
       return;
     }
@@ -185,5 +187,7 @@ export const useDemoRecorder = () => {
     cancelRecording,
     trialLimitReached,
     trialCount,
+    showLimitModal,
+    setShowLimitModal,
   };
 };
