@@ -1,4 +1,4 @@
-import { DemoRecorder } from "@src/components/(landing)/DemoRecorder";
+import { Onboarding } from "@src/components/(landing)/Onboarding";
 import { DynamicAudioRecorder } from "@src/components/recorder/DynamicAudioRecorder";
 import { auth } from "@src/lib/auth/auth";
 
@@ -11,7 +11,7 @@ export default async function Home() {
         Super Power Notes
       </h1>
       <div className="w-full">
-        {session ? <DynamicAudioRecorder initialSession={session} /> : <DemoRecorder />}
+        {session ? <DynamicAudioRecorder initialSession={session} /> : <Onboarding />}
       </div>
     </main>
   );

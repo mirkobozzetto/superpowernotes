@@ -2,11 +2,11 @@
 
 import { useDemoRecorder } from "@src/hooks/useDemoRecorder";
 import React, { useEffect } from "react";
-import { AudioProcessingAnimation } from "../recorder/_ui/AudioProcessingAnimation";
-import { RecordButton } from "../recorder/_ui/RecordButton";
-import { RecordingAnimation } from "../recorder/_ui/RecordingAnimation";
-import { ControlButtons } from "../recorder/_utils/ControlButtons";
-import { MicrophonePermissionCheck } from "../recorder/_utils/MicrophonePermissionCheck";
+import { AudioProcessingAnimation } from "../../recorder/_ui/AudioProcessingAnimation";
+import { RecordButton } from "../../recorder/_ui/RecordButton";
+import { RecordingAnimation } from "../../recorder/_ui/RecordingAnimation";
+import { ControlButtons } from "../../recorder/_utils/ControlButtons";
+import { MicrophonePermissionCheck } from "../../recorder/_utils/MicrophonePermissionCheck";
 import { DemoLimitModal } from "./DemoLimitModal";
 
 export const DemoRecorder: React.FC = () => {
