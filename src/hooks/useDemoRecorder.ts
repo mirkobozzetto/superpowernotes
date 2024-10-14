@@ -1,7 +1,9 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useDemoAudioHandling } from "./_useDemoRecorder/useDemoAudioHandling";
 
 const MAX_DEMO_DURATION = 30;
+const MAX_TRIAL_COUNT = 1;
+const STORAGE_KEY = "demoTrialCount";
 
 export const useDemoRecorder = () => {
   const {
@@ -16,6 +18,13 @@ export const useDemoRecorder = () => {
     cleanupAudioResources,
   } = useDemoAudioHandling();
 
+  const [trialCount, setTrialCount] = useState(() => {
+    const savedCount = localStorage.getItem(STORAGE_KEY);
+    return savedCount ? Math.min(parseInt(savedCount, 10), MAX_TRIAL_COUNT) : 0;
+  });
+
+  const [trialLimitReached, setTrialLimitReached] = useState(() => trialCount >= MAX_TRIAL_COUNT);
+
   const shouldProcessRef = useRef(true);
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -27,6 +36,11 @@ export const useDemoRecorder = () => {
   const [recordingTime, setRecordingTime] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, trialCount.toString());
+    setTrialLimitReached(trialCount >= MAX_TRIAL_COUNT);
+  }, [trialCount]);
+
   const finishRecording = useCallback(async () => {
     stopAudioRecording();
     setIsRecording(false);
@@ -34,7 +48,7 @@ export const useDemoRecorder = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
-    if (chunksRef.current.length > 0 && shouldProcessRef.current) {
+    if (chunksRef.current.length > 0 && shouldProcessRef.current && !trialLimitReached) {
       setIsProcessing(true);
       const audioBlob = new Blob(chunksRef.current, { type: getAudioMimeType() });
       const formData = new FormData();
@@ -48,26 +62,43 @@ export const useDemoRecorder = () => {
         });
 
         if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+          if (response.status === 429) {
+            setTrialLimitReached(true);
+            setError("Limite d'essais atteinte. Veuillez réessayer plus tard ou vous inscrire.");
+          } else {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+        } else {
+          setTrialCount((prevCount) => Math.min(prevCount + 1, MAX_TRIAL_COUNT));
+          const data = await response.json();
+          setDemoResult({
+            transcription: data.transcription,
+            tags: data.tags || [],
+          });
         }
-
-        const data = await response.json();
-        setDemoResult({
-          transcription: data.transcription,
-          tags: data.tags,
-        });
       } catch (error) {
         console.error("Error processing demo recording:", error);
-        setError("Failed to process the recording. Please try again.");
+        setError("Échec du traitement de l'enregistrement. Veuillez réessayer.");
       } finally {
         setIsProcessing(false);
       }
     }
     cleanupAudioResources();
     shouldProcessRef.current = true;
-  }, [stopAudioRecording, chunksRef, cleanupAudioResources, getAudioMimeType, recordingTime]);
+  }, [
+    stopAudioRecording,
+    chunksRef,
+    cleanupAudioResources,
+    getAudioMimeType,
+    recordingTime,
+    trialLimitReached,
+  ]);
 
   const startRecording = useCallback(async () => {
+    if (trialLimitReached) {
+      setError("Limite d'essais atteinte. Veuillez réessayer plus tard ou vous inscrire.");
+      return;
+    }
     setError(null);
     setDemoResult(null);
     chunksRef.current = [];
@@ -96,9 +127,11 @@ export const useDemoRecorder = () => {
       }, 1000);
     } catch (error) {
       console.error("Error starting demo recording:", error);
-      setError("Failed to start recording. Please check your microphone permissions.");
+      setError(
+        "Échec du démarrage de l'enregistrement. Veuillez vérifier les permissions de votre microphone."
+      );
     }
-  }, [startAudioRecording, finishRecording, chunksRef]);
+  }, [startAudioRecording, finishRecording, chunksRef, trialLimitReached]);
 
   const stopRecording = useCallback(() => {
     finishRecording();
@@ -150,5 +183,7 @@ export const useDemoRecorder = () => {
     pauseResumeRecording,
     finishRecording,
     cancelRecording,
+    trialLimitReached,
+    trialCount,
   };
 };

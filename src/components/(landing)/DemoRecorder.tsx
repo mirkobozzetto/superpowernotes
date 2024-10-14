@@ -1,12 +1,13 @@
 "use client";
 
 import { useDemoRecorder } from "@src/hooks/useDemoRecorder";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { AudioProcessingAnimation } from "../recorder/_ui/AudioProcessingAnimation";
 import { RecordButton } from "../recorder/_ui/RecordButton";
 import { RecordingAnimation } from "../recorder/_ui/RecordingAnimation";
 import { ControlButtons } from "../recorder/_utils/ControlButtons";
 import { MicrophonePermissionCheck } from "../recorder/_utils/MicrophonePermissionCheck";
+import { DemoLimitModal } from "./DemoLimitModal";
 
 export const DemoRecorder: React.FC = () => {
   const {
@@ -24,7 +25,16 @@ export const DemoRecorder: React.FC = () => {
     pauseResumeRecording,
     finishRecording,
     cancelRecording,
+    trialLimitReached,
   } = useDemoRecorder();
+
+  const [showLimitModal, setShowLimitModal] = useState(false);
+
+  useEffect(() => {
+    if (trialLimitReached) {
+      setShowLimitModal(true);
+    }
+  }, [trialLimitReached]);
 
   return (
     <div className="flex flex-col justify-start items-center space-y-6 w-full min-h-[300px]">
@@ -34,7 +44,7 @@ export const DemoRecorder: React.FC = () => {
           Please enable microphone access to try the demo.
         </p>
       )}
-      {micPermission && (
+      {micPermission && !trialLimitReached && (
         <div className="flex flex-col items-center w-full">
           {!isProcessing && (
             <RecordButton
@@ -64,7 +74,8 @@ export const DemoRecorder: React.FC = () => {
           {error && (
             <p className="bg-red-50 p-6 rounded-full w-full text-center text-red-500">{error}</p>
           )}
-          {demoResult && (
+
+          {demoResult && demoResult.tags && demoResult.tags.length > 0 && (
             <div className="bg-blue-50 mt-4 p-4 rounded-lg w-full max-w-md">
               <h3 className="mb-2 font-bold text-lg">Transcription Result</h3>
               <p className="mb-3">{demoResult.transcription}</p>
@@ -79,6 +90,7 @@ export const DemoRecorder: React.FC = () => {
           )}
         </div>
       )}
+      <DemoLimitModal isOpen={showLimitModal} />
     </div>
   );
 };
