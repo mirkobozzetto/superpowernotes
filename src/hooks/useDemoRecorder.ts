@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useDemoAudioHandling } from "./_useDemoRecorder/useDemoAudioHandling";
 
 const MAX_DEMO_DURATION = 30;
-const MAX_TRIAL_COUNT = 1;
+const MAX_TRIAL_COUNT = 2;
 const STORAGE_KEY = "demoTrialCount";
 
 export const useDemoRecorder = () => {

@@ -10,7 +10,7 @@ export const DemoLimitModal: React.FC<DemoLimitModalProps> = ({ isOpen }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="top-[-10vh] z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 backdrop-blur-[2px]">
+    <div className="top-[-10vh] z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 backdrop-blur-[1px]">
       <div className="bg-white shadow-lg m-4 p-6 rounded-lg w-full max-w-sm">
         <div className="text-center">
           <FaSmileWink className="inline-block mb-4 text-4xl text-blue-500 animate-bounce" />
