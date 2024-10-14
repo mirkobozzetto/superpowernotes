@@ -36,6 +36,10 @@ export const DemoRecorder: React.FC = () => {
     }
   }, [trialLimitReached, setShowLimitModal]);
 
+  const handleCloseModal = () => {
+    setShowLimitModal(false);
+  };
+
   return (
     <div className="flex flex-col justify-start items-center space-y-6 w-full min-h-[300px]">
       <MicrophonePermissionCheck onPermissionChange={setMicPermission} />
@@ -71,7 +75,7 @@ export const DemoRecorder: React.FC = () => {
             )}
           </div>
           {error && (
-            <p className="bg-red-50 p-6 rounded-full w-full text-center text-red-500">{error}</p>
+            <p className="bg-red-50 p-6 rounded-full w-3/5 text-center text-red-500">{error}</p>
           )}
           {demoResult && demoResult.tags && demoResult.tags.length > 0 && (
             <div className="bg-blue-50 mt-4 p-4 rounded-lg w-full max-w-md">
@@ -88,7 +92,7 @@ export const DemoRecorder: React.FC = () => {
           )}
         </div>
       )}
-      <DemoLimitModal isOpen={showLimitModal} />
+      <DemoLimitModal isOpen={showLimitModal} onClose={handleCloseModal} />
     </div>
   );
 };

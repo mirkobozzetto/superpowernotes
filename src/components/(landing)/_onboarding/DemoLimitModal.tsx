@@ -1,16 +1,44 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import AuthButton from "../../auth/AuthButton";
 
 interface DemoLimitModalProps {
   isOpen: boolean;
+  onClose: () => void;
 }
 
-export const DemoLimitModal: React.FC<DemoLimitModalProps> = ({ isOpen }) => {
+export const DemoLimitModal: React.FC<DemoLimitModalProps> = ({ isOpen, onClose }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("keydown", handleEscape);
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [isOpen, onClose]);
+
+  const handleOutsideClick = (event: React.MouseEvent) => {
+    if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+      onClose();
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
-    <div className="top-[-10vh] z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 backdrop-blur-[1px]">
-      <div className="bg-white shadow-lg m-4 p-6 rounded-lg w-full max-w-sm">
+    <div
+      className="top-[-10vh] z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 backdrop-blur-[1px]"
+      onClick={handleOutsideClick}
+    >
+      <div ref={modalRef} className="bg-white shadow-lg m-4 p-6 rounded-lg w-full max-w-sm">
         <div className="text-center">
           <div className="flex justify-center">
             <iframe
