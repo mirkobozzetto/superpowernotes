@@ -7,6 +7,7 @@ import { useTimeManagement } from "./_useRecorder/useTimeManagement";
 
 const MAX_RECORDING_DURATION = 120; // seconds
 const CANCEL_DELAY = 500; // milliseconds
+const RECORDING_COMPLETE_EVENT = "recordingComplete";
 
 export const useRecorder = () => {
   const { data: session } = useSession();
@@ -162,6 +163,7 @@ export const useRecorder = () => {
           new Blob(chunksRef.current, { type: getAudioMimeType() }),
           actualRecordingTimeRef.current
         );
+        window.dispatchEvent(new Event(RECORDING_COMPLETE_EVENT));
       } catch (error) {
         console.error("Error sending audio to server:", error);
         setError("Failed to process recording. Please try again.");

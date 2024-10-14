@@ -1,6 +1,6 @@
 "use client";
 
-import { useDemoRecorder } from "@src/hooks/useDemoRecorder";
+import { useDemoRecorder } from "@src/hooks/recorder/useDemoRecorder";
 import React, { useEffect } from "react";
 import { AudioProcessingAnimation } from "../../recorder/_ui/AudioProcessingAnimation";
 import { RecordButton } from "../../recorder/_ui/RecordButton";

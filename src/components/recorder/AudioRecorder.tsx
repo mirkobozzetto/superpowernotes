@@ -6,7 +6,7 @@ import { RecordingAnimation } from "./_ui/RecordingAnimation";
 import { ControlButtons } from "./_utils/ControlButtons";
 import { MicrophonePermissionCheck } from "./_utils/MicrophonePermissionCheck";
 
-export const AudioRecorder = () => {
+export const AudioRecorder = ({ onRecordingComplete }: { onRecordingComplete: () => void }) => {
   const {
     isRecording,
     isPaused,
@@ -14,7 +14,7 @@ export const AudioRecorder = () => {
     micPermission,
     setMicPermission,
     startRecording,
-    stopRecording,
+    // stopRecording,
     pauseResumeRecording,
     cancelRecording,
     finishRecording,
@@ -26,7 +26,10 @@ export const AudioRecorder = () => {
     isFinishing,
   } = useRecorder();
 
-  // console.log("isProcessing:", isProcessing);
+  const handleFinishRecording = async () => {
+    await finishRecording();
+    onRecordingComplete();
+  };
 
   return (
     <div className="flex flex-col justify-start items-center space-y-6 w-full min-h-[300px]">
