@@ -1,5 +1,4 @@
 import React from "react";
-import { FaSmileWink } from "react-icons/fa";
 import AuthButton from "../auth/AuthButton";
 
 interface DemoLimitModalProps {
@@ -13,7 +12,14 @@ export const DemoLimitModal: React.FC<DemoLimitModalProps> = ({ isOpen }) => {
     <div className="top-[-10vh] z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 backdrop-blur-[1px]">
       <div className="bg-white shadow-lg m-4 p-6 rounded-lg w-full max-w-sm">
         <div className="text-center">
-          <FaSmileWink className="inline-block mb-4 text-4xl text-blue-500 animate-bounce" />
+          <div className="flex justify-center">
+            <iframe
+              src="https://giphy.com/embed/Ov09jGgEThFKpxZ9eC"
+              style={{ border: 0 }}
+              className="mb-4 giphy-embed"
+              allowFullScreen
+            ></iframe>
+          </div>
           <h2 className="bg-clip-text bg-gradient-to-r from-blue-950 to-blue-500 mb-2 font-bold text-2xl text-transparent">
             Félicitations !
           </h2>
