@@ -153,7 +153,7 @@ export const useRecorder = () => {
 
   useEffect(() => {
     setIsProcessing(isFinishing);
-  }, [isFinishing]);
+  }, [isFinishing, setIsProcessing]);
 
   const finishRecording = async () => {
     setIsFinishing(true);
