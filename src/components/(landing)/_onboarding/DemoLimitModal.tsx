@@ -4,9 +4,14 @@ import AuthButton from "../../auth/AuthButton";
 interface DemoLimitModalProps {
   isOpen: boolean;
   onClose: () => void;
+  cooldownTimeLeft: number;
 }
 
-export const DemoLimitModal: React.FC<DemoLimitModalProps> = ({ isOpen, onClose }) => {
+export const DemoLimitModal: React.FC<DemoLimitModalProps> = ({
+  isOpen,
+  onClose,
+  cooldownTimeLeft,
+}) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -53,6 +58,9 @@ export const DemoLimitModal: React.FC<DemoLimitModalProps> = ({ isOpen, onClose 
           </h2>
           <p className="bg-clip-text bg-gradient-to-r from-blue-900 to-blue-800 mb-4 text-transparent">
             Vous avez exploré toutes les possibilités de la démo.
+          </p>
+          <p className="bg-clip-text bg-gradient-to-r from-blue-900 to-blue-800 mb-4 text-transparent">
+            Vous pourrez enregistrer à nouveau dans {cooldownTimeLeft} secondes.
           </p>
           <p className="bg-clip-text bg-gradient-to-r from-blue-900 to-blue-800 mb-6 text-transparent">
             Prêt à libérer tout le potentiel de vos notes vocales ?

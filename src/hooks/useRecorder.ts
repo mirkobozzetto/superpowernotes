@@ -11,6 +11,8 @@ const CANCEL_DELAY = 500; // milliseconds
 export const useRecorder = () => {
   const { data: session } = useSession();
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
+
   const {
     micPermission,
     setMicPermission,
@@ -42,8 +44,12 @@ export const useRecorder = () => {
     timerRef,
   } = useRecordingState();
 
-  const { sendAudioToServer } = useServerCommunication(setError, setIsSuccess, setRemainingTime);
-
+  const { sendAudioToServer } = useServerCommunication(
+    setError,
+    setIsSuccess,
+    setRemainingTime,
+    setIsFinishing
+  );
   const actualRecordingTimeRef = useRef(0);
 
   const startRecording = async () => {
@@ -91,7 +97,7 @@ export const useRecorder = () => {
       console.error("Error starting recording:", error);
       setError("Failed to start recording. Please check your microphone permissions.");
     } finally {
-      setIsProcessing(false);
+      console.log(setIsProcessing, isProcessing);
     }
   };
 
@@ -145,15 +151,27 @@ export const useRecorder = () => {
     }, CANCEL_DELAY);
   };
 
-  const finishRecording = () => {
+  useEffect(() => {
+    setIsProcessing(isFinishing);
+  }, [isFinishing]);
+
+  const finishRecording = async () => {
+    setIsFinishing(true);
     stopRecording();
     if (chunksRef.current.length > 0 && actualRecordingTimeRef.current > 0) {
-      sendAudioToServer(
-        new Blob(chunksRef.current, { type: getAudioMimeType() }),
-        actualRecordingTimeRef.current
-      );
+      try {
+        await sendAudioToServer(
+          new Blob(chunksRef.current, { type: getAudioMimeType() }),
+          actualRecordingTimeRef.current
+        );
+      } catch (error) {
+        console.error("Error sending audio to server:", error);
+        setError("Failed to process recording. Please try again.");
+      }
     }
     cleanupAudioResources();
+    setIsFinishing(false);
+    console.log("Exiting finishRecording");
   };
 
   useEffect(() => {
@@ -178,6 +196,7 @@ export const useRecorder = () => {
     recordingTime: actualRecordingTimeRef.current,
     maxRecordingDuration: MAX_RECORDING_DURATION,
     isProcessing,
+    isFinishing,
     isIOS: isIOSRef.current,
     remainingTime,
     isCancelling,

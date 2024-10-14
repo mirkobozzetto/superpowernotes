@@ -1,4 +1,3 @@
-import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction } from "react";
 
 type SetErrorType = Dispatch<SetStateAction<string | null>>;
@@ -8,11 +7,13 @@ type SetRemainingTimeType = Dispatch<SetStateAction<number | null>>;
 export const useServerCommunication = (
   setError: SetErrorType,
   setIsSuccess: SetIsSuccessType,
-  setRemainingTime: SetRemainingTimeType
+  setRemainingTime: SetRemainingTimeType,
+  setIsFinishing: Dispatch<SetStateAction<boolean>>
 ) => {
-  const router = useRouter();
+  // const router = useRouter();
 
   const sendAudioToServer = async (audioBlob: Blob, duration: number) => {
+    setIsFinishing(true);
     const formData = new FormData();
     formData.append("audio", audioBlob, `recording.${audioBlob.type.split("/")[1]}`);
     formData.append("duration", duration.toString());
@@ -31,12 +32,14 @@ export const useServerCommunication = (
       }
 
       setIsSuccess(true);
-      router.push("/dashboard");
     } catch (error) {
       console.error("Error in sendAudioToServer:", error);
       setError(error instanceof Error ? error.message : "An unknown error occurred");
       setIsSuccess(false);
+    } finally {
+      setIsFinishing(false);
     }
+    console.log("Exiting sendAudioToServer");
   };
 
   const saveVoiceNote = async (transcription: string, duration: number) => {

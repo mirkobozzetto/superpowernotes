@@ -19,7 +19,7 @@ export const RecordButton = ({ isRecording, onClick, disabled }: Props) => {
         "focus:outline-none focus:ring-8 focus:ring-red-400 focus:ring-opacity-50",
         "bg-gradient-to-br from-red-400 via-red-500 to-red-700",
         "shadow-md hover:shadow-lg shadow-red-500/30",
-        disabled && "cursor-not-allowed opacity-50"
+        disabled && "cursor-not-allowed opacity-70 hover:opacity-90"
       )}
     >
       {isRecording && (

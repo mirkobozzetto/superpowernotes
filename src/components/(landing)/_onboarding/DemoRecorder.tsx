@@ -28,6 +28,8 @@ export const DemoRecorder: React.FC = () => {
     trialLimitReached,
     showLimitModal,
     setShowLimitModal,
+    isCooldownActive,
+    cooldownTimeLeft,
   } = useDemoRecorder();
 
   useEffect(() => {
@@ -53,8 +55,13 @@ export const DemoRecorder: React.FC = () => {
           <RecordButton
             isRecording={isRecording}
             onClick={isRecording ? stopRecording : startRecording}
-            disabled={trialLimitReached}
+            disabled={isCooldownActive || trialLimitReached}
           />
+          {isCooldownActive && (
+            <p className="mt-2 text-blue-600">
+              Vous pourrez enregistrer à nouveau dans {cooldownTimeLeft} secondes.
+            </p>
+          )}
           <div className="flex flex-col items-center w-full">
             <div className="flex justify-center items-center h-12">
               {isRecording && !isProcessing && <RecordingAnimation />}
@@ -92,7 +99,11 @@ export const DemoRecorder: React.FC = () => {
           )}
         </div>
       )}
-      <DemoLimitModal isOpen={showLimitModal} onClose={handleCloseModal} />
+      <DemoLimitModal
+        isOpen={showLimitModal}
+        onClose={handleCloseModal}
+        cooldownTimeLeft={cooldownTimeLeft}
+      />
     </div>
   );
 };

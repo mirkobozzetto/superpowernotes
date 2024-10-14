@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useCountdown } from "./_useDemoRecorder/useCountdown";
 import { useDemoAudioHandling } from "./_useDemoRecorder/useDemoAudioHandling";
 
 const MAX_DEMO_DURATION = 30;
-const MAX_TRIAL_COUNT = 2;
+const MAX_TRIAL_COUNT = 1;
 const STORAGE_KEY = "demoTrialCount";
+const COOLDOWN_TIME = 10;
 
 export const useDemoRecorder = () => {
   const {
@@ -23,10 +25,24 @@ export const useDemoRecorder = () => {
     return savedCount ? Math.min(parseInt(savedCount, 10), MAX_TRIAL_COUNT) : 0;
   });
 
-  const [trialLimitReached, setTrialLimitReached] = useState(() => trialCount >= MAX_TRIAL_COUNT);
+  const [trialLimitReached, setTrialLimitReached] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
 
-  const shouldProcessRef = useRef(true);
+  const handleCountdownComplete = useCallback(() => {
+    setTrialCount(0);
+    setTrialLimitReached(false);
+    localStorage.setItem(STORAGE_KEY, "0");
+    setShowLimitModal(false);
+  }, []);
+
+  const {
+    timeLeft,
+    isActive: isCooldownActive,
+    startCountdown,
+    stopCountdown,
+    resetCountdown,
+  } = useCountdown(COOLDOWN_TIME, handleCountdownComplete);
+
   const [isRecording, setIsRecording] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -35,12 +51,20 @@ export const useDemoRecorder = () => {
     null
   );
   const [recordingTime, setRecordingTime] = useState(0);
+
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const shouldProcessRef = useRef(true);
 
   useEffect(() => {
+    const newTrialLimitReached = trialCount >= MAX_TRIAL_COUNT;
+    setTrialLimitReached(newTrialLimitReached);
     localStorage.setItem(STORAGE_KEY, trialCount.toString());
-    setTrialLimitReached(trialCount >= MAX_TRIAL_COUNT);
-  }, [trialCount]);
+
+    if (newTrialLimitReached && !isCooldownActive) {
+      startCountdown();
+      setShowLimitModal(true);
+    }
+  }, [trialCount, isCooldownActive, startCountdown]);
 
   const finishRecording = useCallback(async () => {
     stopAudioRecording();
@@ -49,6 +73,7 @@ export const useDemoRecorder = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
+
     if (chunksRef.current.length > 0 && shouldProcessRef.current && !trialLimitReached) {
       setIsProcessing(true);
       const audioBlob = new Blob(chunksRef.current, { type: getAudioMimeType() });
@@ -70,7 +95,14 @@ export const useDemoRecorder = () => {
             throw new Error(`HTTP error! status: ${response.status}`);
           }
         } else {
-          setTrialCount((prevCount) => Math.min(prevCount + 1, MAX_TRIAL_COUNT));
+          const newTrialCount = trialCount + 1;
+          setTrialCount(newTrialCount);
+
+          if (newTrialCount >= MAX_TRIAL_COUNT) {
+            setTrialLimitReached(true);
+            startCountdown();
+          }
+
           const data = await response.json();
           setDemoResult({
             transcription: data.transcription,
@@ -93,6 +125,8 @@ export const useDemoRecorder = () => {
     getAudioMimeType,
     recordingTime,
     trialLimitReached,
+    trialCount,
+    startCountdown,
   ]);
 
   const startRecording = useCallback(async () => {
@@ -189,5 +223,7 @@ export const useDemoRecorder = () => {
     trialCount,
     showLimitModal,
     setShowLimitModal,
+    isCooldownActive,
+    cooldownTimeLeft: timeLeft,
   };
 };
