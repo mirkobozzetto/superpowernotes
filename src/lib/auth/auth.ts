@@ -13,7 +13,7 @@ declare module "next-auth" {
     user?: User;
   }
 }
-//
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -34,6 +34,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
     }),
   ],
+  pages: {
+    verifyRequest: "/auth/verify-request",
+  },
   callbacks: {
     async signIn({ user, account }) {
       if (account?.provider === "google" && user.email) {

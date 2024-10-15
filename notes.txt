@@ -1,0 +1,52 @@
+😱 "Impossible de créer des notes !" Ce message d'un utilisateur m'a fait bondir de ma chaise. Voici l'histoire d'un bug qui m'a fait transpirer...
+
+Quand un mini changement de code déclenche le chaos 💥
+
+Hier, j'ai vécu un truc de ouf avec mon app de notes. 📝
+
+Je travaillais sur une nouvelle logique de l'app, et boom ! 💣
+
+Un utilisateur m'a envoyé un message : "Hé, je peux pas créer de notes dans le dashboard !"
+
+J'avais accidentellement changé la logique d'un hooks qui gérait les notes des utilisateurs 🙈
+
+Voilà ce que j'ai appris de cette galère :
+
+1. Les utilisateurs sont des ninjas 🥷
+Ils trouvent toujours des façons d'utiliser ton app que t'avais même pas imaginées.
+
+2. Le code modulaire, c'est la vie 🧩
+Bouger du code sans bien tester, c'est comme jouer à la roulette russe avec ton app.
+
+3. Écoute tes utilisateurs 👂
+Leurs retours, c'est de l'or en barre pour trouver les bugs cachés.
+
+J'ai dû faire marche arrière et tout réorganiser.
+
+Mais vous savez quoi ?
+
+Cette galère m'a rendu meilleur développeur. 💪
+
+On apprend vraiment de ses erreurs !
+
+🚀 Mais assez parlé de bugs, parlons plutôt de solutions ! 🚀
+
+Je bosse actuellement sur la landing page de mon app de notes vocales, Super Power Notes.
+
+L'app est déjà fonctionnelle et j'adorerais avoir vos retours !
+
+👉 Si vous rêvez de prendre des notes à la volée depuis n'importe où avec votre voix (smartphone ou ordi),
+c'est l'outil idéal pour vous !
+
+🆓 Bonus : l'app est en phase bêta et reste gratuite encore un moment pour toute une série d'utilisateurs !
+
+🔮 Ce qui arrive bientôt :
+- Synchronisation avec d'autres services comme Notion
+- Extension Chrome pour prendre des notes vocales depuis n'importe quel site
+
+Curieux ? Jetez un œil ici : https://www.superpowernot.es/
+
+Vos retours seront précieux pour améliorer l'app.
+Alors n'hésitez pas à l'essayer et à me dire ce que vous en pensez !
+
+#SuperPowerNotes #NotesVocales

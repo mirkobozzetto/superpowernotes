@@ -1,15 +1,14 @@
-import { User, VoiceNote } from "@prisma/client";
 import { auth } from "@src/lib/auth/auth";
 import { generateTags } from "@src/lib/noteUtils";
 import { prisma } from "@src/lib/prisma";
 import { format } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
 
-const calculateRemainingTime = (user: User, voiceNotes: VoiceNote[], newDuration: number = 0) => {
-  const totalUsedTime =
-    voiceNotes.reduce((acc, note) => acc + (note.duration ?? 0), 0) + newDuration;
-  return Math.max(0, user.timeLimit - totalUsedTime);
-};
+// const calculateRemainingTime = (user: User, voiceNotes: VoiceNote[], newDuration: number = 0) => {
+//   const totalUsedTime =
+//     voiceNotes.reduce((acc, note) => acc + (note.duration ?? 0), 0) + newDuration;
+//   return Math.max(0, user.timeLimit - totalUsedTime);
+// };
 
 export async function GET() {
   const session = await auth();
