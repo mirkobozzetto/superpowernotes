@@ -33,7 +33,7 @@ export const AudioRecorder = ({ onRecordingComplete }: { onRecordingComplete: ()
     setTimeout(() => {
       console.log("Calling onRecordingComplete");
       onRecordingComplete();
-    }, 5000);
+    }, 6500);
   };
 
   return (

@@ -93,7 +93,7 @@ export const useRecorder = () => {
           }
           return newTime;
         });
-      }, 1000);
+      }, 2000);
     } catch (error) {
       console.error("Error starting recording:", error);
       setError("Failed to start recording. Please check your microphone permissions.");
