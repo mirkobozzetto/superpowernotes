@@ -3,20 +3,23 @@ import { FaMicrophone } from "react-icons/fa";
 
 interface Props {
   isRecording: boolean;
+  disabled?: boolean;
   onClick: () => void;
 }
 
-export const RecordButton = ({ isRecording, onClick }: Props) => {
+export const RecordButton = ({ isRecording, onClick, disabled }: Props) => {
   return (
     <button
       onClick={onClick}
+      disabled={disabled}
       className={cn(
         "size-40 md:size-64 rounded-full mt-12",
         "relative overflow-hidden",
         "transition-all duration-500 ease-in-out",
         "focus:outline-none focus:ring-8 focus:ring-red-400 focus:ring-opacity-50",
         "bg-gradient-to-br from-red-400 via-red-500 to-red-700",
-        "shadow-md hover:shadow-lg shadow-red-500/30"
+        "shadow-md hover:shadow-lg shadow-red-500/30",
+        disabled && "cursor-not-allowed opacity-70 hover:opacity-90"
       )}
     >
       {isRecording && (

@@ -2,7 +2,7 @@ import React from "react";
 
 export const AudioProcessingAnimation: React.FC = () => {
   return (
-    <div className="z-50 fixed inset-0 flex justify-center items-center">
+    <div className="z-50 fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50 backdrop-blur-sm">
       <div className="absolute inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm"></div>
       <div className="relative bg-white shadow-xl mx-4 p-6 rounded-lg w-full max-w-sm">
         <div className="flex flex-col items-center">

@@ -85,3 +85,7 @@
 .placeholder-center:focus {
   text-align: left;
 }
+
+body {
+  font-variation-settings: "slnt" 0;
+}

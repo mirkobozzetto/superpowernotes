@@ -1,11 +1,32 @@
 "use client";
+import { useLastRecordedMessage } from "@src/hooks/recorder/useLastRecordedMessage";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
+import { useCallback, useEffect, useState } from "react";
 import { AudioRecorder } from "./AudioRecorder";
+import { LastRecordedMessage } from "./_ui/LastRecordedMessage";
 
 export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Session | null }) => {
   const { data: session, status } = useSession();
   const currentSession = session ?? initialSession;
+  const userId = currentSession?.user?.id;
+
+  const [shouldRefresh, setShouldRefresh] = useState(false);
+
+  const { lastMessage, isLoading, error } = useLastRecordedMessage(userId || "", shouldRefresh);
+
+  const handleRecordingComplete = useCallback(() => {
+    setShouldRefresh(true);
+  }, []);
+
+  useEffect(() => {
+    if (shouldRefresh) {
+      const timer = setTimeout(() => {
+        setShouldRefresh(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [shouldRefresh]);
 
   if (status === "loading") {
     return (
@@ -18,15 +39,25 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
   }
 
   return (
-    <div className="">
+    <div className="flex flex-col items-center w-full">
       {currentSession?.user ? (
-        <AudioRecorder />
+        <>
+          <AudioRecorder onRecordingComplete={handleRecordingComplete} />
+          <div className="mt-8 w-full max-w-md">
+            {isLoading ? (
+              <p className="text-center">Loading last message...</p>
+            ) : error ? (
+              <p className="text-center text-red-500">{error}</p>
+            ) : lastMessage ? (
+              <LastRecordedMessage voiceNote={lastMessage} />
+            ) : (
+              <p className="text-center">No messages recorded yet.</p>
+            )}
+          </div>
+        </>
       ) : (
         <div className="mx-auto">
-          <p
-            className="p-4 font-light text-blue-700 text-center text-xs md:text-sm
-           lg:text-2xl italic"
-          >
+          <p className="p-4 font-light text-blue-700 text-center text-xs md:text-sm lg:text-2xl italic">
             {"Sign in to start recording your audio notes"}
           </p>
         </div>

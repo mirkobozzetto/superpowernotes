@@ -7,10 +7,13 @@ import { useTimeManagement } from "./_useRecorder/useTimeManagement";
 
 const MAX_RECORDING_DURATION = 120; // seconds
 const CANCEL_DELAY = 500; // milliseconds
+const RECORDING_COMPLETE_EVENT = "recordingComplete";
 
 export const useRecorder = () => {
   const { data: session } = useSession();
   const [isCancelling, setIsCancelling] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
+
   const {
     micPermission,
     setMicPermission,
@@ -42,8 +45,12 @@ export const useRecorder = () => {
     timerRef,
   } = useRecordingState();
 
-  const { sendAudioToServer } = useServerCommunication(setError, setIsSuccess, setRemainingTime);
-
+  const { sendAudioToServer } = useServerCommunication(
+    setError,
+    setIsSuccess,
+    setRemainingTime,
+    setIsFinishing
+  );
   const actualRecordingTimeRef = useRef(0);
 
   const startRecording = async () => {
@@ -90,8 +97,6 @@ export const useRecorder = () => {
     } catch (error) {
       console.error("Error starting recording:", error);
       setError("Failed to start recording. Please check your microphone permissions.");
-    } finally {
-      setIsProcessing(false);
     }
   };
 
@@ -145,15 +150,31 @@ export const useRecorder = () => {
     }, CANCEL_DELAY);
   };
 
-  const finishRecording = () => {
+  useEffect(() => {
+    setIsProcessing(isFinishing);
+  }, [isFinishing, setIsProcessing]);
+
+  const finishRecording = async () => {
+    console.log("Starting finishRecording");
+    setIsFinishing(true);
     stopRecording();
     if (chunksRef.current.length > 0 && actualRecordingTimeRef.current > 0) {
-      sendAudioToServer(
-        new Blob(chunksRef.current, { type: getAudioMimeType() }),
-        actualRecordingTimeRef.current
-      );
+      try {
+        console.log("Sending audio to server");
+        await sendAudioToServer(
+          new Blob(chunksRef.current, { type: getAudioMimeType() }),
+          actualRecordingTimeRef.current
+        );
+        console.log("Audio sent successfully, dispatching event");
+        window.dispatchEvent(new Event(RECORDING_COMPLETE_EVENT));
+      } catch (error) {
+        console.error("Error sending audio to server:", error);
+        setError("Failed to process recording. Please try again.");
+      }
     }
     cleanupAudioResources();
+    setIsFinishing(false);
+    console.log("Exiting finishRecording");
   };
 
   useEffect(() => {
@@ -178,6 +199,7 @@ export const useRecorder = () => {
     recordingTime: actualRecordingTimeRef.current,
     maxRecordingDuration: MAX_RECORDING_DURATION,
     isProcessing,
+    isFinishing,
     isIOS: isIOSRef.current,
     remainingTime,
     isCancelling,

@@ -10,6 +10,7 @@ interface ControlButtonsProps {
   recordingTime: number;
   maxRecordingDuration: number;
   isCancelling: boolean;
+  isProcessing: boolean;
 }
 
 export const ControlButtons: React.FC<ControlButtonsProps> = ({
@@ -20,6 +21,7 @@ export const ControlButtons: React.FC<ControlButtonsProps> = ({
   recordingTime,
   maxRecordingDuration,
   isCancelling,
+  isProcessing,
 }) => {
   return (
     <div className="flex justify-between items-center space-x-2 sm:space-x-4 w-full">
@@ -30,7 +32,7 @@ export const ControlButtons: React.FC<ControlButtonsProps> = ({
         />
         <button
           onClick={onPauseResume}
-          disabled={isCancelling}
+          disabled={isCancelling || isProcessing}
           className="size-8 sm:size-10 flex justify-center items-center border-gray-300 hover:bg-gray-50/50 disabled:opacity-50 border rounded-full disabled:cursor-not-allowed"
         >
           {isPaused ? (
