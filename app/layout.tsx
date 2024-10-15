@@ -14,6 +14,9 @@ const afcadFlux = localFont({
 export const metadata: Metadata = {
   title: "Super Power Notes",
   description: "Magical note taking app",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

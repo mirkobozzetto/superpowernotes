@@ -155,14 +155,17 @@ export const useRecorder = () => {
   }, [isFinishing, setIsProcessing]);
 
   const finishRecording = async () => {
+    console.log("Starting finishRecording");
     setIsFinishing(true);
     stopRecording();
     if (chunksRef.current.length > 0 && actualRecordingTimeRef.current > 0) {
       try {
+        console.log("Sending audio to server");
         await sendAudioToServer(
           new Blob(chunksRef.current, { type: getAudioMimeType() }),
           actualRecordingTimeRef.current
         );
+        console.log("Audio sent successfully, dispatching event");
         window.dispatchEvent(new Event(RECORDING_COMPLETE_EVENT));
       } catch (error) {
         console.error("Error sending audio to server:", error);

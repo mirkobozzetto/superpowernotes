@@ -17,18 +17,23 @@ export const AudioRecorder = ({ onRecordingComplete }: { onRecordingComplete: ()
     // stopRecording,
     pauseResumeRecording,
     cancelRecording,
-    finishRecording,
     recordingTime,
     maxRecordingDuration,
     isProcessing,
     remainingTime,
     isCancelling,
     isFinishing,
+    finishRecording,
   } = useRecorder();
 
   const handleFinishRecording = async () => {
+    console.log("handleFinishRecording called");
     await finishRecording();
-    onRecordingComplete();
+    console.log("finishRecording completed, waiting before calling onRecordingComplete");
+    setTimeout(() => {
+      console.log("Calling onRecordingComplete");
+      onRecordingComplete();
+    }, 5000);
   };
 
   return (
@@ -43,7 +48,7 @@ export const AudioRecorder = ({ onRecordingComplete }: { onRecordingComplete: ()
         <div className="flex flex-col items-center w-full">
           <RecordButton
             isRecording={isRecording}
-            onClick={isRecording ? finishRecording : startRecording}
+            onClick={isRecording ? handleFinishRecording : startRecording}
             disabled={isProcessing}
           />
 

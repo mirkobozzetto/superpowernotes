@@ -2,7 +2,7 @@
 import { useLastRecordedMessage } from "@src/hooks/recorder/useLastRecordedMessage";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AudioRecorder } from "./AudioRecorder";
 import { LastRecordedMessage } from "./_ui/LastRecordedMessage";
 
@@ -13,14 +13,20 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
 
   const [shouldRefresh, setShouldRefresh] = useState(false);
 
-  const { lastMessage, isLoading, error, refreshLastMessage } = useLastRecordedMessage(
-    userId || "",
-    shouldRefresh
-  );
+  const { lastMessage, isLoading, error } = useLastRecordedMessage(userId || "", shouldRefresh);
 
   const handleRecordingComplete = useCallback(() => {
     setShouldRefresh(true);
   }, []);
+
+  useEffect(() => {
+    if (shouldRefresh) {
+      const timer = setTimeout(() => {
+        setShouldRefresh(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [shouldRefresh]);
 
   if (status === "loading") {
     return (
@@ -42,8 +48,10 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
               <p className="text-center">Loading last message...</p>
             ) : error ? (
               <p className="text-center text-red-500">{error}</p>
-            ) : (
+            ) : lastMessage ? (
               <LastRecordedMessage voiceNote={lastMessage} />
+            ) : (
+              <p className="text-center">No messages recorded yet.</p>
             )}
           </div>
         </>
