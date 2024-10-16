@@ -31,6 +31,12 @@ export const useRecordingActions = (
     console.log("Starting finishRecording");
     setIsFinishing(true);
     stopAudioRecording();
+
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+
     if (chunksRef.current.length > 0 && actualRecordingTimeRef.current > 0) {
       try {
         console.log("Sending audio to server");
@@ -38,6 +44,7 @@ export const useRecordingActions = (
           new Blob(chunksRef.current, { type: getAudioMimeType() }),
           actualRecordingTimeRef.current
         );
+
         console.log("Audio sent successfully, dispatching event");
         window.dispatchEvent(new Event(RECORDING_COMPLETE_EVENT));
       } catch (error) {
@@ -45,18 +52,24 @@ export const useRecordingActions = (
         setError("Failed to process recording. Please try again.");
       }
     }
+
     cleanupAudioResources();
     setIsFinishing(false);
+    setIsRecording(false); // Assurez-vous que l'état d'enregistrement est mis à jour
+    setRecordingTime(0); // Réinitialiser le temps d'enregistrement
     console.log("Exiting finishRecording");
   }, [
-    stopAudioRecording,
-    getAudioMimeType,
-    sendAudioToServer,
-    cleanupAudioResources,
-    setError,
     setIsFinishing,
+    stopAudioRecording,
+    timerRef,
     chunksRef,
     actualRecordingTimeRef,
+    cleanupAudioResources,
+    setIsRecording,
+    setRecordingTime,
+    sendAudioToServer,
+    getAudioMimeType,
+    setError,
   ]);
 
   const startRecording = useCallback(async () => {
