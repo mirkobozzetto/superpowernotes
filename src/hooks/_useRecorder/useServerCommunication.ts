@@ -10,8 +10,6 @@ export const useServerCommunication = (
   setRemainingTime: SetRemainingTimeType,
   setIsFinishing: Dispatch<SetStateAction<boolean>>
 ) => {
-  // const router = useRouter();
-
   const sendAudioToServer = async (audioBlob: Blob, duration: number) => {
     setIsFinishing(true);
     const formData = new FormData();
@@ -39,7 +37,6 @@ export const useServerCommunication = (
     } finally {
       setIsFinishing(false);
     }
-    console.log("Exiting sendAudioToServer");
   };
 
   const saveVoiceNote = async (transcription: string, duration: number) => {

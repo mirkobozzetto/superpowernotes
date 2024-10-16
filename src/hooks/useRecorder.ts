@@ -1,13 +1,12 @@
 import { useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { useAudioHandling } from "./_useRecorder/useAudioHandling";
+import { useRecordingActions } from "./_useRecorder/useRecordingActions";
 import { useRecordingState } from "./_useRecorder/useRecordingState";
 import { useServerCommunication } from "./_useRecorder/useServerCommunication";
 import { useTimeManagement } from "./_useRecorder/useTimeManagement";
 
 const MAX_RECORDING_DURATION = 120; // seconds
-const CANCEL_DELAY = 500; // milliseconds
-const RECORDING_COMPLETE_EVENT = "recordingComplete";
 
 export const useRecorder = () => {
   const { data: session } = useSession();
@@ -51,132 +50,37 @@ export const useRecorder = () => {
     setRemainingTime,
     setIsFinishing
   );
+
   const actualRecordingTimeRef = useRef(0);
 
-  const startRecording = async () => {
-    if (isCancelling) return;
-    if (remainingTime !== null && remainingTime <= 0) {
-      setError("You have reached your time limit. Please contact support for more time.");
-      return;
-    }
-
-    chunksRef.current = [];
-    actualRecordingTimeRef.current = 0;
-
-    try {
-      await startAudioRecording(
-        (event) => chunksRef.current.push(event.data),
-        () => {
-          if (chunksRef.current.length > 0 && actualRecordingTimeRef.current > 0) {
-            sendAudioToServer(
-              new Blob(chunksRef.current, { type: getAudioMimeType() }),
-              actualRecordingTimeRef.current
-            );
-          }
-        }
-      );
-
-      startTimeRef.current = Date.now();
-      setIsRecording(true);
-      setIsPaused(false);
-      setError(null);
-      setIsSuccess(false);
-      setRecordingTime(0);
-
-      timerRef.current = setInterval(() => {
-        setRecordingTime((prevTime) => {
-          const newTime = prevTime + 1;
-          actualRecordingTimeRef.current = newTime;
-          if (newTime >= MAX_RECORDING_DURATION - 1) {
-            finishRecording();
-            return MAX_RECORDING_DURATION;
-          }
-          return newTime;
-        });
-      }, 2000);
-    } catch (error) {
-      console.error("Error starting recording:", error);
-      setError("Failed to start recording. Please check your microphone permissions.");
-    }
-  };
-
-  const stopRecording = () => {
-    stopAudioRecording();
-    setIsRecording(false);
-    setIsPaused(false);
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-    cleanupAudioResources();
-  };
-
-  const pauseResumeRecording = () => {
-    setIsPaused(!isPaused); // new logic
-    if (isPaused) {
-      resumeAudioRecording();
-      // setIsPaused(false); //
-      timerRef.current = setInterval(() => {
-        setRecordingTime((prevTime) => {
-          const newTime = prevTime + 1;
-          actualRecordingTimeRef.current = newTime;
-          return newTime;
-        });
-      }, 1000);
-    } else {
-      pauseAudioRecording();
-      // setIsPaused(true); //
-      if (timerRef.current) {
-        clearInterval(timerRef.current);
-      }
-    }
-  };
-
-  const cancelRecording = () => {
-    setIsCancelling(true);
-    stopAudioRecording();
-    chunksRef.current = [];
-    setIsRecording(false);
-    setIsPaused(false);
-    setError(null);
-    setIsSuccess(false);
-    setRecordingTime(0);
-    actualRecordingTimeRef.current = 0;
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
-    }
-    cleanupAudioResources();
-    setTimeout(() => {
-      setIsProcessing(false);
-      setIsCancelling(false);
-    }, CANCEL_DELAY);
-  };
+  const { finishRecording, startRecording, stopRecording, pauseResumeRecording, cancelRecording } =
+    useRecordingActions(
+      isCancelling,
+      remainingTime,
+      startAudioRecording,
+      stopAudioRecording,
+      pauseAudioRecording,
+      resumeAudioRecording,
+      getAudioMimeType,
+      cleanupAudioResources,
+      sendAudioToServer,
+      setError,
+      setIsRecording,
+      setIsPaused,
+      setIsSuccess,
+      setRecordingTime,
+      setIsProcessing,
+      setIsFinishing,
+      setIsCancelling,
+      chunksRef,
+      startTimeRef,
+      timerRef,
+      actualRecordingTimeRef
+    );
 
   useEffect(() => {
     setIsProcessing(isFinishing);
   }, [isFinishing, setIsProcessing]);
-
-  const finishRecording = async () => {
-    console.log("Starting finishRecording");
-    setIsFinishing(true);
-    stopRecording();
-    if (chunksRef.current.length > 0 && actualRecordingTimeRef.current > 0) {
-      try {
-        console.log("Sending audio to server");
-        await sendAudioToServer(
-          new Blob(chunksRef.current, { type: getAudioMimeType() }),
-          actualRecordingTimeRef.current
-        );
-        console.log("Audio sent successfully, dispatching event");
-        window.dispatchEvent(new Event(RECORDING_COMPLETE_EVENT));
-      } catch (error) {
-        console.error("Error sending audio to server:", error);
-        setError("Failed to process recording. Please try again.");
-      }
-    }
-    cleanupAudioResources();
-    setIsFinishing(false);
-    console.log("Exiting finishRecording");
-  };
 
   useEffect(() => {
     if (isSuccess) {

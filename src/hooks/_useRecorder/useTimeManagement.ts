@@ -25,11 +25,16 @@ export const useTimeManagement = () => {
     fetchRemainingTime();
   }, [fetchRemainingTime]);
 
+  const updateRemainingTime = useCallback((duration: number) => {
+    setRemainingTime((prevTime) => (prevTime !== null ? Math.max(0, prevTime - duration) : null));
+  }, []);
+
   return {
     remainingTime,
     setRemainingTime,
     recordingTime,
     setRecordingTime,
     fetchRemainingTime,
+    updateRemainingTime,
   };
 };
