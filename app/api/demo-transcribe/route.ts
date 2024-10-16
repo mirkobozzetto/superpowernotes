@@ -45,7 +45,7 @@ export async function POST(req: NextRequest) {
     });
 
     const tags = await generateTags(transcription.text);
-
+    //await fetch ?? => generateTags || generateTitle etc ...
     return NextResponse.json({
       transcription: transcription.text,
       duration: duration,

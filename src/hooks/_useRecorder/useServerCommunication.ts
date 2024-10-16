@@ -46,7 +46,7 @@ export const useServerCommunication = (
     const response = await fetch("/api/voice-notes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ transcription, fileName: "AudioNote", tags: [], duration }),
+      body: JSON.stringify({ transcription, fileName: "", tags: [], duration }),
     });
 
     if (!response.ok) {

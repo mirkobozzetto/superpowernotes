@@ -111,9 +111,10 @@ export const useRecorder = () => {
   };
 
   const pauseResumeRecording = () => {
+    setIsPaused(!isPaused); // new logic
     if (isPaused) {
       resumeAudioRecording();
-      setIsPaused(false);
+      // setIsPaused(false); //
       timerRef.current = setInterval(() => {
         setRecordingTime((prevTime) => {
           const newTime = prevTime + 1;
@@ -123,7 +124,7 @@ export const useRecorder = () => {
       }, 1000);
     } else {
       pauseAudioRecording();
-      setIsPaused(true);
+      // setIsPaused(true); //
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useCountdown } from "../_useDemoRecorder/useCountdown";
-import { useDemoAudioHandling } from "../_useDemoRecorder/useDemoAudioHandling";
+import { useCountdown } from "./_useDemoRecorder/useCountdown";
+import { useDemoAudioHandling } from "./_useDemoRecorder/useDemoAudioHandling";
 
 const MAX_DEMO_DURATION = 30;
 const MAX_TRIAL_COUNT = 1;
