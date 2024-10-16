@@ -31,7 +31,11 @@ export const useDemoTrialManagement = (isCooldownActive: boolean, startCountdown
   }, [trialCount, isCooldownActive, startCountdown]);
 
   const decrementTrialCount = useCallback(() => {
-    setTrialCount((prevCount) => Math.max(0, prevCount - 1));
+    setTrialCount((prevCount) => {
+      const newCount = Math.max(0, prevCount - 1);
+      localStorage.setItem(STORAGE_KEY, newCount.toString());
+      return newCount;
+    });
   }, []);
 
   return {

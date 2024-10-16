@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import { useCountdown } from "./_useDemoRecorder/useCountdown";
 import { useDemoAudioHandling } from "./_useDemoRecorder/useDemoAudioHandling";
 import { useDemoRecordingActions } from "./_useDemoRecorder/useDemoRecordingActions";
@@ -46,7 +46,7 @@ export const useDemoRecorder = () => {
     showLimitModal,
     setShowLimitModal,
     handleCountdownComplete,
-  } = useDemoTrialManagement(false, () => {}); // Nous allons définir ces valeurs plus tard
+  } = useDemoTrialManagement(false, () => {});
 
   const {
     timeLeft,
@@ -55,6 +55,12 @@ export const useDemoRecorder = () => {
     stopCountdown,
     resetCountdown,
   } = useCountdown(COOLDOWN_TIME, handleCountdownComplete);
+
+  useEffect(() => {
+    if (timeLeft === 0 && isCooldownActive) {
+      handleCountdownComplete();
+    }
+  }, [timeLeft, isCooldownActive, handleCountdownComplete]);
 
   const { finishRecording, startRecording, stopRecording, pauseResumeRecording, cancelRecording } =
     useDemoRecordingActions(
@@ -108,5 +114,6 @@ export const useDemoRecorder = () => {
     setShowLimitModal,
     isCooldownActive,
     cooldownTimeLeft: timeLeft,
+    startCountdown,
   };
 };

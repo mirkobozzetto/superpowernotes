@@ -30,13 +30,15 @@ export const DemoRecorder: React.FC = () => {
     setShowLimitModal,
     isCooldownActive,
     cooldownTimeLeft,
+    startCountdown,
   } = useDemoRecorder();
 
   useEffect(() => {
-    if (trialLimitReached) {
+    if (trialLimitReached && !isCooldownActive) {
       setShowLimitModal(true);
+      startCountdown();
     }
-  }, [trialLimitReached, setShowLimitModal]);
+  }, [trialLimitReached, isCooldownActive, setShowLimitModal, startCountdown]);
 
   const handleCloseModal = () => {
     setShowLimitModal(false);
