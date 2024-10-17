@@ -1,14 +1,8 @@
 import { auth } from "@src/lib/auth/auth";
-import { generateTags } from "@src/lib/noteUtils";
 import { prisma } from "@src/lib/prisma";
+import { audioService } from "@src/services/audioService";
 import { format } from "date-fns";
 import { NextRequest, NextResponse } from "next/server";
-
-// const calculateRemainingTime = (user: User, voiceNotes: VoiceNote[], newDuration: number = 0) => {
-//   const totalUsedTime =
-//     voiceNotes.reduce((acc, note) => acc + (note.duration ?? 0), 0) + newDuration;
-//   return Math.max(0, user.timeLimit - totalUsedTime);
-// };
 
 export async function GET() {
   const session = await auth();
@@ -49,56 +43,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Transcription is required" }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: {
-        timeLimit: true,
-        currentPeriodUsedTime: true,
-        currentPeriodRemainingTime: true,
-      },
-    });
+    const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
+    const finalFileName = fileName || formattedDate;
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    if (duration && duration > 0 && user.currentPeriodRemainingTime < duration) {
-      return NextResponse.json({ error: "Time limit exceeded" }, { status: 403 });
-    }
-
-    const createdAt = new Date();
-    const formattedDate = format(createdAt, "yyyy-MM-dd HH:mm:ss");
-    let tags: string[] = Array.isArray(userTags) ? userTags : [];
-    if (tags.length === 0) {
-      tags = await generateTags(transcription);
-    }
-
-    const [voiceNote, updatedUser] = await prisma.$transaction([
-      prisma.voiceNote.create({
-        data: {
-          transcription,
-          fileName: fileName || formattedDate,
-          tags,
-          duration: duration || 0,
-          userId: session.user.id,
-        },
-      }),
-      prisma.user.update({
-        where: { id: session.user.id },
-        data: {
-          currentPeriodUsedTime: { increment: Math.max(0, duration || 0) },
-          currentPeriodRemainingTime: { decrement: Math.max(0, duration || 0) },
-        },
-      }),
-    ]);
-
-    return NextResponse.json(
-      {
-        voiceNote,
-        remainingTime: updatedUser.currentPeriodRemainingTime,
-      },
-      { status: 201 }
+    const { voiceNote, remainingTime } = await audioService.saveVoiceNote(
+      session.user.id,
+      transcription,
+      duration || 0,
+      finalFileName,
+      userTags || []
     );
+
+    return NextResponse.json({ voiceNote, remainingTime }, { status: 201 });
   } catch (error) {
     console.error("Error creating note:", error);
     return NextResponse.json({ error: "Error creating note" }, { status: 500 });

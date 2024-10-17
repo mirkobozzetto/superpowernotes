@@ -6,7 +6,7 @@ import { useRecordingState } from "./_useRecorder/useRecordingState";
 import { useServerCommunication } from "./_useRecorder/useServerCommunication";
 import { useTimeManagement } from "./_useRecorder/useTimeManagement";
 
-const MAX_RECORDING_DURATION = 120; // seconds
+const MAX_RECORDING_DURATION = 120;
 
 export const useRecorder = () => {
   const { data: session } = useSession();

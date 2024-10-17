@@ -56,51 +56,51 @@ export async function generateTags(transcription: string): Promise<string[]> {
   }
 }
 
-export async function generateTitle(transcription: string): Promise<string> {
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content:
-              "You are a helpful assistant that generates concise and relevant titles for given text. Please provide a title of no more than 5 words.",
-          },
-          {
-            role: "user",
-            content: `Generate a title for the following transcription: "${transcription}"`,
-          },
-        ],
-        max_tokens: 20,
-      }),
-    });
+// export async function generateTitle(transcription: string): Promise<string> {
+//   try {
+//     const response = await fetch("https://api.openai.com/v1/chat/completions", {
+//       method: "POST",
+//       headers: {
+//         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify({
+//         model: "gpt-4o-mini",
+//         messages: [
+//           {
+//             role: "system",
+//             content:
+//               "You are a helpful assistant that generates concise and relevant titles for given text. Please provide a title of no more than 5 words.",
+//           },
+//           {
+//             role: "user",
+//             content: `Generate a title for the following transcription: "${transcription}"`,
+//           },
+//         ],
+//         max_tokens: 20,
+//       }),
+//     });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+//     if (!response.ok) {
+//       throw new Error(`HTTP error! status: ${response.status}`);
+//     }
 
-    const data = await response.json();
-    if (
-      !data.choices ||
-      !data.choices[0] ||
-      !data.choices[0].message ||
-      !data.choices[0].message.content
-    ) {
-      throw new Error("Unexpected response structure from OpenAI API");
-    }
+//     const data = await response.json();
+//     if (
+//       !data.choices ||
+//       !data.choices[0] ||
+//       !data.choices[0].message ||
+//       !data.choices[0].message.content
+//     ) {
+//       throw new Error("Unexpected response structure from OpenAI API");
+//     }
 
-    return data.choices[0].message.content.trim();
-  } catch (error) {
-    console.error("Error generating title:", error);
-    return "Untitled Note";
-  }
-}
+//     return data.choices[0].message.content.trim();
+//   } catch (error) {
+//     console.error("Error generating title:", error);
+//     return "Untitled Note";
+//   }
+// }
 
 export function formatDate(date: Date): string {
   const year = date.getFullYear();

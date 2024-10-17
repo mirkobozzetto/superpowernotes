@@ -1,14 +1,11 @@
+import {
+  MAX_DEMO_DURATION,
+  MAX_TRIAL_COUNT,
+  RATE_LIMIT_WINDOW,
+} from "@src/constants/demoConstants";
 import { generateTags } from "@src/lib/noteUtils";
+import { audioService } from "@src/services/audioService";
 import { NextRequest, NextResponse } from "next/server";
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const MAX_DEMO_DURATION = 30;
-const DEMO_RATE_LIMIT = 5;
-const RATE_LIMIT_WINDOW = 5 * 60 * 1000;
 
 const ipRequestCounts = new Map<string, { count: number; timestamp: number }>();
 
@@ -18,7 +15,7 @@ export async function POST(req: NextRequest) {
   const now = Date.now();
   const requestInfo = ipRequestCounts.get(clientIp);
   if (requestInfo && now - requestInfo.timestamp < RATE_LIMIT_WINDOW) {
-    if (requestInfo.count >= DEMO_RATE_LIMIT) {
+    if (requestInfo.count >= MAX_TRIAL_COUNT) {
       return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
     }
     requestInfo.count += 1;
@@ -39,17 +36,13 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const transcription = await openai.audio.transcriptions.create({
-      file: audioFile,
-      model: "whisper-1",
-    });
+    const transcription = await audioService.transcribeAudio(audioFile);
+    const tags = await generateTags(transcription);
 
-    const tags = await generateTags(transcription.text);
-    //await fetch ?? => generateTags || generateTitle etc ...
     return NextResponse.json({
-      transcription: transcription.text,
-      duration: duration,
-      tags: tags,
+      transcription,
+      duration,
+      tags,
     });
   } catch (error) {
     console.error("Error in demo transcription:", error);

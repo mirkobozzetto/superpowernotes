@@ -14,7 +14,6 @@ export const AudioRecorder = ({ onRecordingComplete }: { onRecordingComplete: ()
     micPermission,
     setMicPermission,
     startRecording,
-    // stopRecording,
     pauseResumeRecording,
     cancelRecording,
     recordingTime,
