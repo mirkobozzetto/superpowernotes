@@ -1,12 +1,10 @@
+import { COOLDOWN_TIME, MAX_DEMO_DURATION } from "@src/constants/demoConstants";
 import { useCallback, useEffect } from "react";
 import { useCountdown } from "./_useDemoRecorder/useCountdown";
 import { useDemoAudioHandling } from "./_useDemoRecorder/useDemoAudioHandling";
 import { useDemoRecordingActions } from "./_useDemoRecorder/useDemoRecordingActions";
 import { useDemoRecordingState } from "./_useDemoRecorder/useDemoRecordingState";
 import { useDemoTrialManagement } from "./_useDemoRecorder/useDemoTrialManagement";
-
-const MAX_DEMO_DURATION = 30;
-const COOLDOWN_TIME = 10;
 
 export const useDemoRecorder = () => {
   const {
@@ -52,8 +50,8 @@ export const useDemoRecorder = () => {
     timeLeft,
     isActive: isCooldownActive,
     startCountdown,
-    stopCountdown,
-    resetCountdown,
+    // stopCountdown,
+    // resetCountdown,
   } = useCountdown(COOLDOWN_TIME, handleCountdownComplete);
 
   useEffect(() => {

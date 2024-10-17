@@ -22,8 +22,8 @@ export const useCountdown = (initialTime: number, onComplete: () => void) => {
   }, [isActive, timeLeft, onComplete]);
 
   const startCountdown = () => setIsActive(true);
-  const stopCountdown = () => setIsActive(false);
-  const resetCountdown = () => setTimeLeft(initialTime);
+  // const stopCountdown = () => setIsActive(false);
+  // const resetCountdown = () => setTimeLeft(initialTime);
 
-  return { timeLeft, isActive, startCountdown, stopCountdown, resetCountdown };
+  return { timeLeft, isActive, startCountdown };
 };

@@ -1,28 +1,38 @@
+import { MAX_TRIAL_COUNT, STORAGE_KEY } from "@src/constants/demoConstants";
 import { useCallback, useEffect, useState } from "react";
 
-const MAX_TRIAL_COUNT = 5;
-const STORAGE_KEY = "demoTrialCount";
+const isClient = typeof window !== "undefined";
+
+const safeLocalStorage = {
+  getItem: (key: string): string | null => (isClient ? localStorage.getItem(key) : null),
+  setItem: (key: string, value: string): void => {
+    if (isClient) localStorage.setItem(key, value);
+  },
+};
 
 export const useDemoTrialManagement = (isCooldownActive: boolean, startCountdown: () => void) => {
-  const [trialCount, setTrialCount] = useState(() => {
-    const savedCount = localStorage.getItem(STORAGE_KEY);
-    return savedCount ? Math.min(parseInt(savedCount, 10), MAX_TRIAL_COUNT) : MAX_TRIAL_COUNT;
-  });
-
+  const [trialCount, setTrialCount] = useState(MAX_TRIAL_COUNT);
   const [trialLimitReached, setTrialLimitReached] = useState(false);
   const [showLimitModal, setShowLimitModal] = useState(false);
+
+  useEffect(() => {
+    const savedCount = safeLocalStorage.getItem(STORAGE_KEY);
+    if (savedCount !== null) {
+      setTrialCount(Math.min(parseInt(savedCount, 10), MAX_TRIAL_COUNT));
+    }
+  }, []);
 
   const handleCountdownComplete = useCallback(() => {
     setTrialCount(MAX_TRIAL_COUNT);
     setTrialLimitReached(false);
-    localStorage.setItem(STORAGE_KEY, MAX_TRIAL_COUNT.toString());
+    safeLocalStorage.setItem(STORAGE_KEY, MAX_TRIAL_COUNT.toString());
     setShowLimitModal(false);
   }, []);
 
   useEffect(() => {
     const newTrialLimitReached = trialCount <= 0;
     setTrialLimitReached(newTrialLimitReached);
-    localStorage.setItem(STORAGE_KEY, trialCount.toString());
+    safeLocalStorage.setItem(STORAGE_KEY, trialCount.toString());
 
     if (newTrialLimitReached && !isCooldownActive) {
       startCountdown();
@@ -33,7 +43,7 @@ export const useDemoTrialManagement = (isCooldownActive: boolean, startCountdown
   const decrementTrialCount = useCallback(() => {
     setTrialCount((prevCount) => {
       const newCount = Math.max(0, prevCount - 1);
-      localStorage.setItem(STORAGE_KEY, newCount.toString());
+      safeLocalStorage.setItem(STORAGE_KEY, newCount.toString());
       return newCount;
     });
   }, []);
