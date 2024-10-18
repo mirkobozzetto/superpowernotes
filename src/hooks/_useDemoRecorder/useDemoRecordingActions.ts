@@ -1,7 +1,6 @@
-import { MutableRefObject, useCallback } from "react";
-
-type SetStateAction<T> = T | ((prevState: T) => T);
-type Dispatch<A> = (value: A) => void;
+import { COOLDOWN_TIME, MAX_DEMO_DURATION } from "@src/constants/demoConstants";
+import { demoTranscriptionService } from "@src/services/demoTranscriptionService";
+import { useCallback, useState } from "react";
 
 export const useDemoRecordingActions = (
   startAudioRecording: (
@@ -13,96 +12,94 @@ export const useDemoRecordingActions = (
   pauseRecording: () => void,
   resumeRecording: () => void,
   cleanupAudioResources: () => void,
-  getAudioMimeType: () => string,
-  chunksRef: MutableRefObject<Blob[]>,
-  timerRef: MutableRefObject<NodeJS.Timeout | null>,
-  shouldProcessRef: MutableRefObject<boolean>,
-  setIsRecording: Dispatch<SetStateAction<boolean>>,
-  setIsPaused: Dispatch<SetStateAction<boolean>>,
-  setIsProcessing: Dispatch<SetStateAction<boolean>>,
-  setError: Dispatch<SetStateAction<string | null>>,
-  setDemoResult: Dispatch<SetStateAction<{ transcription: string; tags: string[] } | null>>,
-  setRecordingTime: Dispatch<SetStateAction<number>>,
-  trialLimitReached: boolean,
-  setTrialLimitReached: Dispatch<SetStateAction<boolean>>,
-  setTrialCount: Dispatch<SetStateAction<number>>,
-  startCountdown: () => void,
-  MAX_DEMO_DURATION: number
+  getAudioMimeType: () => string
 ) => {
+  const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [demoResult, setDemoResult] = useState<{ transcription: string; tags: string[] } | null>(
+    null
+  );
+  const [recordingTime, setRecordingTime] = useState(0);
+  const [trialLimitReached, setTrialLimitReached] = useState(false);
+  const [trialCount, setTrialCount] = useState(0);
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [isCooldownActive, setIsCooldownActive] = useState(false);
+  const [cooldownTimeLeft, setCooldownTimeLeft] = useState(COOLDOWN_TIME);
+  const [chunks, setChunks] = useState<Blob[]>([]);
+  const [shouldProcess, setShouldProcess] = useState(true);
+  const [timer, setTimer] = useState<NodeJS.Timeout | null>(null);
+
+  const startCountdown = useCallback(() => {
+    setIsCooldownActive(true);
+    setCooldownTimeLeft(COOLDOWN_TIME);
+    const countdownInterval = setInterval(() => {
+      setCooldownTimeLeft((prevTime) => {
+        if (prevTime <= 1) {
+          clearInterval(countdownInterval);
+          setIsCooldownActive(false);
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
+  }, []);
+
+  const handleCountdownComplete = useCallback(() => {
+    setTrialLimitReached(false);
+    setTrialCount(0);
+    setShowLimitModal(false);
+  }, []);
+
   const finishRecording = useCallback(async () => {
     stopAudioRecording();
     setIsRecording(false);
     setIsPaused(false);
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
+    if (timer) {
+      clearInterval(timer);
+      setTimer(null);
     }
 
-    if (chunksRef.current.length > 0 && shouldProcessRef.current && !trialLimitReached) {
+    if (chunks.length > 0 && shouldProcess && !trialLimitReached) {
       setIsProcessing(true);
-      const audioBlob = new Blob(chunksRef.current, { type: getAudioMimeType() });
-      const formData = new FormData();
-
-      const audioFile = new File([audioBlob], "demo_recording.webm", { type: getAudioMimeType() });
-      formData.append("audio", audioFile);
-
-      formData.append("duration", setRecordingTime.toString());
+      const audioBlob = new Blob(chunks, { type: getAudioMimeType() });
 
       try {
-        const response = await fetch("/api/demo-transcribe", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          if (response.status === 429) {
+        const result = await demoTranscriptionService(audioBlob, recordingTime);
+        setTrialCount((prevCount) => {
+          const newCount = prevCount - 1;
+          if (newCount <= 0) {
             setTrialLimitReached(true);
-            setError("Limite d'essais atteinte. Veuillez réessayer plus tard ou vous inscrire.");
-          } else {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            startCountdown();
           }
-        } else {
-          setTrialCount((prevCount) => {
-            const newCount = prevCount + 1;
-            if (newCount >= MAX_DEMO_DURATION) {
-              setTrialLimitReached(true);
-              startCountdown();
-            }
-            return newCount;
-          });
-
-          const data = await response.json();
-          setDemoResult({
-            transcription: data.transcription,
-            tags: data.tags || [],
-          });
-        }
-      } catch (error) {
+          return newCount;
+        });
+        setDemoResult(result);
+      } catch (error: unknown) {
         console.error("Error processing demo recording:", error);
-        setError("Échec du traitement de l'enregistrement. Veuillez réessayer.");
+        if (error instanceof Error && "status" in error && error.status === 429) {
+          setTrialLimitReached(true);
+          setError("Limite d'essais atteinte. Veuillez réessayer plus tard ou vous inscrire.");
+        } else {
+          setError("Échec du traitement de l'enregistrement. Veuillez réessayer.");
+        }
       } finally {
         setIsProcessing(false);
       }
     }
     cleanupAudioResources();
-    shouldProcessRef.current = true;
+    setShouldProcess(true);
   }, [
-    stopAudioRecording,
-    setIsRecording,
-    setIsPaused,
-    timerRef,
-    chunksRef,
-    shouldProcessRef,
+    chunks,
+    shouldProcess,
     trialLimitReached,
     getAudioMimeType,
-    setRecordingTime,
-    setIsProcessing,
-    setTrialLimitReached,
-    setError,
-    setTrialCount,
-    MAX_DEMO_DURATION,
-    startCountdown,
-    setDemoResult,
+    recordingTime,
+    stopAudioRecording,
+    timer,
     cleanupAudioResources,
+    startCountdown,
   ]);
 
   const startRecording = useCallback(async () => {
@@ -110,23 +107,24 @@ export const useDemoRecordingActions = (
       setError("Limite d'essais atteinte. Veuillez réessayer plus tard ou vous inscrire.");
       return;
     }
+
     setError(null);
     setDemoResult(null);
-    chunksRef.current = [];
+    setChunks([]);
     setRecordingTime(0);
-    shouldProcessRef.current = true;
+    setShouldProcess(true);
 
     try {
       await startAudioRecording(
-        (event) => chunksRef.current.push(event.data),
+        (event) => setChunks((prevChunks) => [...prevChunks, event.data]),
         finishRecording,
-        () => shouldProcessRef.current
+        () => shouldProcess
       );
 
       setIsRecording(true);
       setIsPaused(false);
 
-      timerRef.current = setInterval(() => {
+      const newTimer = setInterval(() => {
         setRecordingTime((prevTime) => {
           const newTime = prevTime + 1;
           if (newTime >= MAX_DEMO_DURATION) {
@@ -136,26 +134,15 @@ export const useDemoRecordingActions = (
           return newTime;
         });
       }, 1000);
+
+      setTimer(newTimer);
     } catch (error) {
       console.error("Error starting demo recording:", error);
       setError(
         "Échec du démarrage de l'enregistrement. Veuillez vérifier les permissions de votre microphone."
       );
     }
-  }, [
-    trialLimitReached,
-    setError,
-    setDemoResult,
-    chunksRef,
-    setRecordingTime,
-    startAudioRecording,
-    finishRecording,
-    shouldProcessRef,
-    setIsRecording,
-    setIsPaused,
-    timerRef,
-    MAX_DEMO_DURATION,
-  ]);
+  }, [trialLimitReached, startAudioRecording, finishRecording, shouldProcess]);
 
   const stopRecording = useCallback(() => {
     finishRecording();
@@ -165,50 +152,56 @@ export const useDemoRecordingActions = (
     setIsPaused((prevIsPaused) => {
       if (prevIsPaused) {
         resumeRecording();
-        timerRef.current = setInterval(() => {
+        const newTimer = setInterval(() => {
           setRecordingTime((prevTime) => prevTime + 1);
         }, 1000);
+        setTimer(newTimer);
       } else {
         pauseRecording();
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
+        if (timer) {
+          clearInterval(timer);
+          setTimer(null);
         }
       }
       return !prevIsPaused;
     });
-  }, [pauseRecording, resumeRecording, setIsPaused, setRecordingTime, timerRef]);
+  }, [pauseRecording, resumeRecording, timer]);
 
   const cancelRecording = useCallback(() => {
-    shouldProcessRef.current = false;
+    setShouldProcess(false);
     stopAudioRecording();
-    chunksRef.current = [];
+    setChunks([]);
     setIsRecording(false);
     setIsPaused(false);
     setError(null);
     setDemoResult(null);
     setRecordingTime(0);
-    if (timerRef.current) {
-      clearInterval(timerRef.current);
+    if (timer) {
+      clearInterval(timer);
+      setTimer(null);
     }
     cleanupAudioResources();
-  }, [
-    stopAudioRecording,
-    chunksRef,
-    setIsRecording,
-    setIsPaused,
-    setError,
-    setDemoResult,
-    setRecordingTime,
-    timerRef,
-    cleanupAudioResources,
-    shouldProcessRef,
-  ]);
+  }, [stopAudioRecording, cleanupAudioResources, timer]);
 
   return {
+    isRecording,
+    isPaused,
+    isProcessing,
+    error,
+    demoResult,
+    recordingTime,
+    trialLimitReached,
+    trialCount,
+    showLimitModal,
+    isCooldownActive,
+    cooldownTimeLeft,
     finishRecording,
     startRecording,
     stopRecording,
     pauseResumeRecording,
     cancelRecording,
+    startCountdown,
+    handleCountdownComplete,
+    setShowLimitModal,
   };
 };
