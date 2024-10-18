@@ -1,6 +1,6 @@
 import { COOLDOWN_TIME, MAX_DEMO_DURATION } from "@src/constants/demoConstants";
+import { useCountdownStore } from "@src/stores/countdownStore";
 import { useCallback, useEffect, useState } from "react";
-import { useCountdown } from "./_useDemoRecorder/useCountdown";
 import { useDemoAudioHandling } from "./_useDemoRecorder/useDemoAudioHandling";
 import { useDemoRecordingActions } from "./_useDemoRecorder/useDemoRecordingActions";
 
@@ -21,17 +21,24 @@ export const useDemoRecorder = () => {
   const [trialLimitReached, setTrialLimitReached] = useState(false);
   const [trialCount, setTrialCount] = useState(0);
 
+  const {
+    timeLeft: cooldownTimeLeft,
+    isActive: isCooldownActive,
+    startCountdown,
+    setInitialTime,
+    setOnComplete,
+  } = useCountdownStore();
+
   const handleCountdownComplete = useCallback(() => {
     setTrialLimitReached(false);
     setTrialCount(0);
     setShowLimitModal(false);
   }, []);
 
-  const {
-    timeLeft: cooldownTimeLeft,
-    isActive: isCooldownActive,
-    startCountdown,
-  } = useCountdown(COOLDOWN_TIME, handleCountdownComplete);
+  useEffect(() => {
+    setInitialTime(COOLDOWN_TIME);
+    setOnComplete(handleCountdownComplete);
+  }, [setInitialTime, setOnComplete, handleCountdownComplete]);
 
   const {
     isRecording,

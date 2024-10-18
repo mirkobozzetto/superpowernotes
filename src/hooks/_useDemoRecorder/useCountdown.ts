@@ -1,29 +1,13 @@
-import { useEffect, useState } from "react";
+import { useCountdownStore } from "@src/stores/countdownStore";
+import { useEffect } from "react";
 
 export const useCountdown = (initialTime: number, onComplete: () => void) => {
-  const [timeLeft, setTimeLeft] = useState(initialTime);
-  const [isActive, setIsActive] = useState(false);
+  const { timeLeft, isActive, startCountdown, setInitialTime, setOnComplete } = useCountdownStore();
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-
-    if (isActive && timeLeft > 0) {
-      interval = setInterval(() => {
-        setTimeLeft((time) => time - 1);
-      }, 1000);
-    } else if (timeLeft === 0) {
-      setIsActive(false);
-      onComplete();
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [isActive, timeLeft, onComplete]);
-
-  const startCountdown = () => setIsActive(true);
-  // const stopCountdown = () => setIsActive(false);
-  // const resetCountdown = () => setTimeLeft(initialTime);
+    setInitialTime(initialTime);
+    setOnComplete(onComplete);
+  }, [initialTime, onComplete, setInitialTime, setOnComplete]);
 
   return { timeLeft, isActive, startCountdown };
 };
