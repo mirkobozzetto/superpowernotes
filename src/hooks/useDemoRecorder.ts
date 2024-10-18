@@ -1,10 +1,8 @@
 import { COOLDOWN_TIME, MAX_DEMO_DURATION } from "@src/constants/demoConstants";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useCountdown } from "./_useDemoRecorder/useCountdown";
 import { useDemoAudioHandling } from "./_useDemoRecorder/useDemoAudioHandling";
 import { useDemoRecordingActions } from "./_useDemoRecorder/useDemoRecordingActions";
-import { useDemoRecordingState } from "./_useDemoRecorder/useDemoRecordingState";
-import { useDemoTrialManagement } from "./_useDemoRecorder/useDemoTrialManagement";
 
 export const useDemoRecorder = () => {
   const {
@@ -19,70 +17,53 @@ export const useDemoRecorder = () => {
     cleanupAudioResources,
   } = useDemoAudioHandling();
 
-  const {
-    isRecording,
-    setIsRecording,
-    isPaused,
-    setIsPaused,
-    isProcessing,
-    setIsProcessing,
-    error,
-    setError,
-    demoResult,
-    setDemoResult,
-    recordingTime,
-    setRecordingTime,
-    timerRef,
-    shouldProcessRef,
-  } = useDemoRecordingState();
+  const [showLimitModal, setShowLimitModal] = useState(false);
+  const [trialLimitReached, setTrialLimitReached] = useState(false);
+  const [trialCount, setTrialCount] = useState(0);
+
+  const handleCountdownComplete = useCallback(() => {
+    setTrialLimitReached(false);
+    setTrialCount(0);
+    setShowLimitModal(false);
+  }, []);
 
   const {
-    trialCount,
-    decrementTrialCount,
-    trialLimitReached,
-    setTrialLimitReached,
-    showLimitModal,
-    setShowLimitModal,
-    handleCountdownComplete,
-  } = useDemoTrialManagement(false, () => {});
-
-  const {
-    timeLeft,
+    timeLeft: cooldownTimeLeft,
     isActive: isCooldownActive,
     startCountdown,
-    // stopCountdown,
-    // resetCountdown,
   } = useCountdown(COOLDOWN_TIME, handleCountdownComplete);
 
-  useEffect(() => {
-    if (timeLeft === 0 && isCooldownActive) {
-      handleCountdownComplete();
-    }
-  }, [timeLeft, isCooldownActive, handleCountdownComplete]);
+  const {
+    isRecording,
+    isPaused,
+    isProcessing,
+    error,
+    demoResult,
+    recordingTime,
+    finishRecording,
+    startRecording,
+    stopRecording,
+    pauseResumeRecording,
+    cancelRecording,
+  } = useDemoRecordingActions(
+    startAudioRecording,
+    stopAudioRecording,
+    pauseRecording,
+    resumeRecording,
+    cleanupAudioResources,
+    getAudioMimeType
+  );
 
-  const { finishRecording, startRecording, stopRecording, pauseResumeRecording, cancelRecording } =
-    useDemoRecordingActions(
-      startAudioRecording,
-      stopAudioRecording,
-      pauseRecording,
-      resumeRecording,
-      cleanupAudioResources,
-      getAudioMimeType,
-      chunksRef,
-      timerRef,
-      shouldProcessRef,
-      setIsRecording,
-      setIsPaused,
-      setIsProcessing,
-      setError,
-      setDemoResult,
-      setRecordingTime,
-      trialLimitReached,
-      setTrialLimitReached,
-      decrementTrialCount,
-      startCountdown,
-      MAX_DEMO_DURATION
-    );
+  const decrementTrialCount = useCallback(() => {
+    setTrialCount((prevCount) => {
+      const newCount = prevCount - 1;
+      if (newCount <= 0) {
+        setTrialLimitReached(true);
+        startCountdown();
+      }
+      return newCount;
+    });
+  }, [startCountdown]);
 
   const handleFinishRecording = useCallback(async () => {
     await finishRecording();
@@ -90,6 +71,12 @@ export const useDemoRecorder = () => {
       decrementTrialCount();
     }
   }, [finishRecording, trialLimitReached, decrementTrialCount]);
+
+  useEffect(() => {
+    if (trialLimitReached && !isCooldownActive) {
+      setShowLimitModal(true);
+    }
+  }, [trialLimitReached, isCooldownActive]);
 
   return {
     isRecording,
@@ -111,7 +98,7 @@ export const useDemoRecorder = () => {
     showLimitModal,
     setShowLimitModal,
     isCooldownActive,
-    cooldownTimeLeft: timeLeft,
+    cooldownTimeLeft,
     startCountdown,
   };
 };

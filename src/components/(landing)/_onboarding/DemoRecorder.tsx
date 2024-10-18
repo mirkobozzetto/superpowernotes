@@ -1,7 +1,5 @@
-"use client";
-
 import { useDemoRecorder } from "@src/hooks/useDemoRecorder";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { AudioProcessingAnimation } from "../../recorder/_ui/AudioProcessingAnimation";
 import { RecordButton } from "../../recorder/_ui/RecordButton";
 import { RecordingAnimation } from "../../recorder/_ui/RecordingAnimation";
@@ -44,6 +42,14 @@ export const DemoRecorder: React.FC = () => {
     setShowLimitModal(false);
   };
 
+  const handleRecordButtonClick = useCallback(() => {
+    if (isRecording) {
+      finishRecording();
+    } else {
+      startRecording();
+    }
+  }, [isRecording, finishRecording, startRecording]);
+
   return (
     <div className="flex flex-col justify-start items-center space-y-6 w-full min-h-[300px]">
       <MicrophonePermissionCheck onPermissionChange={setMicPermission} />
@@ -56,7 +62,7 @@ export const DemoRecorder: React.FC = () => {
         <div className="flex flex-col items-center w-full">
           <RecordButton
             isRecording={isRecording}
-            onClick={isRecording ? stopRecording : startRecording}
+            onClick={handleRecordButtonClick}
             disabled={isCooldownActive || trialLimitReached}
           />
           {isCooldownActive && (
