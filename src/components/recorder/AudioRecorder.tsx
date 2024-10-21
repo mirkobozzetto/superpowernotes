@@ -1,4 +1,12 @@
-import { useRecorder } from "../../hooks/useRecorder";
+import { MAX_RECORDING_DURATION } from "@src/constants/recorderConstants";
+import { useSession } from "next-auth/react";
+import React, { useEffect, useRef, useState } from "react";
+import { useAudioHandling } from "../../hooks/_useRecorder/useAudioHandling";
+import { useRecordingActions } from "../../hooks/_useRecorder/useRecordingActions";
+import { useRecordingState } from "../../hooks/_useRecorder/useRecordingState";
+import { useServerCommunication } from "../../hooks/_useRecorder/useServerCommunication";
+import { useTimeManagement } from "../../hooks/_useRecorder/useTimeManagement";
+import { useAudioHandlingStore } from "../../stores/audioHandlingStore";
 import { RemainingTimeDisplay } from "../utils/RemainingTimeDisplay";
 import { AudioProcessingAnimation } from "./_ui/AudioProcessingAnimation";
 import { RecordButton } from "./_ui/RecordButton";
@@ -6,24 +14,93 @@ import { RecordingAnimation } from "./_ui/RecordingAnimation";
 import { ControlButtons } from "./_utils/ControlButtons";
 import { MicrophonePermissionCheck } from "./_utils/MicrophonePermissionCheck";
 
-export const AudioRecorder = ({ onRecordingComplete }: { onRecordingComplete: () => void }) => {
+export const AudioRecorder: React.FC<{ onRecordingComplete: () => void }> = ({
+  onRecordingComplete,
+}) => {
+  const { data: session } = useSession();
+  const [isCancelling, setIsCancelling] = useState(false);
+  const [isFinishing, setIsFinishing] = useState(false);
+
   const {
-    isRecording,
-    isPaused,
-    error,
     micPermission,
     setMicPermission,
-    startRecording,
-    pauseResumeRecording,
-    cancelRecording,
-    recordingTime,
-    maxRecordingDuration,
-    isProcessing,
+    startRecording: startAudioRecording,
+    stopRecording: stopAudioRecording,
+    pauseRecording: pauseAudioRecording,
+    resumeRecording: resumeAudioRecording,
+    getAudioMimeType,
+    chunksRef,
+    cleanupAudioResources,
+  } = useAudioHandling();
+
+  const { isIOS } = useAudioHandlingStore();
+
+  const {
     remainingTime,
-    isCancelling,
-    isFinishing,
-    finishRecording,
-  } = useRecorder();
+    recordingTime,
+    setRecordingTime,
+    updateRemainingTime,
+    fetchRemainingTime,
+  } = useTimeManagement();
+
+  const {
+    isRecording,
+    setIsRecording,
+    isPaused,
+    setIsPaused,
+    isProcessing,
+    setIsProcessing,
+    error,
+    setError,
+    isSuccess,
+    setIsSuccess,
+    startTimeRef,
+    timerRef,
+  } = useRecordingState();
+
+  const { sendAudioToServer } = useServerCommunication(
+    setError,
+    setIsSuccess,
+    updateRemainingTime,
+    setIsFinishing
+  );
+
+  const actualRecordingTimeRef = useRef(0);
+
+  const { finishRecording, startRecording, stopRecording, pauseResumeRecording, cancelRecording } =
+    useRecordingActions(
+      isCancelling,
+      remainingTime,
+      startAudioRecording,
+      stopAudioRecording,
+      pauseAudioRecording,
+      resumeAudioRecording,
+      getAudioMimeType,
+      cleanupAudioResources,
+      sendAudioToServer,
+      setError,
+      setIsRecording,
+      setIsPaused,
+      setIsSuccess,
+      setRecordingTime,
+      setIsProcessing,
+      setIsFinishing,
+      setIsCancelling,
+      chunksRef,
+      startTimeRef,
+      timerRef,
+      actualRecordingTimeRef
+    );
+
+  useEffect(() => {
+    setIsProcessing(isFinishing);
+  }, [isFinishing, setIsProcessing]);
+
+  useEffect(() => {
+    if (isSuccess && session?.user?.id) {
+      fetchRemainingTime(session.user.id);
+    }
+  }, [isSuccess, session?.user?.id, fetchRemainingTime]);
 
   const handleFinishRecording = async () => {
     console.log("handleFinishRecording called");
@@ -49,10 +126,9 @@ export const AudioRecorder = ({ onRecordingComplete }: { onRecordingComplete: ()
             isRecording={isRecording}
             onClick={isRecording ? handleFinishRecording : startRecording}
             disabled={isProcessing}
+            isIOS={isIOS}
           />
-
           {isFinishing && <AudioProcessingAnimation />}
-
           <div className="flex flex-col items-center w-full">
             <div className="flex justify-center items-center h-12">
               {isRecording && !isProcessing && <RecordingAnimation />}
@@ -65,9 +141,10 @@ export const AudioRecorder = ({ onRecordingComplete }: { onRecordingComplete: ()
                   onCancel={cancelRecording}
                   onDone={finishRecording}
                   recordingTime={recordingTime}
-                  maxRecordingDuration={maxRecordingDuration}
+                  maxRecordingDuration={MAX_RECORDING_DURATION}
                   isCancelling={isCancelling}
                   isProcessing={isProcessing}
+                  isIOS={isIOS}
                 />
               </div>
             )}

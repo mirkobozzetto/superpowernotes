@@ -1,8 +1,8 @@
 import React from "react";
 
-interface RemainingTimeDisplayProps {
+type RemainingTimeDisplayProps = {
   remainingTime: number | null;
-}
+};
 
 export const RemainingTimeDisplay: React.FC<RemainingTimeDisplayProps> = ({ remainingTime }) => {
   if (remainingTime === null) {

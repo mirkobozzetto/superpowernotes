@@ -1,11 +1,12 @@
 import { cn } from "@chadcn/lib/utils";
 import { FaMicrophone } from "react-icons/fa";
 
-interface Props {
+type Props = {
   isRecording: boolean;
   disabled?: boolean;
   onClick: () => void;
-}
+  isIOS: boolean;
+};
 
 export const RecordButton = ({ isRecording, onClick, disabled }: Props) => {
   return (

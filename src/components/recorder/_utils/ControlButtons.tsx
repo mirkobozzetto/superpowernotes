@@ -2,7 +2,7 @@ import React from "react";
 import { FaPause, FaPlay } from "react-icons/fa";
 import { RecordingTimeLimit } from "./RecordingTimeLimit";
 
-interface ControlButtonsProps {
+type ControlButtonsProps = {
   isPaused: boolean;
   onPauseResume: () => void;
   onCancel: () => void;
@@ -11,7 +11,8 @@ interface ControlButtonsProps {
   maxRecordingDuration: number;
   isCancelling: boolean;
   isProcessing: boolean;
-}
+  isIOS: boolean;
+};
 
 export const ControlButtons: React.FC<ControlButtonsProps> = ({
   isPaused,

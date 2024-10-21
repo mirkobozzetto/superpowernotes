@@ -1,8 +1,10 @@
+import {
+  CANCEL_DELAY,
+  MAX_RECORDING_DURATION,
+  RECORDING_COMPLETE_EVENT,
+} from "@src/constants/recorderConstants";
+import { useRecordingActionsStore } from "@src/stores/recordingActionsStore";
 import { useCallback } from "react";
-
-const MAX_RECORDING_DURATION = 120; // seconds
-const CANCEL_DELAY = 500; // milliseconds
-const RECORDING_COMPLETE_EVENT = "recordingComplete";
 
 export const useRecordingActions = (
   isCancelling: boolean,
@@ -27,9 +29,12 @@ export const useRecordingActions = (
   timerRef: React.MutableRefObject<NodeJS.Timeout | null>,
   actualRecordingTimeRef: React.MutableRefObject<number>
 ) => {
+  const store = useRecordingActionsStore();
+
   const finishRecording = useCallback(async () => {
     console.log("Starting finishRecording");
     setIsFinishing(true);
+    store.setIsFinishing(true);
     stopAudioRecording();
 
     if (timerRef.current) {
@@ -50,13 +55,17 @@ export const useRecordingActions = (
       } catch (error) {
         console.error("Error sending audio to server:", error);
         setError("Failed to process recording. Please try again.");
+        store.setError("Failed to process recording. Please try again.");
       }
     }
 
     cleanupAudioResources();
     setIsFinishing(false);
-    setIsRecording(false); // Assurez-vous que l'état d'enregistrement est mis à jour
-    setRecordingTime(0); // Réinitialiser le temps d'enregistrement
+    store.setIsFinishing(false);
+    setIsRecording(false);
+    store.setIsRecording(false);
+    setRecordingTime(0);
+    store.setRecordingTime(0);
     console.log("Exiting finishRecording");
   }, [
     setIsFinishing,
@@ -70,21 +79,28 @@ export const useRecordingActions = (
     sendAudioToServer,
     getAudioMimeType,
     setError,
+    store,
   ]);
 
   const startRecording = useCallback(async () => {
     if (isCancelling) return;
     if (remainingTime !== null && remainingTime <= 0) {
       setError("You have reached your time limit. Please contact support for more time.");
+      store.setError("You have reached your time limit. Please contact support for more time.");
       return;
     }
 
     chunksRef.current = [];
+    store.clearChunks();
     actualRecordingTimeRef.current = 0;
+    store.resetActualRecordingTime();
 
     try {
       await startAudioRecording(
-        (event: BlobEvent) => chunksRef.current.push(event.data),
+        (event: BlobEvent) => {
+          chunksRef.current.push(event.data);
+          store.addChunk(event.data);
+        },
         () => {
           if (chunksRef.current.length > 0 && actualRecordingTimeRef.current > 0) {
             finishRecording();
@@ -93,16 +109,23 @@ export const useRecordingActions = (
       );
 
       startTimeRef.current = Date.now();
+      store.setStartTime(Date.now());
       setIsRecording(true);
+      store.setIsRecording(true);
       setIsPaused(false);
+      store.setIsPaused(false);
       setError(null);
+      store.setError(null);
       setIsSuccess(false);
+      store.setIsSuccess(false);
       setRecordingTime(0);
+      store.setRecordingTime(0);
 
       timerRef.current = setInterval(() => {
         setRecordingTime((prevTime: number) => {
           const newTime = prevTime + 1;
           actualRecordingTimeRef.current = newTime;
+          store.incrementActualRecordingTime();
           if (newTime >= MAX_RECORDING_DURATION - 1) {
             finishRecording();
             return MAX_RECORDING_DURATION;
@@ -113,6 +136,7 @@ export const useRecordingActions = (
     } catch (error) {
       console.error("Error starting recording:", error);
       setError("Failed to start recording. Please check your microphone permissions.");
+      store.setError("Failed to start recording. Please check your microphone permissions.");
     }
   }, [
     isCancelling,
@@ -128,36 +152,42 @@ export const useRecordingActions = (
     startTimeRef,
     timerRef,
     actualRecordingTimeRef,
+    store,
   ]);
 
   const stopRecording = useCallback(() => {
     stopAudioRecording();
     setIsRecording(false);
+    store.setIsRecording(false);
     setIsPaused(false);
+    store.setIsPaused(false);
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
     cleanupAudioResources();
-  }, [stopAudioRecording, setIsRecording, setIsPaused, cleanupAudioResources, timerRef]);
+  }, [stopAudioRecording, setIsRecording, setIsPaused, cleanupAudioResources, timerRef, store]);
 
   const pauseResumeRecording = useCallback(() => {
     setIsPaused((prevIsPaused: boolean) => {
-      if (prevIsPaused) {
+      const newIsPaused = !prevIsPaused;
+      store.setIsPaused(newIsPaused);
+      if (newIsPaused) {
+        pauseAudioRecording();
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+        }
+      } else {
         resumeAudioRecording();
         timerRef.current = setInterval(() => {
           setRecordingTime((prevTime: number) => {
             const newTime = prevTime + 1;
             actualRecordingTimeRef.current = newTime;
+            store.incrementActualRecordingTime();
             return newTime;
           });
         }, 1000);
-      } else {
-        pauseAudioRecording();
-        if (timerRef.current) {
-          clearInterval(timerRef.current);
-        }
       }
-      return !prevIsPaused;
+      return newIsPaused;
     });
   }, [
     pauseAudioRecording,
@@ -166,21 +196,32 @@ export const useRecordingActions = (
     setRecordingTime,
     timerRef,
     actualRecordingTimeRef,
+    store,
   ]);
 
   const cancelRecording = useCallback(() => {
     setIsCancelling(true);
+    store.setIsCancelling(true);
     stopRecording();
     chunksRef.current = [];
+    store.clearChunks();
     setIsRecording(false);
+    store.setIsRecording(false);
     setIsPaused(false);
+    store.setIsPaused(false);
     setError(null);
+    store.setError(null);
     setIsSuccess(false);
+    store.setIsSuccess(false);
     setRecordingTime(0);
+    store.setRecordingTime(0);
     actualRecordingTimeRef.current = 0;
+    store.resetActualRecordingTime();
     setTimeout(() => {
       setIsProcessing(false);
+      store.setIsProcessing(false);
       setIsCancelling(false);
+      store.setIsCancelling(false);
     }, CANCEL_DELAY);
   }, [
     stopRecording,
@@ -193,6 +234,7 @@ export const useRecordingActions = (
     setIsCancelling,
     chunksRef,
     actualRecordingTimeRef,
+    store,
   ]);
 
   return {

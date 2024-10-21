@@ -2,12 +2,12 @@ import { Dispatch, SetStateAction } from "react";
 
 type SetErrorType = Dispatch<SetStateAction<string | null>>;
 type SetIsSuccessType = Dispatch<SetStateAction<boolean>>;
-type SetRemainingTimeType = Dispatch<SetStateAction<number | null>>;
+type UpdateRemainingTimeType = (duration: number) => void;
 
 export const useServerCommunication = (
   setError: SetErrorType,
   setIsSuccess: SetIsSuccessType,
-  setRemainingTime: SetRemainingTimeType,
+  updateRemainingTime: UpdateRemainingTimeType,
   setIsFinishing: Dispatch<SetStateAction<boolean>>
 ) => {
   const sendAudioToServer = async (audioBlob: Blob, duration: number) => {
@@ -26,7 +26,7 @@ export const useServerCommunication = (
 
       const saveResponse = await saveVoiceNote(data.transcription, data.duration);
       if (saveResponse.remainingTime !== undefined) {
-        setRemainingTime(saveResponse.remainingTime);
+        updateRemainingTime(data.duration);
       }
 
       setIsSuccess(true);
