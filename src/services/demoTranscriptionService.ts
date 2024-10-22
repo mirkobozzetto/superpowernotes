@@ -1,7 +1,7 @@
 export const demoTranscriptionService = async (
   audioBlob: Blob,
   duration: number
-): Promise<{ transcription: string; tags: string[] }> => {
+): Promise<{ transcription: string; tags: string[]; fileName: string }> => {
   const formData = new FormData();
   const audioFile = new File([audioBlob], "demo_recording.webm", { type: audioBlob.type });
   formData.append("audio", audioFile);
@@ -22,5 +22,6 @@ export const demoTranscriptionService = async (
   return {
     transcription: data.transcription,
     tags: data.tags || [],
+    fileName: data.fileName || "Note sans titre",
   };
 };

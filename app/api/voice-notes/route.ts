@@ -1,7 +1,7 @@
 import { auth } from "@src/lib/auth/auth";
 import { prisma } from "@src/lib/prisma";
 import { audioService } from "@src/services/audioService";
-import { format } from "date-fns";
+import { openAIService } from "@src/services/openAIService";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET() {
@@ -38,19 +38,18 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { transcription, fileName, tags: userTags, duration } = await request.json();
+    const { transcription, tags: userTags, duration } = await request.json();
     if (!transcription) {
       return NextResponse.json({ error: "Transcription is required" }, { status: 400 });
     }
 
-    const formattedDate = format(new Date(), "yyyy-MM-dd HH:mm:ss");
-    const finalFileName = fileName || formattedDate;
+    const fileName = await openAIService.generateTitle(transcription);
 
     const { voiceNote, remainingTime } = await audioService.saveVoiceNote(
       session.user.id,
       transcription,
       duration || 0,
-      finalFileName,
+      fileName,
       userTags || []
     );
 

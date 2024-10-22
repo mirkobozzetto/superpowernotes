@@ -1,9 +1,15 @@
+export type DemoResult = {
+  transcription: string;
+  tags: string[];
+  fileName: string;
+};
+
 export type DemoRecordingActionsState = {
   isRecording: boolean;
   isPaused: boolean;
   isProcessing: boolean;
   error: string | null;
-  demoResult: { transcription: string; tags: string[] } | null;
+  demoResult: DemoResult | null; // Ici on utilise DemoResult
   recordingTime: number;
   trialLimitReached: boolean;
   trialCount: number;
@@ -20,7 +26,7 @@ export type DemoRecordingActions = {
   setIsPaused: (isPaused: boolean) => void;
   setIsProcessing: (isProcessing: boolean) => void;
   setError: (error: string | null) => void;
-  setDemoResult: (result: { transcription: string; tags: string[] } | null) => void;
+  setDemoResult: (result: DemoResult | null) => void; // Et ici aussi
   setRecordingTime: (time: number) => void;
   setTrialLimitReached: (reached: boolean) => void;
   setShowLimitModal: (show: boolean) => void;

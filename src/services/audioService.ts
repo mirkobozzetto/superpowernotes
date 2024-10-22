@@ -18,7 +18,7 @@ export const audioService = {
     userId: string,
     transcription: string,
     duration: number,
-    fileName: string,
+    title: string,
     tags: string[]
   ) {
     const user = await prisma.user.findUnique({
@@ -37,7 +37,7 @@ export const audioService = {
       prisma.voiceNote.create({
         data: {
           transcription,
-          fileName,
+          fileName: title,
           tags,
           duration,
           userId,

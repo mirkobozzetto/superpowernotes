@@ -3,6 +3,7 @@ import React from "react";
 type DemoResult = {
   transcription: string;
   tags: string[];
+  fileName: string;
 };
 
 type DemoTranscriptionResultProps = {
@@ -16,7 +17,7 @@ export const DemoTranscriptionResult: React.FC<DemoTranscriptionResultProps> = (
 
   return (
     <div className="bg-blue-50 mt-4 p-4 rounded-lg w-full max-w-md">
-      <h3 className="mb-2 font-bold text-lg">Transcription Result</h3>
+      <h3 className="mb-2 font-bold text-lg">{result.fileName}</h3>
       <p className="mb-3">{result.transcription}</p>
       <div className="flex flex-wrap">
         {result.tags.map((tag) => (

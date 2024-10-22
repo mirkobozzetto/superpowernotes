@@ -1,7 +1,7 @@
 import { auth } from "@src/lib/auth/auth";
-import { generateTags } from "@src/lib/noteUtils";
 import { prisma } from "@src/lib/prisma";
 import { audioService } from "@src/services/audioService";
+import { openAIService } from "@src/services/openAIService";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -39,8 +39,10 @@ export async function POST(req: Request) {
 
   try {
     const transcription = await audioService.transcribeAudio(audioFile);
-    const tags = await generateTags(transcription);
-    const fileName = `recording-${Date.now()}.webm`;
+    const [tags, fileName] = await Promise.all([
+      openAIService.generateTags(transcription),
+      openAIService.generateTitle(transcription),
+    ]);
 
     const result = await audioService.saveVoiceNote(
       userId,
@@ -53,6 +55,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       transcription: result.voiceNote.transcription,
       tags: result.voiceNote.tags,
+      fileName: result.voiceNote.fileName,
       duration,
       remainingTime: result.remainingTime,
     });

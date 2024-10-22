@@ -1,5 +1,4 @@
 import { MAX_RECORDING_DURATION } from "@src/constants/recorderConstants";
-import { useSession } from "next-auth/react";
 import React, { useEffect, useRef, useState } from "react";
 import { useAudioHandling } from "../../hooks/_useRecorder/useAudioHandling";
 import { useRecordingActions } from "../../hooks/_useRecorder/useRecordingActions";
@@ -17,7 +16,6 @@ import { MicrophonePermissionCheck } from "./_utils/MicrophonePermissionCheck";
 export const AudioRecorder: React.FC<{ onRecordingComplete: () => void }> = ({
   onRecordingComplete,
 }) => {
-  const { data: session } = useSession();
   const [isCancelling, setIsCancelling] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
 

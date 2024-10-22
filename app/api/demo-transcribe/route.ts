@@ -3,8 +3,8 @@ import {
   MAX_TRIAL_COUNT,
   RATE_LIMIT_WINDOW,
 } from "@src/constants/demoConstants";
-import { generateTags } from "@src/lib/noteUtils";
 import { audioService } from "@src/services/audioService";
+import { openAIService } from "@src/services/openAIService";
 import { NextRequest, NextResponse } from "next/server";
 
 const ipRequestCounts = new Map<string, { count: number; timestamp: number }>();
@@ -37,12 +37,16 @@ export async function POST(req: NextRequest) {
 
   try {
     const transcription = await audioService.transcribeAudio(audioFile);
-    const tags = await generateTags(transcription);
+    const [tags, title] = await Promise.all([
+      openAIService.generateTags(transcription),
+      openAIService.generateTitle(transcription),
+    ]);
 
     return NextResponse.json({
       transcription,
       duration,
       tags,
+      fileName: title,
     });
   } catch (error) {
     console.error("Error in demo transcription:", error);
