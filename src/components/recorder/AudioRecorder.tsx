@@ -35,13 +35,8 @@ export const AudioRecorder: React.FC<{ onRecordingComplete: () => void }> = ({
 
   const { isIOS } = useAudioHandlingStore();
 
-  const {
-    remainingTime,
-    recordingTime,
-    setRecordingTime,
-    updateRemainingTime,
-    fetchRemainingTime,
-  } = useTimeManagement();
+  const { remainingTime, recordingTime, setRecordingTime, updateRemainingTime } =
+    useTimeManagement();
 
   const {
     isRecording,
@@ -95,12 +90,6 @@ export const AudioRecorder: React.FC<{ onRecordingComplete: () => void }> = ({
   useEffect(() => {
     setIsProcessing(isFinishing);
   }, [isFinishing, setIsProcessing]);
-
-  useEffect(() => {
-    if (isSuccess && session?.user?.id) {
-      fetchRemainingTime(session.user.id);
-    }
-  }, [isSuccess, session?.user?.id, fetchRemainingTime]);
 
   const handleFinishRecording = async () => {
     console.log("handleFinishRecording called");
