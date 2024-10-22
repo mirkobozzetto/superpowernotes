@@ -29,13 +29,11 @@ export const LandingFeatures = () => {
   return (
     <div className="space-y-12">
       <div className="space-y-4 text-center">
-        <h2 className="bg-clip-text bg-gradient-to-l from-blue-950 to-blue-500 mb-4 font-medium text-center text-transparent text-xl md:text-2xl lg:text-4xl italic">
+        <h2 className="bg-clip-text bg-gradient-to-l from-blue-950 to-blue-500 mb-4 font-medium text-2xl text-center text-transparent md:text-3xl lg:text-5xl italic">
           Libérez votre esprit
         </h2>
-        <p className="mx-auto max-w-2xl text-muted-foreground">
-          Ne perdez plus jamais une idée brillante. Super Power Notes capture vos pensées
-          instantanément.
-        </p>
+
+        <p className="mx-auto max-w-2xl text-muted-foreground">Parlez. C'est tout.</p>
       </div>
 
       <div className="gap-6 grid grid-cols-1 md:grid-cols-2 mx-auto max-w-4xl">
@@ -44,9 +42,9 @@ export const LandingFeatures = () => {
             key={feature.title}
             className="border border-blue-100 hover:border-blue-200 transition-all"
           >
-            <CardContent className="flex gap-4 p-6">
-              <feature.icon className="w-8 h-8 text-blue-500" />
-              <div>
+            <CardContent className="flex items-center gap-4 p-6">
+              <feature.icon className="flex-shrink-0 text-blue-500 size-10" />
+              <div className="bg-clip-text bg-gradient-to-l from-blue-950 to-blue-500 text-transparent">
                 <h3 className="mb-2 font-bold">{feature.title}</h3>
                 <p className="text-muted-foreground text-sm">{feature.description}</p>
               </div>

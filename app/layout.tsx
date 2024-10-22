@@ -1,4 +1,5 @@
 import { cn } from "@chadcn/lib/utils";
+import { Footer } from "@src/components/navigation/Footer";
 import { Navigation } from "@src/components/navigation/Navigation";
 import type { Metadata } from "next";
 import { SessionProvider } from "next-auth/react";
@@ -27,12 +28,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={cn("flex flex-col min-h-screen", `${afcadFlux.variable} antialiased`)}
+        className={cn("flex flex-col min-h-screen pb-16", `${afcadFlux.variable} antialiased`)}
         style={afcadFlux.style}
       >
         <SessionProvider>
           <Navigation />
           <div className="mt-16">{children}</div>
+          <Footer />
         </SessionProvider>
       </body>
     </html>

@@ -36,7 +36,7 @@ export const DemoRecordingControls: React.FC<RecordingControlsProps> = ({
   isIOS,
 }) => {
   return (
-    <div className="flex flex-col items-center w-full">
+    <div className="mb-4">
       <RecordButton
         isRecording={isRecording}
         onClick={onRecordClick}
@@ -44,7 +44,7 @@ export const DemoRecordingControls: React.FC<RecordingControlsProps> = ({
         isIOS={isIOS}
       />
       {isCooldownActive && (
-        <p className="mt-2 text-blue-600">
+        <p className="mt-4 text-blue-600">
           Vous pourrez enregistrer à nouveau dans {cooldownTimeLeft} secondes.
         </p>
       )}

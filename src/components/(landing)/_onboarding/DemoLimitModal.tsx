@@ -60,7 +60,7 @@ export const DemoLimitModal: React.FC<DemoLimitModalProps> = ({
           <p className="bg-clip-text bg-gradient-to-r from-blue-900 to-blue-800 mb-4 text-transparent">
             Vous avez exploré toutes les possibilités de la démo.
           </p>
-          <p className="bg-clip-text bg-gradient-to-r from-blue-900 to-blue-800 mt-4 mb-4 text-transparent">
+          <p className="bg-clip-text bg-gradient-to-r from-blue-900 to-blue-800 mt-8 mb-4 text-transparent">
             Vous pourrez enregistrer à nouveau dans {cooldownTimeLeft} secondes.
           </p>
           <p className="bg-clip-text bg-gradient-to-r from-blue-900 to-blue-800 mb-6 text-transparent">

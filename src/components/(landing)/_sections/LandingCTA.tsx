@@ -1,24 +1,28 @@
-import { Button } from "@chadcn/components/ui/button";
+import AuthButton from "@src/components/auth/AuthButton";
+import { DemoRecorder } from "../_onboarding/DemoRecorder";
 
 export const LandingCTA = () => {
   return (
-    <div className="space-y-6 pt-6 pb-12 text-center">
-      <h2 className="mx-auto max-w-2xl font-bold text-2xl md:text-4xl">
-        {`      Testez gratuitement et gardez votre accès privilégié jusqu'à la sortie de la sortie
-        officielle`}
+    <div className="space-y-6 pt-6 pb-36 text-center">
+      <h2 className="bg-clip-text bg-gradient-to-r from-blue-900 to-blue-500 mx-auto max-w-2xl font-bold text-2xl text-transparent md:text-4xl">
+        {`
+          En ce moment même, les premiers utilisateurs découvrent une nouvelle façon de penser
+
+        `}
       </h2>
 
-      <p className="mx-auto max-w-xl text-muted-foreground">
-        Rejoignez les premiers utilisateurs qui redéfinissent la façon de capturer et organiser
-        leurs idées. Aucune carte de crédit requise.
-      </p>
+      <p className="bg-clip-text bg-gradient-to-r from-blue-900 to-blue-500 mx-auto font-normal text-transparent text-xl md:text-2xl italic">{`
+      N'attendez pas de perdre votre prochaine idée brillante`}</p>
 
-      <Button
-        size="lg"
-        className="bg-gradient-to-r from-blue-600 to-blue-800 p-4 rounded-full text-white"
-      >
-        {`Commencer l'aventure`}
-      </Button>
+      <p className="mx-auto text-muted-foreground">{`
+Mémorisez et n'oubliez plus jamais une pensée importante.`}</p>
+
+      <DemoRecorder />
+
+      <AuthButton className="inline-flex relative justify-center items-center bg-gradient-to-r from-blue-600 to-blue-800 rounded-full w-48 h-20 text-md text-white transform transition-all hover:-translate-y-1 active:translate-y-0 duration-200 overflow-hidden ease-in-out">
+        <span className="relative z-10">{`Commencer l'aventure`}</span>
+        <div className="absolute inset-0 bg-blue-950 opacity-0 hover:opacity-10 transition-opacity duration-300"></div>
+      </AuthButton>
     </div>
   );
 };

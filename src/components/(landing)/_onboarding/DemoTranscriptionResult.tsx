@@ -16,7 +16,7 @@ export const DemoTranscriptionResult: React.FC<DemoTranscriptionResultProps> = (
   }
 
   return (
-    <div className="bg-blue-50 mt-4 p-4 rounded-lg w-full max-w-md">
+    <div className="bg-gradient-to-r from-blue-50 to-blue-100 shadow-md mt-4 mb-4 p-8 border border-blue-200 rounded-lg w-full max-w-md">
       <h3 className="mb-2 font-bold text-lg">{result.fileName}</h3>
       <p className="mb-3">{result.transcription}</p>
       <div className="flex flex-wrap">
