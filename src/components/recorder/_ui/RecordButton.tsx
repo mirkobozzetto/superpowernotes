@@ -18,8 +18,8 @@ export const RecordButton = ({ isRecording, onClick, disabled }: Props) => {
         "relative overflow-hidden",
         "transition-all duration-500 ease-in-out",
         "focus:outline-none focus:ring-8 focus:ring-red-400 focus:ring-opacity-50",
-        "bg-gradient-to-br from-red-400 via-red-500 to-red-700",
-        "shadow-md hover:shadow-lg shadow-red-500/30",
+        "bg-gradient-to-br from-red-400 via-red-500 to-red-800",
+        "shadow-lg hover:shadow-lg shadow-red-500/20 hover:shadow-red-800/40",
         disabled && "cursor-not-allowed opacity-70 hover:opacity-90"
       )}
     >
@@ -27,7 +27,7 @@ export const RecordButton = ({ isRecording, onClick, disabled }: Props) => {
         <div
           className={cn(
             "absolute inset-0",
-            "bg-gradient-to-br from-red-400/50 via-red-500/50 to-red-700/50",
+            "bg-gradient-to-br from-red-400/50 via-red-500/50 to-red-700/60",
             "animate-pulse-slow opacity-100"
           )}
         />

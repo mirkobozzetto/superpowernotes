@@ -15,7 +15,7 @@ export const LandingCTA = () => {
       N'attendez pas de perdre votre prochaine idée brillante`}</p>
 
       <p className="mx-auto text-muted-foreground">{`
-Mémorisez et n'oubliez plus jamais une pensée importante.`}</p>
+        Rejoignez la révolution vocale, il vous suffit de cliquer `}</p>
 
       <DemoRecorder />
 

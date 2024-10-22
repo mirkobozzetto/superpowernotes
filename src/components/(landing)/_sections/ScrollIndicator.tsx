@@ -1,4 +1,4 @@
-import { MoveDown } from "lucide-react";
+import { ChevronsDown } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 
 export const ScrollIndicator = () => {
@@ -34,7 +34,7 @@ export const ScrollIndicator = () => {
         className="flex justify-center items-center bg-gradient-to-bl from-blue-600/90 hover:from-blue-500/90 to-blue-800/90 hover:to-blue-700/90 shadow-lg backdrop-blur-sm rounded-full w-12 h-12 text-white transition-all duration-300 hover:scale-110 group"
         aria-label="Scroll to bottom"
       >
-        <MoveDown className="w-6 h-6 animate-bounce group-hover:animate-none" />
+        <ChevronsDown className="animate-bounce group-hover:animate-none size-5" />
       </button>
     </div>
   );
