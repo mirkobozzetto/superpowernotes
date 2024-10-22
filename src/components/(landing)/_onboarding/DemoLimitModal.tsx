@@ -5,6 +5,7 @@ interface DemoLimitModalProps {
   isOpen: boolean;
   onClose: () => void;
   cooldownTimeLeft: number;
+  isIOS: boolean;
 }
 
 export const DemoLimitModal: React.FC<DemoLimitModalProps> = ({

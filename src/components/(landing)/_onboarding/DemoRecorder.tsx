@@ -1,6 +1,7 @@
 import { COOLDOWN_TIME, MAX_DEMO_DURATION } from "@src/constants/demoConstants";
 import { useDemoAudioHandling } from "@src/hooks/_useDemoRecorder/useDemoAudioHandling";
 import { useDemoRecordingActions } from "@src/hooks/_useDemoRecorder/useDemoRecordingActions";
+import { useAudioHandlingStore } from "@src/stores/audioHandlingStore";
 import { useCountdownStore } from "@src/stores/countdownStore";
 import { useTrialManagementStore } from "@src/stores/trialManagementStore";
 import React, { useCallback, useEffect } from "react";
@@ -88,6 +89,8 @@ export const DemoRecorder: React.FC = () => {
     }
   }, [isRecording, handleFinishRecording, startRecording]);
 
+  const { isIOS } = useAudioHandlingStore();
+
   return (
     <div className="flex flex-col justify-start items-center space-y-6 w-full min-h-[300px]">
       <MicrophonePermissionCheck onPermissionChange={setMicPermission} />
@@ -112,6 +115,7 @@ export const DemoRecorder: React.FC = () => {
           onCancel={cancelRecording}
           onFinish={handleFinishRecording}
           maxRecordingDuration={MAX_DEMO_DURATION}
+          isIOS={isIOS}
         />
       )}
 
@@ -125,6 +129,7 @@ export const DemoRecorder: React.FC = () => {
         isOpen={showLimitModal}
         onClose={handleCloseModal}
         cooldownTimeLeft={cooldownTimeLeft}
+        isIOS={isIOS}
       />
     </div>
   );

@@ -17,6 +17,7 @@ type RecordingControlsProps = {
   onCancel: () => void;
   onFinish: () => void;
   maxRecordingDuration: number;
+  isIOS: boolean;
 };
 
 export const DemoRecordingControls: React.FC<RecordingControlsProps> = ({
@@ -32,6 +33,7 @@ export const DemoRecordingControls: React.FC<RecordingControlsProps> = ({
   onCancel,
   onFinish,
   maxRecordingDuration,
+  isIOS,
 }) => {
   return (
     <div className="flex flex-col items-center w-full">
@@ -39,6 +41,7 @@ export const DemoRecordingControls: React.FC<RecordingControlsProps> = ({
         isRecording={isRecording}
         onClick={onRecordClick}
         disabled={isCooldownActive || trialLimitReached}
+        isIOS={isIOS}
       />
       {isCooldownActive && (
         <p className="mt-2 text-blue-600">
@@ -61,6 +64,7 @@ export const DemoRecordingControls: React.FC<RecordingControlsProps> = ({
               maxRecordingDuration={maxRecordingDuration}
               isCancelling={false}
               isProcessing={false}
+              isIOS={isIOS}
             />
           </div>
         )}
