@@ -33,7 +33,7 @@ export const LandingFeatures = () => {
           Libérez votre esprit
         </h2>
 
-        <p className="mx-auto max-w-2xl text-muted-foreground">Parlez. C'est tout.</p>
+        <p className="mx-auto max-w-2xl text-muted-foreground">{`Parlez. C'est tout`}</p>
       </div>
 
       <div className="gap-6 grid grid-cols-1 md:grid-cols-2 mx-auto max-w-4xl">
