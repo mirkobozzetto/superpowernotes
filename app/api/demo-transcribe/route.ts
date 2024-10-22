@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   const requestInfo = ipRequestCounts.get(clientIp);
   if (requestInfo && now - requestInfo.timestamp < RATE_LIMIT_WINDOW) {
     if (requestInfo.count >= MAX_TRIAL_COUNT) {
-      return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
+      return NextResponse.json({ error: "Limite dépassée" }, { status: 429 });
     }
     requestInfo.count += 1;
   } else {
