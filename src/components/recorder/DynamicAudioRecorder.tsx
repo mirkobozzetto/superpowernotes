@@ -1,5 +1,5 @@
 "use client";
-import { useLastRecordedMessage } from "@src/hooks/recorder/useLastRecordedMessage";
+import { useLastRecordedMessage } from "@src/hooks/useLastRecordedMessage";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import { useCallback, useEffect, useState } from "react";
@@ -23,7 +23,7 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
     if (shouldRefresh) {
       const timer = setTimeout(() => {
         setShouldRefresh(false);
-      }, 6500);
+      }, 8500);
       return () => clearTimeout(timer);
     }
   }, [shouldRefresh]);
@@ -43,7 +43,7 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
       {currentSession?.user ? (
         <>
           <AudioRecorder onRecordingComplete={handleRecordingComplete} />
-          <div className="mt-8 w-full max-w-md">
+          <div className="mb-8 w-full max-w-md">
             {isLoading ? (
               <p className="text-center">Loading last message...</p>
             ) : error ? (
