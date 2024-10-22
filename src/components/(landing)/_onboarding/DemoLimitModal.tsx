@@ -41,7 +41,7 @@ export const DemoLimitModal: React.FC<DemoLimitModalProps> = ({
 
   return (
     <div
-      className="top-[-10vh] z-50 fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 backdrop-blur-[1px]"
+      className="top-[-10vh] z-50 fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50 backdrop-blur-[1px]"
       onClick={handleOutsideClick}
     >
       <div ref={modalRef} className="bg-white shadow-lg m-4 p-6 rounded-lg w-full max-w-sm">
