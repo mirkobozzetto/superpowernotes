@@ -1,4 +1,3 @@
-import { voiceNotesService } from "@src/services/voiceNotesService";
 import { Dispatch, SetStateAction } from "react";
 
 type SetErrorType = Dispatch<SetStateAction<string | null>>;
@@ -13,17 +12,19 @@ export const useServerCommunication = (
 ) => {
   const sendAudioToServer = async (audioBlob: Blob, duration: number) => {
     setIsFinishing(true);
+    const formData = new FormData();
+    formData.append("audio", audioBlob, `recording.${audioBlob.type.split("/")[1]}`);
+    formData.append("duration", duration.toString());
 
     try {
-      const transcriptionData = await voiceNotesService.transcribeAudio(audioBlob, duration);
+      const response = await fetch("/api/transcribe", { method: "POST", body: formData });
+      if (!response.ok)
+        throw new Error(`Transcription error: ${response.status} ${response.statusText}`);
 
-      const saveResponse = await voiceNotesService.saveVoiceNote({
-        transcription: transcriptionData.transcription,
-        duration: transcriptionData.duration,
-        tags: transcriptionData.tags || [],
-      });
+      const data = await response.json();
+      if (!data.transcription) throw new Error("No transcription received from server");
 
-      if (saveResponse.remainingTime !== undefined) {
+      if (data.remainingTime !== undefined) {
         updateRemainingTime(duration);
       }
 
