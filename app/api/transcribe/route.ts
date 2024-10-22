@@ -1,16 +1,19 @@
 import { auth } from "@src/lib/auth/auth";
+import { generateTags } from "@src/lib/noteUtils";
 import { prisma } from "@src/lib/prisma";
 import { audioService } from "@src/services/audioService";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!session || !session.user) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const userId = session.user.id;
+
   const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
+    where: { id: userId },
     select: {
       timeLimit: true,
       currentPeriodUsedTime: true,
@@ -36,7 +39,23 @@ export async function POST(req: Request) {
 
   try {
     const transcription = await audioService.transcribeAudio(audioFile);
-    return NextResponse.json({ transcription, duration });
+    const tags = await generateTags(transcription);
+    const fileName = `recording-${Date.now()}.webm`;
+
+    const result = await audioService.saveVoiceNote(
+      userId,
+      transcription,
+      duration,
+      fileName,
+      tags
+    );
+
+    return NextResponse.json({
+      transcription: result.voiceNote.transcription,
+      tags: result.voiceNote.tags,
+      duration,
+      remainingTime: result.remainingTime,
+    });
   } catch (error) {
     console.error("Error in transcription:", error);
     return NextResponse.json({ error: "Failed to transcribe audio" }, { status: 500 });

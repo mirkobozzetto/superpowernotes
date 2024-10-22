@@ -1,3 +1,4 @@
+import { voiceNotesService } from "@src/services/voiceNotesService";
 import { Dispatch, SetStateAction } from "react";
 
 type SetErrorType = Dispatch<SetStateAction<string | null>>;
@@ -12,21 +13,18 @@ export const useServerCommunication = (
 ) => {
   const sendAudioToServer = async (audioBlob: Blob, duration: number) => {
     setIsFinishing(true);
-    const formData = new FormData();
-    formData.append("audio", audioBlob, `recording.${audioBlob.type.split("/")[1]}`);
-    formData.append("duration", duration.toString());
 
     try {
-      const response = await fetch("/api/transcribe", { method: "POST", body: formData });
-      if (!response.ok)
-        throw new Error(`Transcription error: ${response.status} ${response.statusText}`);
+      const transcriptionData = await voiceNotesService.transcribeAudio(audioBlob, duration);
 
-      const data = await response.json();
-      if (!data.transcription) throw new Error("No transcription received from server");
+      const saveResponse = await voiceNotesService.saveVoiceNote({
+        transcription: transcriptionData.transcription,
+        duration: transcriptionData.duration,
+        tags: transcriptionData.tags || [],
+      });
 
-      const saveResponse = await saveVoiceNote(data.transcription, data.duration);
       if (saveResponse.remainingTime !== undefined) {
-        updateRemainingTime(data.duration);
+        updateRemainingTime(duration);
       }
 
       setIsSuccess(true);
@@ -37,22 +35,6 @@ export const useServerCommunication = (
     } finally {
       setIsFinishing(false);
     }
-  };
-
-  const saveVoiceNote = async (transcription: string, duration: number) => {
-    const response = await fetch("/api/voice-notes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ transcription, fileName: "", tags: [], duration }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Save error: ${response.status} ${response.statusText}. Details: ${errorText}`
-      );
-    }
-    return response.json();
   };
 
   return { sendAudioToServer };
