@@ -10,6 +10,7 @@ import {
 
 import { cn } from "@chadcn/lib/utils";
 import { useSession } from "next-auth/react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
@@ -27,38 +28,44 @@ export const Navigation: React.FC = () => {
         "backdrop-blur-sm"
       )}
     >
-      <div className="relative flex justify-end items-center mx-auto px-3 h-full container">
-        {status === "authenticated" && (
-          <NavigationMenu>
-            <NavigationMenuList>
-              <NavigationMenuItem>
-                <Link href="/" legacyBehavior passHref>
-                  <NavigationMenuLink
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      "text-white hover:bg-gray-800 rounded-full"
-                    )}
-                  >
-                    Record
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-              <NavigationMenuItem>
-                <Link href="/dashboard" legacyBehavior passHref>
-                  <NavigationMenuLink
-                    className={cn(
-                      navigationMenuTriggerStyle(),
-                      "text-white hover:bg-gray-800 rounded-full"
-                    )}
-                  >
-                    Dashboard
-                  </NavigationMenuLink>
-                </Link>
-              </NavigationMenuItem>
-            </NavigationMenuList>
-          </NavigationMenu>
-        )}
-        <AuthButton />
+      <div className="relative flex justify-between items-center mx-auto px-3 h-full container">
+        <Link href="/" className="flex items-center space-x-2">
+          <Image
+            src="/SPN.svg"
+            alt="Super Power Notes Logo"
+            width={64}
+            height={64}
+            className="size-20"
+          />
+          <span className="sm:block hidden font-bold text-3xl text-white">Super Power Notes</span>
+        </Link>
+
+        <div className="flex items-center space-x-4">
+          {status === "authenticated" && (
+            <NavigationMenu>
+              <NavigationMenuList>
+                <NavigationMenuItem>
+                  <Link href="/" legacyBehavior passHref>
+                    <NavigationMenuLink className={cn("text-white ")}>Record</NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+                <NavigationMenuItem>
+                  <Link href="/dashboard" legacyBehavior passHref>
+                    <NavigationMenuLink
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        "text-white hover:bg-gray-800 rounded-full"
+                      )}
+                    >
+                      Dashboard
+                    </NavigationMenuLink>
+                  </Link>
+                </NavigationMenuItem>
+              </NavigationMenuList>
+            </NavigationMenu>
+          )}
+          <AuthButton />
+        </div>
       </div>
     </nav>
   );

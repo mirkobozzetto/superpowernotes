@@ -23,7 +23,7 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
     if (shouldRefresh) {
       const timer = setTimeout(() => {
         setShouldRefresh(false);
-      }, 8500);
+      }, 500);
       return () => clearTimeout(timer);
     }
   }, [shouldRefresh]);

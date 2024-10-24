@@ -6,9 +6,13 @@ import { ScrollIndicator } from "./_sections/ScrollIndicator";
 
 export const Onboarding: React.FC = () => {
   return (
-    <div className="space-y-8">
-      <LandingFeatures />
-      <LandingCTA />
+    <div className="flex flex-col gap-16">
+      <div className="min-h-[200px]">
+        <LandingFeatures />
+      </div>
+      <div className="min-h-[200px]">
+        <LandingCTA />
+      </div>
       <ScrollIndicator />
     </div>
   );
