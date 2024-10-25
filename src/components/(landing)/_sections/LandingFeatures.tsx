@@ -5,10 +5,6 @@ export const LandingFeatures = () => {
   return (
     <div className="space-y-12">
       <div className="space-y-8 text-center">
-        <h2 className="bg-clip-text bg-gradient-to-l from-blue-950 to-blue-800 my-4 h-20 font-medium text-2xl text-center text-transparent md:text-3xl lg:text-5xl italic">
-          Rejoignez la révolution vocale
-        </h2>
-
         <p className="mx-auto max-w-2xl text-muted-foreground">{`Parlez. C'est tout`}</p>
       </div>
 
