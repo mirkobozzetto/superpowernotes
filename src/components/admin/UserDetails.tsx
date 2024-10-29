@@ -1,9 +1,9 @@
 import { User } from "@prisma/client";
 import React from "react";
 
-interface UserDetailsProps {
+type UserDetailsProps = {
   user: User;
-}
+};
 
 const formatDate = (date: Date | string | null) => {
   if (!date) return "N/A";

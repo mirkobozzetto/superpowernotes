@@ -4,8 +4,8 @@
 import { Button } from "@chadcn/components/ui/button";
 import { Card } from "@chadcn/components/ui/card";
 import { User, UserRole } from "@prisma/client";
-import { UserRow } from "./UserRow";
 import { useUserManagement } from "@src/hooks/admin/useUserManagement";
+import { UserRow } from "./_UserManagement/UserRow";
 
 type RoleFilterProps = {
   activeRole: UserRole | "ALL";
@@ -83,7 +83,7 @@ export function UserManagement() {
   } = useUserManagement();
 
   return (
-    <Card className="mx-auto p-4 max-w-full">
+    <Card className="border-0 mx-auto p-4 max-w-full">
       <h1 className="mb-6 font-bold text-2xl md:text-3xl">User Management</h1>
       <RoleFilter activeRole={activeRole} onRoleChange={setActiveRole} />
       <UserTable
