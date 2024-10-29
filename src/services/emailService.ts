@@ -13,7 +13,7 @@ export const emailService = {
     const results = await Promise.allSettled(
       userEmails.map((email) =>
         resend.emails.send({
-          from: "SuperPowerNotes <no-reply@superpowernotes.com>",
+          from: "SuperPowerNotes <support@superpowernot.es>",
           to: email,
           subject: template.subject,
           text: template.content,
