@@ -13,7 +13,7 @@ export const emailService = {
     const results = await Promise.allSettled(
       userEmails.map((email) =>
         resend.emails.send({
-          from: "SuperPowerNotes <support@superpowernot.es>",
+          from: "support@superpowernot.es",
           to: email,
           subject: template.subject,
           text: template.content,
@@ -38,7 +38,7 @@ export const emailService = {
       },
     });
 
-    const subscriberEmails = subscribers.map((sub) => sub.email);
+    const subscriberEmails = subscribers.map((sub: { email: string }) => sub.email);
     return this.sendBulkEmail(subscriberEmails, template);
   },
 
@@ -54,7 +54,7 @@ export const emailService = {
       },
     });
 
-    const userEmails = users.map((user) => user.email);
+    const userEmails = users.map((user: { email: string }) => user.email);
     return this.sendBulkEmail(userEmails, template);
   },
 };
