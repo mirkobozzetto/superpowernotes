@@ -30,6 +30,7 @@ model User {
   voiceNotes                 VoiceNote[]
   createdAt                  DateTime        @default(now())
   updatedAt                  DateTime        @updatedAt
+  newsletterSubscribed       Boolean         @default(true)
 }
 
 model Account {
@@ -94,4 +95,14 @@ model VoiceNote {
   user          User      @relation(fields: [userId], references: [id])
 
   @@map("voice_notes")
+}
+
+model NewsletterSubscriber {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  subscribed    Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastEmailSent DateTime?
 }
