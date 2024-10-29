@@ -4,7 +4,6 @@ import { Button } from "@chadcn/components/ui/button";
 import { cn } from "@chadcn/lib/utils";
 import { Loader2 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
 import React, { useState } from "react";
 import { AuthModal } from "./AuthModal";
 import SignOut from "./SignOut";
@@ -33,41 +32,28 @@ const AuthButton: React.FC<AuthButtonProps> = ({
   }
 
   if (session && session.user) {
-    return (
-      <div className="flex items-center space-x-4">
-        {session.user.role === "ADMIN" && (
-          <Button
-            variant="ghost"
-            asChild
-            className={cn("hover:bg-gray-800 rounded-full text-white hover:text-white", className)}
-          >
-            <Link href="/admin">Admin Panel</Link>
-          </Button>
-        )}
-        <SignOut />
-      </div>
-    );
-  } else {
-    const buttonContent = children || "Sign In";
-    return (
-      <>
-        {useCustomStyles ? (
-          <button onClick={() => setIsAuthModalOpen(true)} className={className}>
-            {buttonContent}
-          </button>
-        ) : (
-          <Button
-            variant="ghost"
-            onClick={() => setIsAuthModalOpen(true)}
-            className={cn("hover:bg-gray-800 text-white hover:text-white", className)}
-          >
-            {buttonContent}
-          </Button>
-        )}
-        <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
-      </>
-    );
+    return <SignOut />;
   }
+
+  const buttonContent = children || "Sign In";
+  return (
+    <>
+      {useCustomStyles ? (
+        <button onClick={() => setIsAuthModalOpen(true)} className={className}>
+          {buttonContent}
+        </button>
+      ) : (
+        <Button
+          variant="ghost"
+          onClick={() => setIsAuthModalOpen(true)}
+          className={cn("hover:bg-gray-800 text-white hover:text-white", className)}
+        >
+          {buttonContent}
+        </Button>
+      )}
+      <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
+    </>
+  );
 };
 
 export default AuthButton;

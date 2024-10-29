@@ -7,18 +7,36 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@chadcn/components/ui/navigation-menu";
-
 import { cn } from "@chadcn/lib/utils";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import React from "react";
 import AuthButton from "../auth/AuthButton";
 
-export const Navigation: React.FC = () => {
+const navigationItems = (isAdmin: boolean) => [
+  {
+    name: "Record",
+    href: "/",
+  },
+  {
+    name: "Dashboard",
+    href: "/dashboard",
+  },
+  ...(isAdmin
+    ? [
+        {
+          name: "Admin",
+          href: "/admin",
+        },
+      ]
+    : []),
+];
+
+export function Navigation() {
   const pathname = usePathname();
   const { data: session, status } = useSession();
+  const isAdmin = session?.user?.role === "ADMIN";
 
   return (
     <nav
@@ -40,27 +58,27 @@ export const Navigation: React.FC = () => {
           <span className="sm:block hidden font-bold text-3xl text-white">Super Power Notes</span>
         </Link>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center">
           {status === "authenticated" && (
             <NavigationMenu>
               <NavigationMenuList>
-                <NavigationMenuItem>
-                  <Link href="/" legacyBehavior passHref>
-                    <NavigationMenuLink className={cn("text-white ")}>Record</NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link href="/dashboard" legacyBehavior passHref>
-                    <NavigationMenuLink
-                      className={cn(
-                        navigationMenuTriggerStyle(),
-                        "text-white hover:bg-gray-800 rounded-full"
-                      )}
-                    >
-                      Dashboard
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
+                {navigationItems(isAdmin).map((item) => (
+                  <NavigationMenuItem key={item.href}>
+                    <Link href={item.href} legacyBehavior passHref>
+                      <NavigationMenuLink
+                        className={cn(
+                          navigationMenuTriggerStyle(),
+                          "text-white transition-colors",
+                          "hover:bg-gray-800",
+                          pathname === item.href && "bg-gray-800",
+                          "rounded-full"
+                        )}
+                      >
+                        {item.name}
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                ))}
               </NavigationMenuList>
             </NavigationMenu>
           )}
@@ -69,4 +87,4 @@ export const Navigation: React.FC = () => {
       </div>
     </nav>
   );
-};
+}
