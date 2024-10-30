@@ -83,7 +83,7 @@ export function UserManagement() {
 
   return (
     <Card className="border-0 mx-auto p-4 max-w-full">
-      <h1 className="mb-6 font-bold text-2xl md:text-3xl">User Management</h1>
+      <h1 className="mb-6 font-bold text-2xl md:text-3xl">Account Management</h1>
       <RoleFilter activeRole={activeRole} onRoleChange={setActiveRole} />
       <UserTable
         users={users}

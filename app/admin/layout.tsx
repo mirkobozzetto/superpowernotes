@@ -16,7 +16,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               href="/admin"
               className={`hover:text-white ${pathname === "/admin" ? "text-white" : ""}`}
             >
-              User Management
+              Account Management
             </Link>
           </li>
           <li>
@@ -24,7 +24,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               href="/admin/email"
               className={`hover:text-white ${pathname === "/admin/mail" ? "text-white" : ""}`}
             >
-              Emailing
+              Email Management
             </Link>
           </li>
         </ul>

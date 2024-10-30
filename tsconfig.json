@@ -20,7 +20,8 @@
     "paths": {
       "@app/*": ["./app/*"],
       "@src/*": ["./src/*"],
-      "@chadcn/*": ["./@chadcn/*"]
+      "@chadcn/*": ["./@chadcn/*"],
+      "@email/*": ["./@email/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

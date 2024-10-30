@@ -9,7 +9,7 @@ type EmailResult = {
   error: string | null;
 };
 
-export function EmailSender({ selectedUsers }: { selectedUsers?: string[] }) {
+export const EmailSender = ({ selectedUsers }: { selectedUsers?: string[] }) => {
   const [subject, setSubject] = useState("");
   const [content, setContent] = useState("");
   const [sending, setSending] = useState(false);
@@ -51,7 +51,7 @@ export function EmailSender({ selectedUsers }: { selectedUsers?: string[] }) {
   };
 
   return (
-    <Card className="space-y-4 p-6">
+    <Card className="space-y-4 bg-white p-6">
       <h2 className="font-bold text-xl">Send Emails</h2>
 
       <div className="space-y-4">
@@ -110,4 +110,4 @@ export function EmailSender({ selectedUsers }: { selectedUsers?: string[] }) {
       </div>
     </Card>
   );
-}
+};
