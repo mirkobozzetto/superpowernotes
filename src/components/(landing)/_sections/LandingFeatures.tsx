@@ -12,9 +12,9 @@ export const LandingFeatures = () => {
         {features.map((feature) => (
           <Card
             key={feature.title}
-            className="border border-blue-100 hover:border-blue-200 transition-all"
+            className="border-2 border-blue-100 hover:border-blue-200 transition-all"
           >
-            <CardContent className="flex items-center gap-4 p-6">
+            <CardContent className="flex items-center gap-4 bg-white p-6">
               <feature.icon className="flex-shrink-0 text-blue-700 size-10" />
               <div className="bg-clip-text bg-gradient-to-l from-blue-950 to-blue-800 text-transparent">
                 <h3 className="mb-2 font-bold">{feature.title}</h3>

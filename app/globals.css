@@ -105,3 +105,13 @@
 body {
   font-variation-settings: "slnt" 0;
 }
+
+@layer components {
+  .dots {
+    @apply absolute inset-0 -z-10 h-full w-full bg-white bg-[radial-gradient(#1e40ae51_.5px,transparent_1px)] [background-size:32px_32px];
+  }
+}
+
+test {
+  color: #ae1e1e51;
+}

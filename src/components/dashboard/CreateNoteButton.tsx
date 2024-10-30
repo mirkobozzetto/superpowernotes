@@ -25,7 +25,7 @@ export const CreateNoteButton: React.FC<CreateNoteButtonProps> = ({
   return (
     <button
       onClick={handleClick}
-      className="hover:bg-gray-100 px-4 py-2 border rounded-full w-full font-bold transition-colors duration-200"
+      className="bg-white hover:bg-gray-100 px-4 py-2 border rounded-full w-full font-bold transition-colors duration-200"
       disabled={isLoading}
     >
       Create New Note

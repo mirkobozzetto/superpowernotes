@@ -33,11 +33,11 @@ export const NoteList: React.FC<NoteListProps> = ({
       </p>
     </div>
   ) : (
-    <ul className="space-y-4">
+    <ul className="space-y-4" style={{ marginBottom: "10vh" }}>
       {notes.map((note) => (
         <li
           key={note.id}
-          className="shadow-sm p-4 border rounded-2xl cursor-pointer"
+          className="bg-white shadow-md p-4 border rounded-2xl cursor-pointer"
           onClick={() => handleNoteClick(note)}
         >
           <h3 className="mb-4 font-bold text-lg">{note.fileName || "Untitled"}</h3>

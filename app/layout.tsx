@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={cn("flex flex-col min-h-screen pb-16", `${afcadFlux.variable} antialiased`)}
+        className={cn("flex flex-col min-h-screen pb-16 dots", `${afcadFlux.variable} antialiased`)}
         style={afcadFlux.style}
       >
         <SessionProvider>
