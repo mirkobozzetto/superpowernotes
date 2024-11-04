@@ -1,5 +1,5 @@
 import MagicLinkEmail from "@email/emails/MagicLink";
-import { render } from "@email/node_modules/@react-email/render";
+import { render } from "@react-email/render";
 import { Resend } from "resend";
 
 const resendClient = new Resend(process.env.AUTH_RESEND_KEY);
