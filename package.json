@@ -2,6 +2,9 @@
   "name": "superpowernotes",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "@email"
+  ],
   "scripts": {
     "dev": "next dev",
     "email": "email dev",

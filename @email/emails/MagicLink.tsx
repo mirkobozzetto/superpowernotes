@@ -36,7 +36,8 @@ export const MagicLinkEmail = ({ url, host }: MagicLinkEmailProps) => (
               </Text>
               <Button
                 href={url}
-                className="inline-block bg-blue-500 hover:bg-blue-600 px-8 py-3 rounded font-bold text-white no-underline"
+                target="_blank"
+                className="inline-block bg-blue-500 px-8 py-3 rounded font-bold text-white no-underline cursor-pointer"
               >
                 Se Connecter
               </Button>
