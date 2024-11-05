@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@chadcn/components/ui/card";
+import { NewsletterForm } from "@src/components/newsletter/NewsletterForm";
 import { features } from "./featureData";
 
 export const LandingFeatures = () => {
@@ -24,6 +25,7 @@ export const LandingFeatures = () => {
           </Card>
         ))}
       </div>
+      <NewsletterForm />
     </div>
   );
 };

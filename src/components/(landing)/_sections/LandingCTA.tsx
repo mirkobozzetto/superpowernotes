@@ -11,16 +11,16 @@ export const LandingCTA = () => {
         `}
       </h2>
 
-      <p className="bg-clip-text bg-gradient-to-r from-blue-900 to-blue-800 mx-auto font-normal text-transparent text-xl md:text-2xl italic">{`
-      N'attendez pas de perdre votre prochaine idée brillante`}</p>
-
       <p className="mx-auto text-muted-foreground">{`
         Rejoignez la révolution vocale, il vous suffit de cliquer `}</p>
 
       <DemoRecorder />
 
       <AuthButton className="inline-flex relative justify-center items-center bg-gradient-to-r from-blue-600 to-blue-800 rounded-full w-48 h-14 text-md text-white transform transition-all hover:-translate-y-1 active:translate-y-0 duration-200 overflow-hidden ease-in-out">
-        <span className="relative z-10">{`Commencer l'aventure`}</span>
+        <span className="relative z-10">
+          {`
+        Commencer l'aventure`}
+        </span>
         <div className="absolute inset-0 bg-blue-950 opacity-0 hover:opacity-10 transition-opacity duration-300"></div>
       </AuthButton>
     </div>

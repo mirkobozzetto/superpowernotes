@@ -1,3 +1,5 @@
+"use client";
+
 import { Badge } from "@chadcn/components/ui/badge";
 import { Button } from "@chadcn/components/ui/button";
 import { Card } from "@chadcn/components/ui/card";
@@ -61,7 +63,7 @@ export const EmailSender = ({ selectedUsers }: { selectedUsers?: string[] }) => 
             type="text"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            className="p-2 border rounded w-full"
+            className="p-2 border rounded-full w-full"
             placeholder="Email subject"
           />
         </div>
@@ -71,7 +73,7 @@ export const EmailSender = ({ selectedUsers }: { selectedUsers?: string[] }) => 
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="p-2 border rounded w-full h-32"
+            className="p-2 border rounded-full w-full h-32"
             placeholder="Email content"
           />
         </div>
