@@ -1,4 +1,3 @@
-// @email/emails/NewsletterConfirmation.tsx
 import {
   Body,
   Container,
@@ -11,6 +10,9 @@ import {
 } from "@react-email/components";
 import { Tailwind } from "@react-email/tailwind";
 
+const baseUrl =
+  process.env.NODE_ENV === "production" ? "https://www.superpowernot.es" : "http://localhost:3000";
+
 export const NewsletterConfirmation = () => (
   <Html>
     <Head />
@@ -20,7 +22,7 @@ export const NewsletterConfirmation = () => (
         <Container className="mx-auto py-10">
           <Section className="border-gray-200 bg-white shadow-lg mx-auto p-10 border rounded-xl max-w-xl">
             <div className="flex items-center gap-4">
-              <Img src="/static/SPN.png" width="120" height="120" alt="Super Power Notes" />
+              <Img src={`${baseUrl}/SPN.png`} width="120" height="120" alt="Super Power Notes" />
               <Heading className="font-bold text-gray-900 text-xl">
                 Bienvenue chez Super Power Notes
               </Heading>

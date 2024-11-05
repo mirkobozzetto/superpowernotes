@@ -9,7 +9,6 @@ const APP_URL =
   process.env.NODE_ENV === "production" ? "https://www.superpowernot.es" : "http://localhost:3000";
 
 export async function POST(request: Request) {
-  console.log("1. Starting newsletter subscription route");
   try {
     const { email } = await request.json();
 
@@ -23,11 +22,34 @@ export async function POST(request: Request) {
 
     if (existingSubscriber) {
       if (!existingSubscriber.subscribed) {
-        await prisma.newsletterSubscriber.update({
+        const updatedSubscriber = await prisma.newsletterSubscriber.update({
           where: { email },
-          data: { subscribed: true },
+          data: {
+            subscribed: true,
+            updatedAt: new Date(),
+          },
         });
-        return NextResponse.json({ message: "Réabonnement effectué avec succès" }, { status: 200 });
+
+        const unsubscribeUrl = `${APP_URL}/api/newsletter/unsubscribe/${updatedSubscriber.id}`;
+        const emailHtml = (await render(NewsletterConfirmation())).replace(
+          "{unsubscribeUrl}",
+          unsubscribeUrl
+        );
+
+        await resend.emails.send({
+          from: "Super Power Notes <onboarding@resend.dev>",
+          to: email,
+          subject: "Re-bienvenue à la newsletter Super Power Notes",
+          html: emailHtml,
+        });
+
+        return NextResponse.json(
+          {
+            message: "Réabonnement effectué avec succès",
+            subscriber: updatedSubscriber,
+          },
+          { status: 200 }
+        );
       }
       return NextResponse.json(
         { error: "Cet email est déjà inscrit à la newsletter" },
@@ -40,26 +62,21 @@ export async function POST(request: Request) {
     });
 
     const unsubscribeUrl = `${APP_URL}/api/newsletter/unsubscribe/${subscriber.id}`;
-
     const emailHtml = (await render(NewsletterConfirmation())).replace(
       "{unsubscribeUrl}",
       unsubscribeUrl
     );
 
-    try {
-      await resend.emails.send({
-        from: "Super Power Notes <onboarding@resend.dev>",
-        to: email,
-        subject: "Confirmation d'inscription à la newsletter",
-        html: emailHtml,
-      });
-    } catch (emailError) {
-      console.error("Resend error details:", emailError);
-    }
+    await resend.emails.send({
+      from: "Super Power Notes <onboarding@resend.dev>",
+      to: email,
+      subject: "Bienvenue à la newsletter Super Power Notes",
+      html: emailHtml,
+    });
 
     return NextResponse.json({ message: "Inscription réussie", subscriber }, { status: 201 });
   } catch (error: any) {
-    console.error("Newsletter error:", error);
+    console.error("Detailed error:", error);
     return NextResponse.json({ error: "Erreur lors de l'inscription" }, { status: 500 });
   }
 }
