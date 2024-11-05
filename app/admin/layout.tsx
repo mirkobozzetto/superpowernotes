@@ -22,7 +22,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <li>
             <Link
               href="/admin/email"
-              className={`hover:text-white ${pathname === "/admin/mail" ? "text-white" : ""}`}
+              className={`hover:text-white ${pathname === "/admin/email" ? "text-white" : ""}`}
             >
               Email Management
             </Link>
