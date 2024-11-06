@@ -3,54 +3,11 @@
 import { Badge } from "@chadcn/components/ui/badge";
 import { Button } from "@chadcn/components/ui/button";
 import { Card } from "@chadcn/components/ui/card";
-import { useState } from "react";
-
-type EmailResult = {
-  email: string;
-  success: boolean;
-  error: string | null;
-};
+import { useAdminEmail } from "@src/hooks/admin/useAdminEmail";
 
 export const EmailSender = ({ selectedUsers }: { selectedUsers?: string[] }) => {
-  const [subject, setSubject] = useState("");
-  const [content, setContent] = useState("");
-  const [sending, setSending] = useState(false);
-  const [results, setResults] = useState<EmailResult[]>([]);
-
-  const handleSend = async (type: "subscribers" | "specific") => {
-    if (!subject || !content) {
-      alert("Please fill in both subject and content");
-      return;
-    }
-
-    setSending(true);
-    try {
-      const response = await fetch("/api/admin/email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          type,
-          userIds: selectedUsers,
-          template: {
-            subject,
-            content,
-          },
-        }),
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
-
-      setResults(data.result);
-      setSubject("");
-      setContent("");
-    } catch (error) {
-      console.error("Failed to send emails:", error);
-      alert("Failed to send emails. Please try again.");
-    } finally {
-      setSending(false);
-    }
-  };
+  const { subject, content, sending, results, setSubject, setContent, handleSend } =
+    useAdminEmail(selectedUsers);
 
   return (
     <Card className="space-y-4 bg-white p-6">
@@ -73,7 +30,7 @@ export const EmailSender = ({ selectedUsers }: { selectedUsers?: string[] }) => 
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
-            className="p-2 border rounded-full w-full h-32"
+            className="p-2 border rounded w-full h-32"
             placeholder="Email content"
           />
         </div>
