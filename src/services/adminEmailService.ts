@@ -11,6 +11,7 @@ export const adminEmailService = {
     const response = await fetch("/api/admin/email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include",
       body: JSON.stringify({
         type,
         userIds,

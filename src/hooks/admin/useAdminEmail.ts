@@ -3,14 +3,25 @@ import { useAdminEmailStore } from "@src/stores/adminEmailStore";
 import { useCallback } from "react";
 
 export const useAdminEmail = (selectedUsers?: string[]) => {
-  const { subject, content, sending, results, setSubject, setContent, sendEmails, reset } =
-    useAdminEmailStore();
+  const {
+    subject,
+    title,
+    content,
+    sending,
+    results,
+    setSubject,
+    setTitle,
+    setContent,
+    sendEmails,
+    reset,
+  } = useAdminEmailStore();
 
   const handleSend = useCallback(
     async (type: "subscribers" | "specific") => {
       try {
         adminEmailSchema.parse({
           subject,
+          title,
           content,
           type,
           userIds: selectedUsers,
@@ -22,15 +33,17 @@ export const useAdminEmail = (selectedUsers?: string[]) => {
         throw error;
       }
     },
-    [subject, content, selectedUsers, sendEmails]
+    [subject, title, content, selectedUsers, sendEmails]
   );
 
   return {
     subject,
+    title,
     content,
     sending,
     results,
     setSubject,
+    setTitle,
     setContent,
     handleSend,
     reset,

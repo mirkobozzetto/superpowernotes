@@ -1,5 +1,6 @@
 export type AdminEmailTemplate = {
   subject: string;
+  title: string;
   content: string;
 };
 

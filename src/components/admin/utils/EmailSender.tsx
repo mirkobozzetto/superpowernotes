@@ -6,8 +6,17 @@ import { Card } from "@chadcn/components/ui/card";
 import { useAdminEmail } from "@src/hooks/admin/useAdminEmail";
 
 export const EmailSender = ({ selectedUsers }: { selectedUsers?: string[] }) => {
-  const { subject, content, sending, results, setSubject, setContent, handleSend } =
-    useAdminEmail(selectedUsers);
+  const {
+    subject,
+    title,
+    content,
+    sending,
+    results,
+    setSubject,
+    setTitle,
+    setContent,
+    handleSend,
+  } = useAdminEmail(selectedUsers);
 
   return (
     <Card className="space-y-4 bg-white p-6">
@@ -15,13 +24,24 @@ export const EmailSender = ({ selectedUsers }: { selectedUsers?: string[] }) => 
 
       <div className="space-y-4">
         <div>
-          <label className="block mb-1 font-medium text-sm">Subject</label>
+          <label className="block mb-1 font-medium text-sm">Email Subject</label>
           <input
             type="text"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             className="p-2 border rounded-full w-full"
-            placeholder="Email subject"
+            placeholder="Subject line in email clients"
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 font-medium text-sm">Title</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="p-2 border rounded-full w-full"
+            placeholder="Title in email body"
           />
         </div>
 
