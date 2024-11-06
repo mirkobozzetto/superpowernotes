@@ -2,14 +2,14 @@ import { newsletterService } from "@src/services/newsletterService";
 import { NewsletterStatus } from "@src/types/newsletter";
 import { create } from "zustand";
 
-interface NewsletterStore {
+type NewsletterStore = {
   email: string;
   status: NewsletterStatus;
   error: string | null;
   setEmail: (email: string) => void;
   subscribe: () => Promise<void>;
   reset: () => void;
-}
+};
 
 export const useNewsletterStore = create<NewsletterStore>((set, get) => ({
   email: "",
