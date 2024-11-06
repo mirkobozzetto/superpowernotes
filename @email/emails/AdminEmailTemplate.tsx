@@ -23,7 +23,7 @@ type AdminEmailTemplateProps = {
 };
 
 export const AdminEmailTemplate = ({
-  subject,
+  // subject,
   title,
   content = "",
   unsubscribeUrl,

@@ -1,9 +1,8 @@
 "use client";
 
-import { Badge } from "@chadcn/components/ui/badge";
-import { Button } from "@chadcn/components/ui/button";
 import { Card } from "@chadcn/components/ui/card";
 import { useAdminEmail } from "@src/hooks/admin/useAdminEmail";
+import { EmailActions, EmailInput, EmailResults } from "./_EmailSender/EmailSenderAssets";
 
 export const EmailSender = ({ selectedUsers }: { selectedUsers?: string[] }) => {
   const {
@@ -23,69 +22,36 @@ export const EmailSender = ({ selectedUsers }: { selectedUsers?: string[] }) => 
       <h2 className="font-bold text-xl">Send Emails</h2>
 
       <div className="space-y-4">
-        <div>
-          <label className="block mb-1 font-medium text-sm">Email Subject</label>
-          <input
-            type="text"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-            className="p-2 border rounded-full w-full"
-            placeholder="Subject line in email clients"
-          />
-        </div>
+        <EmailInput
+          value={subject}
+          onChange={setSubject}
+          label="Email Subject"
+          placeholder="Subject line in email clients"
+        />
 
-        <div>
-          <label className="block mb-1 font-medium text-sm">Title</label>
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className="p-2 border rounded-full w-full"
-            placeholder="Title in email body"
-          />
-        </div>
+        <EmailInput
+          value={title}
+          onChange={setTitle}
+          label="Title"
+          placeholder="Title in email body"
+        />
 
-        <div>
-          <label className="block mb-1 font-medium text-sm">Content</label>
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            className="p-2 border rounded w-full h-32"
-            placeholder="Email content"
-          />
-        </div>
+        <EmailInput
+          value={content}
+          onChange={setContent}
+          label="Content"
+          placeholder="Email content"
+          isTextArea
+        />
 
-        <div className="flex space-x-4">
-          <Button onClick={() => handleSend("subscribers")} disabled={sending}>
-            Send to All Subscribers
-          </Button>
+        <EmailActions
+          onSendToSubscribers={() => handleSend("subscribers")}
+          onSendToSelected={selectedUsers ? () => handleSend("specific") : undefined}
+          selectedUsersCount={selectedUsers?.length}
+          disabled={sending}
+        />
 
-          {selectedUsers && (
-            <Button
-              onClick={() => handleSend("specific")}
-              disabled={sending || selectedUsers.length === 0}
-            >
-              Send to Selected Users ({selectedUsers.length})
-            </Button>
-          )}
-        </div>
-
-        {results.length > 0 && (
-          <div className="mt-4">
-            <h3 className="mb-2 font-medium">Results:</h3>
-            <div className="space-y-2">
-              {results.map((result, i) => (
-                <div key={i} className="flex items-center space-x-2">
-                  <span>{result.email}</span>
-                  <Badge variant={result.success ? "default" : "destructive"}>
-                    {result.success ? "Sent" : "Failed"}
-                  </Badge>
-                  {result.error && <span className="text-red-500 text-sm">{result.error}</span>}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <EmailResults results={results} />
       </div>
     </Card>
   );
