@@ -5,11 +5,18 @@ import React from "react";
 type UserRowProps = {
   user: User;
   updateUser: (userId: string, data: Partial<User>) => Promise<void>;
+  deleteUser: (userId: string) => Promise<void>;
   toggleExpand: () => void;
   isExpanded: boolean;
 };
 
-export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand, isExpanded }) => {
+export const UserRow: React.FC<UserRowProps> = ({
+  user,
+  updateUser,
+  deleteUser,
+  toggleExpand,
+  isExpanded,
+}) => {
   const { role, timeInfo, handleRoleChange, resetRemainingTime, formatTime } = useAdminUser(
     user,
     isExpanded,
@@ -50,6 +57,12 @@ export const UserRow: React.FC<UserRowProps> = ({ user, updateUser, toggleExpand
             className="bg-blue-500 hover:bg-blue-600 px-2 py-1 rounded text-white"
           >
             Reset Time
+          </button>
+          <button
+            onClick={() => deleteUser(user.id)}
+            className="bg-red-500 hover:bg-red-600 px-2 py-1 rounded text-white"
+          >
+            Delete
           </button>
         </td>
       </tr>

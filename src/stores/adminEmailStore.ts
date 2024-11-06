@@ -22,11 +22,11 @@ export const useAdminEmailStore = create<AdminEmailStore>((set, get) => ({
   sending: false,
   results: [],
 
-  setSubject: (subject) => set({ subject }),
-  setTitle: (title) => set({ title }),
-  setContent: (content) => set({ content }),
+  setSubject: (subject: string) => set({ subject }),
+  setTitle: (title: string) => set({ title }),
+  setContent: (content: string) => set({ content }),
 
-  sendEmails: async (type, userIds) => {
+  sendEmails: async (type: "subscribers" | "specific", userIds?: string[]) => {
     const { subject, title, content } = get();
     set({ sending: true });
 

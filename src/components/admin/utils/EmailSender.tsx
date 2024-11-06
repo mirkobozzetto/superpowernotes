@@ -17,6 +17,20 @@ export const EmailSender = ({ selectedUsers }: { selectedUsers?: string[] }) => 
     handleSend,
   } = useAdminEmail(selectedUsers);
 
+  const handleEmailSend = ({
+    includeSubscribers,
+    includeUsers,
+  }: {
+    includeSubscribers: boolean;
+    includeUsers: boolean;
+  }) => {
+    if (selectedUsers) {
+      handleSend({ includeSubscribers, includeUsers, selectedUsers });
+    } else {
+      handleSend({ includeSubscribers, includeUsers });
+    }
+  };
+
   return (
     <Card className="space-y-4 bg-white p-6">
       <h2 className="font-bold text-xl">Send Emails</h2>
@@ -45,8 +59,7 @@ export const EmailSender = ({ selectedUsers }: { selectedUsers?: string[] }) => 
         />
 
         <EmailActions
-          onSendToSubscribers={() => handleSend("subscribers")}
-          onSendToSelected={selectedUsers ? () => handleSend("specific") : undefined}
+          onSend={handleEmailSend}
           selectedUsersCount={selectedUsers?.length}
           disabled={sending}
         />

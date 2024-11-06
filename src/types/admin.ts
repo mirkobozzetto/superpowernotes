@@ -1,3 +1,9 @@
+export type EmailRecipientsConfig = {
+  includeSubscribers: boolean;
+  includeUsers: boolean;
+  selectedUsers?: string[];
+};
+
 export type AdminEmailTemplate = {
   subject: string;
   title: string;

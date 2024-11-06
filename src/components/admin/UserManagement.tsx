@@ -14,6 +14,7 @@ type RoleFilterProps = {
 type UserTableProps = {
   users: User[];
   updateUser: (userId: string, data: Partial<User>) => Promise<void>;
+  deleteUser: (userId: string) => Promise<void>;
   expandedUsers: Set<string>;
   toggleExpand: (userId: string) => void;
 };
@@ -35,7 +36,7 @@ function RoleFilter({ activeRole, onRoleChange }: RoleFilterProps) {
   );
 }
 
-function UserTable({ users, updateUser, expandedUsers, toggleExpand }: UserTableProps) {
+function UserTable({ users, updateUser, deleteUser, expandedUsers, toggleExpand }: UserTableProps) {
   return (
     <div className="bg-white shadow-md rounded-lg overflow-x-auto">
       <table className="w-full">
@@ -59,6 +60,7 @@ function UserTable({ users, updateUser, expandedUsers, toggleExpand }: UserTable
               key={user.id}
               user={user}
               updateUser={updateUser}
+              deleteUser={deleteUser}
               toggleExpand={() => toggleExpand(user.id)}
               isExpanded={expandedUsers.has(user.id)}
             />
@@ -76,6 +78,7 @@ export function UserManagement() {
     modifiedUsers,
     activeRole,
     updateUser,
+    deleteUser,
     toggleExpand,
     saveAllChanges,
     setActiveRole,
@@ -88,6 +91,7 @@ export function UserManagement() {
       <UserTable
         users={users}
         updateUser={updateUser}
+        deleteUser={deleteUser}
         expandedUsers={expandedUsers}
         toggleExpand={toggleExpand}
       />

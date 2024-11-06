@@ -1,5 +1,6 @@
 import { Badge } from "@chadcn/components/ui/badge";
 import { Button } from "@chadcn/components/ui/button";
+import { useState } from "react";
 
 type EmailInputProps = {
   value: string;
@@ -37,31 +38,65 @@ export const EmailInput = ({
   </div>
 );
 
+type EmailRecipientsConfig = {
+  includeSubscribers: boolean;
+  includeUsers: boolean;
+};
+
 type EmailActionsProps = {
-  onSendToSubscribers: () => void;
-  onSendToSelected?: () => void;
+  onSend: (config: EmailRecipientsConfig) => void;
   selectedUsersCount?: number;
   disabled: boolean;
 };
 
-export const EmailActions = ({
-  onSendToSubscribers,
-  onSendToSelected,
-  selectedUsersCount,
-  disabled,
-}: EmailActionsProps) => (
-  <div className="flex space-x-4">
-    <Button onClick={onSendToSubscribers} disabled={disabled}>
-      Send to All Subscribers
-    </Button>
+export const EmailActions = ({ onSend, selectedUsersCount, disabled }: EmailActionsProps) => {
+  const [includeSubscribers, setIncludeSubscribers] = useState(false);
+  const [includeUsers, setIncludeUsers] = useState(false);
 
-    {onSendToSelected && selectedUsersCount !== undefined && (
-      <Button onClick={onSendToSelected} disabled={disabled || selectedUsersCount === 0}>
-        Send to Selected Users ({selectedUsersCount})
-      </Button>
-    )}
-  </div>
-);
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-col gap-2">
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={includeSubscribers}
+            onChange={(e) => setIncludeSubscribers(e.target.checked)}
+            className="border-gray-300 rounded"
+          />
+          <span>Newsletter Subscribers</span>
+        </label>
+
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={includeUsers}
+            onChange={(e) => setIncludeUsers(e.target.checked)}
+            className="border-gray-300 rounded"
+          />
+          <span>Subscribed Users</span>
+        </label>
+      </div>
+
+      <div className="flex gap-4">
+        <Button
+          onClick={() => onSend({ includeSubscribers, includeUsers })}
+          disabled={disabled || (!includeSubscribers && !includeUsers)}
+        >
+          Send Email
+        </Button>
+
+        {selectedUsersCount !== undefined && (
+          <Button
+            onClick={() => onSend({ includeSubscribers: false, includeUsers: true })}
+            disabled={disabled || selectedUsersCount === 0}
+          >
+            Send to Selected Users ({selectedUsersCount})
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+};
 
 type EmailResultsProps = {
   results: {

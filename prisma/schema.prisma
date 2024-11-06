@@ -92,7 +92,7 @@ model VoiceNote {
   tags          String[]
   duration      Int?
   userId        String
-  user          User      @relation(fields: [userId], references: [id])
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("voice_notes")
 }

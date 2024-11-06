@@ -43,6 +43,19 @@ export function useUserManagement() {
     router.refresh();
   };
 
+  const deleteUser = async (userId: string) => {
+    if (!window.confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ?")) {
+      return;
+    }
+
+    try {
+      await userService.deleteUser(userId);
+      setUsers(users.filter((user) => user.id !== userId));
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
+  };
+
   const filteredUsers =
     activeRole === "ALL" ? users : users.filter((user) => user.role === activeRole);
 
@@ -55,5 +68,6 @@ export function useUserManagement() {
     toggleExpand,
     saveAllChanges,
     setActiveRole,
+    deleteUser,
   };
 }

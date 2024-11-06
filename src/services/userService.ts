@@ -39,4 +39,15 @@ export const userService = {
 
     return response.json();
   },
+
+  async deleteUser(userId: string): Promise<void> {
+    const response = await fetch(`/api/users/${userId}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to delete user: ${response.status} ${errorText}`);
+    }
+  },
 };
