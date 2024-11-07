@@ -43,7 +43,7 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
       {currentSession?.user ? (
         <>
           <AudioRecorder onRecordingComplete={handleRecordingComplete} />
-          <div className="mb-8 w-full max-w-md">
+          <div className="mb-[10vh] w-full max-w-md">
             {isLoading ? (
               <p className="text-center">Loading last message...</p>
             ) : error ? (
