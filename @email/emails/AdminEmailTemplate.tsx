@@ -37,8 +37,8 @@ export const AdminEmailTemplate = ({
           <Section className="border-gray-200 bg-white shadow-lg mx-auto p-10 border rounded-xl max-w-xl">
             <div className="flex items-center gap-4 mb-8">
               <Img src={`${baseUrl}/SPN.png`} width="64" height="64" alt="Super Power Notes" />
+              <Heading className="mb-6 font-bold text-gray-900 text-xl">{title}</Heading>
             </div>
-            <Heading className="mb-6 font-bold text-gray-900 text-xl">{title}</Heading>
             <Section className="mb-8 text-base text-gray-700 leading-relaxed">
               {content.split("\n").map((line, i) => (
                 <Text key={i}>{line}</Text>
