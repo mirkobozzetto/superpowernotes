@@ -13,8 +13,14 @@ import { RecordingAnimation } from "./_ui/RecordingAnimation";
 import { ControlButtons } from "./_utils/ControlButtons";
 import { MicrophonePermissionCheck } from "./_utils/MicrophonePermissionCheck";
 
-export const AudioRecorder: React.FC<{ onRecordingComplete: () => void }> = ({
+export type AudioRecorderProps = {
+  onRecordingComplete: () => void;
+  onRecordingStateChange?: (isRecording: boolean) => void;
+};
+
+export const AudioRecorder: React.FC<AudioRecorderProps> = ({
   onRecordingComplete,
+  onRecordingStateChange,
 }) => {
   const [isCancelling, setIsCancelling] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
@@ -89,6 +95,10 @@ export const AudioRecorder: React.FC<{ onRecordingComplete: () => void }> = ({
     setIsProcessing(isFinishing);
   }, [isFinishing, setIsProcessing]);
 
+  useEffect(() => {
+    onRecordingStateChange?.(isRecording);
+  }, [isRecording, onRecordingStateChange]);
+
   const handleFinishRecording = async () => {
     console.log("handleFinishRecording called");
     await finishRecording();
@@ -96,7 +106,7 @@ export const AudioRecorder: React.FC<{ onRecordingComplete: () => void }> = ({
     setTimeout(() => {
       console.log("Calling onRecordingComplete");
       onRecordingComplete();
-    }, 6500);
+    }, 9500);
   };
 
   return (

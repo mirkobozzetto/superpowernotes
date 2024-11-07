@@ -2,7 +2,7 @@
 import { useLastRecordedMessage } from "@src/hooks/useLastRecordedMessage";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { AudioRecorder } from "./AudioRecorder";
 import { LastRecordedMessage } from "./_ui/LastRecordedMessage";
 
@@ -12,37 +12,30 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
   const userId = currentSession?.user?.id;
 
   const [shouldRefresh, setShouldRefresh] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
 
-  const { lastMessage, isLoading, error } = useLastRecordedMessage(userId || "", shouldRefresh);
+  const { lastMessage, isLoading, error } = useLastRecordedMessage(
+    userId || "",
+    shouldRefresh,
+    isRecording
+  );
 
   const handleRecordingComplete = useCallback(() => {
     setShouldRefresh(true);
   }, []);
 
-  useEffect(() => {
-    if (shouldRefresh) {
-      const timer = setTimeout(() => {
-        setShouldRefresh(false);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [shouldRefresh]);
-
-  if (status === "loading") {
-    return (
-      <div className="flex justify-center">
-        <p className="inline-block border-gray-100 bg-gray-50 px-4 py-2 border rounded-full text-center text-gray-500 text-sm animate-pulse">
-          Loading...
-        </p>
-      </div>
-    );
-  }
+  const handleRecordingStateChange = useCallback((recording: boolean) => {
+    setIsRecording(recording);
+  }, []);
 
   return (
     <div className="flex flex-col items-center w-full">
       {currentSession?.user ? (
         <>
-          <AudioRecorder onRecordingComplete={handleRecordingComplete} />
+          <AudioRecorder
+            onRecordingComplete={handleRecordingComplete}
+            onRecordingStateChange={handleRecordingStateChange}
+          />
           <div className="mb-[10vh] w-full max-w-md">
             {isLoading ? (
               <p className="text-center">Loading last message...</p>
