@@ -10,21 +10,14 @@ export const useLastRecordedMessage = (
   const [lastMessage, setLastMessage] = useState<VoiceNote | null>(null);
   const [isNewRecording, setIsNewRecording] = useState(false);
   const lastKnownIdRef = useRef<string | null>(null);
-  const isPollingRef = useRef<boolean>(false);
-  const pollingAttempts = useRef(0);
-  const MAX_POLLING_ATTEMPTS = 10;
+  const isFirstFetchRef = useRef(true);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const stopPolling = useCallback(() => {
-    isPollingRef.current = false;
-    pollingAttempts.current = 0;
-    setIsNewRecording(false);
-  }, []);
-
   const fetchLastMessage = useCallback(async () => {
-    if (!userId) return undefined;
+    if (!userId) return;
 
     try {
       setIsLoading(true);
@@ -35,6 +28,7 @@ export const useLastRecordedMessage = (
         setLastMessage(message);
         lastKnownIdRef.current = message?.id || null;
         setIsNewRecording(true);
+        setTimeout(() => setIsNewRecording(false), 2000);
         return true;
       }
       return false;
@@ -48,42 +42,41 @@ export const useLastRecordedMessage = (
   }, [userId]);
 
   const startPolling = useCallback(() => {
-    if (isPollingRef.current) return;
-
     const poll = async () => {
-      if (!isPollingRef.current || pollingAttempts.current >= MAX_POLLING_ATTEMPTS) {
-        stopPolling();
-        return;
-      }
-
       const found = await fetchLastMessage();
-      pollingAttempts.current += 1;
-
       if (!found) {
-        setTimeout(poll, 2000);
-      } else {
-        stopPolling();
+        timeoutRef.current = setTimeout(poll, 2000);
       }
     };
-
-    isPollingRef.current = true;
     poll();
-  }, [fetchLastMessage, stopPolling]);
+  }, [fetchLastMessage]);
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (shouldRefresh && !isRecording) {
       startPolling();
     }
-    return () => {
-      stopPolling();
-    };
-  }, [shouldRefresh, isRecording, startPolling, stopPolling]);
+  }, [shouldRefresh, isRecording, startPolling]);
+
+  useEffect(() => {
+    if (isFirstFetchRef.current && userId && !isRecording) {
+      isFirstFetchRef.current = false;
+      fetchLastMessage();
+    }
+  }, [userId, isRecording, fetchLastMessage]);
 
   return {
     lastMessage,
     isLoading,
     error,
-    isNewRecording,
     refreshLastMessage: fetchLastMessage,
+    isNewRecording,
   };
 };

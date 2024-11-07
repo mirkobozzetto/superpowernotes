@@ -1,11 +1,15 @@
 import { VoiceNote } from "@prisma/client";
 import React from "react";
 
-interface LastRecordedMessageProps {
+export type LastRecordedMessageProps = {
   voiceNote: VoiceNote | null;
-}
+  isNewRecording?: boolean;
+};
 
-export const LastRecordedMessage: React.FC<LastRecordedMessageProps> = ({ voiceNote }) => {
+export const LastRecordedMessage: React.FC<LastRecordedMessageProps> = ({
+  voiceNote,
+  isNewRecording,
+}) => {
   if (!voiceNote) return null;
 
   return (
