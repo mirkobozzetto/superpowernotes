@@ -1,5 +1,6 @@
 import { User } from "@prisma/client";
 import { useAdminUser } from "@src/hooks/admin/useAdminUser";
+import { useSession } from "next-auth/react";
 import React from "react";
 
 type UserRowProps = {
@@ -22,6 +23,9 @@ export const UserRow: React.FC<UserRowProps> = ({
     isExpanded,
     updateUser
   );
+
+  const { data: session } = useSession();
+  const isCurrentUser = session?.user?.email === user.email;
 
   const formatDate = (dateValue: Date | string | null | undefined) => {
     if (!dateValue) return "Not set";
@@ -58,12 +62,14 @@ export const UserRow: React.FC<UserRowProps> = ({
           >
             Reset Time
           </button>
-          <button
-            onClick={() => deleteUser(user.id)}
-            className="bg-red-500 hover:bg-red-600 px-2 py-1 rounded text-white"
-          >
-            Delete
-          </button>
+          {!isCurrentUser && (
+            <button
+              onClick={() => deleteUser(user.id)}
+              className="bg-red-500 hover:bg-red-600 px-2 py-1 rounded text-white"
+            >
+              Delete
+            </button>
+          )}
         </td>
       </tr>
       {isExpanded && (
