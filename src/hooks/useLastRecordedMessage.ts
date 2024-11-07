@@ -8,15 +8,23 @@ export const useLastRecordedMessage = (
   isRecording: boolean
 ) => {
   const [lastMessage, setLastMessage] = useState<VoiceNote | null>(null);
+  const [isNewRecording, setIsNewRecording] = useState(false);
   const lastKnownIdRef = useRef<string | null>(null);
-  const isFirstFetchRef = useRef(true);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isPollingRef = useRef<boolean>(false);
+  const pollingAttempts = useRef(0);
+  const MAX_POLLING_ATTEMPTS = 10;
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const stopPolling = useCallback(() => {
+    isPollingRef.current = false;
+    pollingAttempts.current = 0;
+    setIsNewRecording(false);
+  }, []);
+
   const fetchLastMessage = useCallback(async () => {
-    if (!userId) return;
+    if (!userId) return undefined;
 
     try {
       setIsLoading(true);
@@ -26,6 +34,7 @@ export const useLastRecordedMessage = (
       if (messageChanged) {
         setLastMessage(message);
         lastKnownIdRef.current = message?.id || null;
+        setIsNewRecording(true);
         return true;
       }
       return false;
@@ -39,35 +48,42 @@ export const useLastRecordedMessage = (
   }, [userId]);
 
   const startPolling = useCallback(() => {
-    const poll = async () => {
-      const found = await fetchLastMessage();
-      if (!found) {
-        timeoutRef.current = setTimeout(poll, 2000);
-      }
-    };
-    poll();
-  }, [fetchLastMessage]);
+    if (isPollingRef.current) return;
 
-  useEffect(() => {
-    return () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
+    const poll = async () => {
+      if (!isPollingRef.current || pollingAttempts.current >= MAX_POLLING_ATTEMPTS) {
+        stopPolling();
+        return;
+      }
+
+      const found = await fetchLastMessage();
+      pollingAttempts.current += 1;
+
+      if (!found) {
+        setTimeout(poll, 2000);
+      } else {
+        stopPolling();
       }
     };
-  }, []);
+
+    isPollingRef.current = true;
+    poll();
+  }, [fetchLastMessage, stopPolling]);
 
   useEffect(() => {
     if (shouldRefresh && !isRecording) {
       startPolling();
     }
-  }, [shouldRefresh, isRecording, startPolling]);
+    return () => {
+      stopPolling();
+    };
+  }, [shouldRefresh, isRecording, startPolling, stopPolling]);
 
-  useEffect(() => {
-    if (isFirstFetchRef.current && userId && !isRecording) {
-      isFirstFetchRef.current = false;
-      fetchLastMessage();
-    }
-  }, [userId, isRecording, fetchLastMessage]);
-
-  return { lastMessage, isLoading, error, refreshLastMessage: fetchLastMessage };
+  return {
+    lastMessage,
+    isLoading,
+    error,
+    isNewRecording,
+    refreshLastMessage: fetchLastMessage,
+  };
 };

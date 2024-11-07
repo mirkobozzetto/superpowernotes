@@ -14,7 +14,7 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
   const [shouldRefresh, setShouldRefresh] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
 
-  const { lastMessage, isLoading, error } = useLastRecordedMessage(
+  const { lastMessage, isLoading, error, isNewRecording } = useLastRecordedMessage(
     userId || "",
     shouldRefresh,
     isRecording
@@ -41,10 +41,8 @@ export const DynamicAudioRecorder = ({ initialSession }: { initialSession: Sessi
               <p className="text-center">Loading last message...</p>
             ) : error ? (
               <p className="text-center text-red-500">{error}</p>
-            ) : lastMessage ? (
-              <LastRecordedMessage voiceNote={lastMessage} />
             ) : (
-              <p className="text-center">No messages recorded yet.</p>
+              <LastRecordedMessage voiceNote={lastMessage} isNewRecording={isNewRecording} />
             )}
           </div>
         </>
