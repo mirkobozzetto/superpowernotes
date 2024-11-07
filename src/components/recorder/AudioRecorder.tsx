@@ -100,13 +100,8 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
   }, [isRecording, onRecordingStateChange]);
 
   const handleFinishRecording = async () => {
-    console.log("handleFinishRecording called");
     await finishRecording();
-    console.log("finishRecording completed, waiting before calling onRecordingComplete");
-    setTimeout(() => {
-      console.log("Calling onRecordingComplete");
-      onRecordingComplete();
-    }, 9500);
+    onRecordingComplete();
   };
 
   return (
