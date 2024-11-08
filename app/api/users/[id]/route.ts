@@ -1,5 +1,7 @@
 import { auth } from "@src/lib/auth/auth";
-import { prisma } from "@src/lib/prisma";
+import { logger } from "@src/lib/logger";
+import { userIdQueryBuilder } from "@src/services/routes/userIdQueryBuilder";
+import { UserUpdateSchema } from "@src/validations/routes/userIdRoute";
 import { NextResponse } from "next/server";
 
 export async function PATCH(request: Request, { params }: { params: { id: string } }) {
@@ -12,20 +14,19 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   const data = await request.json();
 
   try {
-    const updatedUser = await prisma.user.update({
-      where: { id },
-      data: {
-        role: data.role,
-        timeLimit: data.timeLimit ? parseInt(data.timeLimit, 10) : undefined,
-        currentPeriodRemainingTime: data.currentPeriodRemainingTime,
-        currentPeriodUsedTime: data.currentPeriodUsedTime,
-        lastResetDate: data.lastResetDate ? new Date(data.lastResetDate) : undefined,
-      },
+    const validatedData = UserUpdateSchema.parse(data);
+    const updatedUser = await userIdQueryBuilder.updateUser(id, validatedData);
+
+    logger.info("User updated successfully", {
+      adminId: session.user.id,
+      userId: id,
     });
 
     return NextResponse.json(updatedUser);
   } catch (error) {
-    console.error("Error updating user:", error);
+    logger.error("Error updating user", {
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
     return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
   }
 }
@@ -39,13 +40,18 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   const { id } = params;
 
   try {
-    await prisma.user.delete({
-      where: { id },
+    await userIdQueryBuilder.deleteUser(id);
+
+    logger.info("User deleted successfully", {
+      adminId: session.user.id,
+      deletedUserId: id,
     });
 
     return NextResponse.json({ message: "User deleted successfully" });
   } catch (error) {
-    console.error("Error deleting user:", error);
+    logger.error("Error deleting user", {
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
     return NextResponse.json({ error: "Failed to delete user" }, { status: 500 });
   }
 }

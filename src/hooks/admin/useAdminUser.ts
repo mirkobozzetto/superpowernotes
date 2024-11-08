@@ -1,10 +1,16 @@
 import { User, UserRole } from "@prisma/client";
 import { useEffect, useState } from "react";
+import { z } from "zod";
 
-interface TimeInfo {
+const UserUsageSchema = z.object({
+  currentPeriodUsedTime: z.number(),
+  currentPeriodRemainingTime: z.number(),
+});
+
+type TimeInfo = {
   totalUsedTime: number;
   remainingTime: number;
-}
+};
 
 export const useAdminUser = (
   user: User,
@@ -16,21 +22,27 @@ export const useAdminUser = (
     totalUsedTime: user.currentPeriodUsedTime,
     remainingTime: user.currentPeriodRemainingTime,
   });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCurrentUsage = async () => {
       if (!isExpanded) return;
       try {
         const response = await fetch(`/api/users/${user.id}/usage`);
-        if (response.ok) {
-          const data = await response.json();
-          setTimeInfo({
-            totalUsedTime: data.currentPeriodUsedTime,
-            remainingTime: data.currentPeriodRemainingTime,
-          });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+        const rawData = await response.json();
+        const data = UserUsageSchema.parse(rawData);
+
+        setTimeInfo({
+          totalUsedTime: data.currentPeriodUsedTime,
+          remainingTime: data.currentPeriodRemainingTime,
+        });
+        setError(null);
       } catch (error) {
         console.error("Error fetching current usage:", error);
+        setError("Failed to fetch usage data");
       }
     };
 

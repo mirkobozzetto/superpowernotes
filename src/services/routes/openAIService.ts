@@ -1,14 +1,14 @@
 import { logger } from "@src/lib/logger";
-import { OpenAIServiceError } from "./_openai/openAIError";
-import { generateTagsPrompt } from "./_openai/tagsPrompt";
-import { generateTitlePrompt } from "./_openai/titlePrompt";
+import { OpenAIServiceError } from "../_openai/openAIError";
+import { generateTagsPrompt } from "../_openai/tagsPrompt";
+import { generateTitlePrompt } from "../_openai/titlePrompt";
 import {
   OpenAIPromptSchema,
   OpenAIResponseSchema,
   TagsResponseSchema,
   TitleResponseSchema,
   TranscriptionSchema,
-} from "./_openai/validation";
+} from "../_openai/validation";
 
 const makeOpenAIRequest = async (prompt: unknown) => {
   const validatedPrompt = OpenAIPromptSchema.parse(prompt);

@@ -1,7 +1,7 @@
 import { MAX_TRIAL_COUNT, RATE_LIMIT_WINDOW } from "@src/constants/demoConstants";
 import { logger } from "@src/lib/logger";
-import { audioService } from "@src/services/audioService";
-import { openAIService } from "@src/services/openAIService";
+import { audioService } from "@src/services/routes/audioService";
+import { openAIService } from "@src/services/routes/openAIService";
 import {
   DemoTranscribeRequestSchema,
   DemoTranscribeResponseSchema,

@@ -1,7 +1,7 @@
 import { auth } from "@src/lib/auth/auth";
 import { logger } from "@src/lib/logger";
-import { audioService } from "@src/services/audioService";
-import { openAIService } from "@src/services/openAIService";
+import { audioService } from "@src/services/routes/audioService";
+import { openAIService } from "@src/services/routes/openAIService";
 import { transcribeQueryBuilder } from "@src/services/routes/transcribeQueryBuilder";
 import {
   TranscribeRequestSchema,
