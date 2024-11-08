@@ -1,11 +1,13 @@
-import {
-  MAX_DEMO_DURATION,
-  MAX_TRIAL_COUNT,
-  RATE_LIMIT_WINDOW,
-} from "@src/constants/demoConstants";
+import { MAX_TRIAL_COUNT, RATE_LIMIT_WINDOW } from "@src/constants/demoConstants";
+import { logger } from "@src/lib/logger";
 import { audioService } from "@src/services/audioService";
 import { openAIService } from "@src/services/openAIService";
+import {
+  DemoTranscribeRequestSchema,
+  DemoTranscribeResponseSchema,
+} from "@src/validations/routes/demoTranscribeRoute";
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 
 const ipRequestCounts = new Map<string, { count: number; timestamp: number }>();
 
@@ -16,6 +18,7 @@ export async function POST(req: NextRequest) {
   const requestInfo = ipRequestCounts.get(clientIp);
   if (requestInfo && now - requestInfo.timestamp < RATE_LIMIT_WINDOW) {
     if (requestInfo.count >= MAX_TRIAL_COUNT) {
+      logger.warn("Demo rate limit exceeded", { clientIp });
       return NextResponse.json({ error: "Limite dépassée" }, { status: 429 });
     }
     requestInfo.count += 1;
@@ -23,33 +26,45 @@ export async function POST(req: NextRequest) {
     ipRequestCounts.set(clientIp, { count: 1, timestamp: now });
   }
 
-  const formData = await req.formData();
-  const audioFile = formData.get("audio") as File;
-  const duration = Number(formData.get("duration") || 0);
-
-  if (!audioFile) {
-    return NextResponse.json({ error: "No audio file provided" }, { status: 400 });
-  }
-
-  if (duration > MAX_DEMO_DURATION) {
-    return NextResponse.json({ error: "Demo duration exceeded" }, { status: 400 });
-  }
-
   try {
-    const transcription = await audioService.transcribeAudio(audioFile);
+    const formData = await req.formData();
+    const validatedData = DemoTranscribeRequestSchema.parse({
+      audio: formData.get("audio"),
+      duration: Number(formData.get("duration") || 0),
+    });
+
+    const transcription = await audioService.transcribeAudio(validatedData.audio);
     const [tags, title] = await Promise.all([
       openAIService.generateTags(transcription),
       openAIService.generateTitle(transcription),
     ]);
 
-    return NextResponse.json({
+    const response = DemoTranscribeResponseSchema.parse({
       transcription,
-      duration,
+      duration: validatedData.duration,
       tags,
       fileName: title,
     });
+
+    logger.info("Demo transcription successful", {
+      clientIp,
+      duration: validatedData.duration,
+    });
+
+    return NextResponse.json(response);
   } catch (error) {
-    console.error("Error in demo transcription:", error);
+    if (error instanceof z.ZodError) {
+      logger.warn("Demo transcription validation failed", {
+        clientIp,
+        errors: error.errors,
+      });
+      return NextResponse.json({ error: error.errors }, { status: 400 });
+    }
+
+    logger.error("Error in demo transcription", {
+      clientIp,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
     return NextResponse.json({ error: "Failed to transcribe audio" }, { status: 500 });
   }
 }
