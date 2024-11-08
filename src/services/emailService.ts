@@ -1,11 +1,7 @@
 import AdminEmailTemplate from "@email/emails/AdminEmailTemplate";
 import { render } from "@react-email/render";
 import { prisma } from "@src/lib/prisma";
-import {
-  bulkEmailSchema,
-  emailTemplateSchema,
-  specificUsersSchema,
-} from "@src/lib/validations/email";
+import { bulkEmailSchema, emailTemplateSchema, specificUsersSchema } from "@src/validations/email";
 import { Resend } from "resend";
 import { z } from "zod";
 

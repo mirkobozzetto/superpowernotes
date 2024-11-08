@@ -1,4 +1,4 @@
-import { NewsletterSchema } from "@src/lib/validations/newsletter";
+import { NewsletterSchema } from "@src/validations/newsletter";
 
 export const newsletterService = {
   async subscribe(data: NewsletterSchema) {

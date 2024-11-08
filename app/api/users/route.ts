@@ -1,38 +1,32 @@
 import { auth } from "@src/lib/auth/auth";
-import { prisma } from "@src/lib/prisma";
+import { logger } from "@src/lib/logger";
+import { usersQueryBuilder } from "@src/services/routes/usersQueryBuilder";
 import { NextResponse } from "next/server";
 
 export async function GET() {
   const session = await auth();
   if (!session || session.user?.role !== "ADMIN") {
+    logger.warn("Unauthorized admin access attempt", {
+      userId: session?.user?.id,
+      role: session?.user?.role,
+    });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const users = await prisma.user.findMany({
-      include: {
-        voiceNotes: true,
-      },
+    const users = await usersQueryBuilder.fetchUsersWithDetails();
+
+    logger.info("Users fetched successfully", {
+      adminId: session?.user?.id,
+      userCount: users.length,
     });
 
-    const usersWithTimeInfo = users.map((user) => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      timeLimit: user.timeLimit,
-      currentPeriodUsedTime: user.currentPeriodUsedTime,
-      currentPeriodRemainingTime: user.currentPeriodRemainingTime,
-      lastResetDate: user.lastResetDate,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      emailVerified: user.emailVerified,
-      notesCount: user.voiceNotes.length,
-    }));
-
-    return NextResponse.json(usersWithTimeInfo);
+    return NextResponse.json(users);
   } catch (error) {
-    console.error("Error fetching users:", error);
+    logger.error("Error fetching users", {
+      adminId: session?.user?.id,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
     return NextResponse.json({ error: "Failed to fetch users" }, { status: 500 });
   }
 }

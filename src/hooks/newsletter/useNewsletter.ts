@@ -1,5 +1,5 @@
-import { newsletterSchema } from "@src/lib/validations/newsletter";
 import { useNewsletterStore } from "@src/stores/newsletterStore";
+import { newsletterSchema } from "@src/validations/newsletter";
 import { useCallback } from "react";
 
 export const useNewsletter = () => {

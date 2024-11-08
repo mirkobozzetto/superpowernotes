@@ -1,8 +1,8 @@
 import { auth } from "@src/lib/auth/auth";
 import { logger } from "@src/lib/logger";
 import { prisma } from "@src/lib/prisma";
-import { SearchParamsSchema } from "@src/lib/validations/routes/notesRoute";
 import { buildNotesQuery } from "@src/services/routes/notesQueryBuilder";
+import { SearchParamsSchema } from "@src/validations/routes/notesRoute";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {

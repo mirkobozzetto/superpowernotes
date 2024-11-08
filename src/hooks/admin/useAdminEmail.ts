@@ -1,5 +1,5 @@
-import { adminEmailSchema } from "@src/lib/validations/admin";
 import { useAdminEmailStore } from "@src/stores/adminEmailStore";
+import { adminEmailSchema } from "@src/validations/admin";
 import { useCallback } from "react";
 
 type SendConfig = {
