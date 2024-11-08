@@ -1,49 +1,59 @@
-import { Prisma } from "@prisma/client";
 import { auth } from "@src/lib/auth/auth";
+import { logger } from "@src/lib/logger";
 import { prisma } from "@src/lib/prisma";
+import { SearchParamsSchema } from "@src/lib/validations/notes";
+import { buildNotesQuery } from "@src/services/notesQueryBuilder";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
   const session = await auth();
-  if (!session || !session.user || !session.user.id) {
+  if (!session?.user?.id) {
+    logger.warn("Unauthorized access attempt", { url: request.url });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   const userId = session.user.id;
-  const { searchParams } = new URL(request.url);
-  const tags = searchParams.get("tags");
-  const startDate = searchParams.get("startDate");
-  const endDate = searchParams.get("endDate");
-  const keyword = searchParams.get("keyword");
-
-  const whereClause: Prisma.VoiceNoteWhereInput = { userId };
-
-  if (tags) {
-    whereClause.tags = { hasSome: tags.split(",") };
+  let searchParams;
+  try {
+    searchParams = new URL(request.url).searchParams;
+  } catch {
+    logger.error("Invalid URL", { url: request.url });
+    return NextResponse.json({ error: "Invalid URL" }, { status: 400 });
   }
 
-  if (startDate && endDate) {
-    whereClause.createdAt = {
-      gte: new Date(startDate),
-      lte: new Date(endDate),
-    };
-  }
-
-  if (keyword) {
-    whereClause.transcription = {
-      contains: keyword,
-      mode: "insensitive",
-    };
-  }
+  const params = {
+    tags: searchParams.get("tags"),
+    startDate: searchParams.get("startDate"),
+    endDate: searchParams.get("endDate"),
+    keyword: searchParams.get("keyword"),
+  };
 
   try {
-    const notes = await prisma.voiceNote.findMany({
-      where: whereClause,
-      orderBy: { createdAt: "desc" },
+    const validatedParams = await SearchParamsSchema.safeParseAsync(params);
+    if (!validatedParams.success) {
+      logger.warn("Invalid parameters", {
+        params,
+        errors: validatedParams.error.flatten(),
+      });
+      return NextResponse.json({ error: "Invalid parameters" }, { status: 400 });
+    }
+
+    const query = buildNotesQuery(userId, validatedParams.data);
+    const notes = await prisma.voiceNote.findMany(query);
+
+    logger.info("Search successful", {
+      userId,
+      params: validatedParams.data,
+      resultCount: notes.length,
     });
+
     return NextResponse.json(notes);
   } catch (error) {
-    console.error("Search error:", error);
+    logger.error("Search error", {
+      userId,
+      params,
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
     return NextResponse.json({ error: "Error performing search" }, { status: 500 });
   }
 }

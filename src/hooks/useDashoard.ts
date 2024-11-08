@@ -1,12 +1,12 @@
 import { VoiceNote } from "@prisma/client";
 import { useCallback, useEffect, useState } from "react";
 
-export interface SearchParams {
+export type SearchParams = {
   tags: string;
   startDate: string;
   endDate: string;
   keyword: string;
-}
+};
 
 export function useDashboard() {
   const [notes, setNotes] = useState<VoiceNote[]>([]);
