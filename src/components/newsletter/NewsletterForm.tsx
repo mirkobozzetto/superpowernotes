@@ -15,7 +15,7 @@ export const NewsletterForm: React.FC<NewsletterFormProps> = ({ className }) => 
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Votre email pour vous inscrire  à la newsletter"
+          placeholder="Préinscription pour la version complète"
           className={cn(
             "flex-1 p-2 border rounded-full",
             status === "error" ? "border-red-500" : "border-gray-200 focus:border-blue-500",

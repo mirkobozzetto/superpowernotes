@@ -24,7 +24,7 @@ export const LandingCTA = () => {
   return (
     <div className="relative space-y-6 mt-4 pt-2 text-center">
       <motion.div
-        className="top-12 left-96 absolute"
+        className="top-4 left-[26vw] absolute"
         initial="initial"
         animate="animate"
         variants={arrowAnimation}
@@ -34,7 +34,7 @@ export const LandingCTA = () => {
           alt="Click here"
           width={150}
           height={150}
-          className="transform"
+          className="transform rotate-12"
           priority
         />
       </motion.div>

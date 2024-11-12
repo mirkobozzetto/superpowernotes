@@ -50,7 +50,7 @@ export const LandingFeatures = () => {
   };
 
   return (
-    <div className="space-y-12 mb-40">
+    <div className="space-y-12">
       <motion.div
         variants={container}
         initial="hidden"

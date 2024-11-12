@@ -10,14 +10,15 @@ export const Onboarding = () => {
 
   return (
     <div className="flex flex-col gap-16">
-      <div className="mt-10 px-4 min-h-[200px]">
-        <YouTubeModal videoId="-3nD2ejroFk" className="mx-auto max-w-3xl" />
-      </div>
-      <div className="mt-32 min-h-[200px]" ref={ctaRef}>
+      <div className="min-h-[200px]" ref={ctaRef}>
         <LandingCTA />
       </div>
       <div className="min-h-[200px]">
         <LandingFeatures />
+      </div>
+
+      <div className="mb-56 px-4 min-h-[200px]">
+        <YouTubeModal videoId="-3nD2ejroFk" className="mx-auto max-w-3xl" />
       </div>
       <ScrollIndicator targetRef={ctaRef} />
     </div>
