@@ -3,7 +3,7 @@
 import { Dialog, DialogContent } from "@chadcn/components/ui/dialog";
 import { cn } from "@chadcn/lib/utils";
 import { motion } from "framer-motion";
-import { PlayCircle } from "lucide-react";
+import { PlayCircle, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -45,6 +45,13 @@ export const YouTubeModal = ({ videoId, className }: YouTubeModalProps) => {
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="top-[50%] left-[50%] bg-black/95 shadow-2xl p-0 border-none rounded-xl w-[90vw] max-w-[1200px] max-h-[90vh] translate-x-[-50%] translate-y-[-50%]">
+          <button
+            onClick={() => setIsOpen(false)}
+            className="top-2 right-2 absolute bg-white/90 hover:bg-white shadow-xl p-2 rounded-full focus:ring-2 focus:ring-white/50 transition-all duration-200 hover:scale-110 focus:outline-none"
+          >
+            <X className="border-black text-black size-4" />
+            <span className="sr-only">Fermer</span>
+          </button>
           <div className="w-full aspect-video">
             <iframe
               className="rounded-lg w-full h-full"
