@@ -81,7 +81,7 @@ export const LandingFeatures = () => {
         className="relative"
       >
         <motion.div
-          className="-z-10 absolute inset-0 bg-gradient-to-b from-blue-50/30 to-transparent rounded-2xl"
+          className="-z-10 absolute"
           initial={{ opacity: 0, scale: 0.8 }}
           whileInView={{
             opacity: 1,
