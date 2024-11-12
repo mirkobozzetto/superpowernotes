@@ -12,8 +12,19 @@ export const RotatingHeadline = ({
   className?: string;
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
+    const startTimer = setTimeout(() => {
+      setHasStarted(true);
+    }, 1000);
+
+    return () => clearTimeout(startTimer);
+  }, []);
+
+  useEffect(() => {
+    if (!hasStarted) return;
+
     const timer = setInterval(() => {
       setCurrentIndex((prev) => {
         if (prev === phrases.length - 1) {
@@ -22,21 +33,21 @@ export const RotatingHeadline = ({
         }
         return prev + 1;
       });
-    }, 3000);
+    }, 500);
 
     return () => clearInterval(timer);
-  }, [phrases.length]);
+  }, [hasStarted, phrases.length]);
 
   return (
     <div className={cn("relative h-24 md:h-32 lg:h-40 w-full", className)}>
       <AnimatePresence mode="wait">
         <motion.h1
           key={currentIndex}
-          initial={{ y: 40, opacity: 0 }}
+          initial={hasStarted ? { y: 20, opacity: 0 } : false}
           animate={{ y: 0, opacity: 1 }}
-          exit={{ y: -40, opacity: 0 }}
+          exit={{ y: -10, opacity: 0 }}
           transition={{
-            duration: 0.5,
+            duration: 0.3,
             ease: "easeOut",
           }}
           className="absolute inset-0 bg-clip-text bg-gradient-to-r from-blue-950 to-blue-800 font-extrabold text-2xl text-center text-transparent md:text-4xl lg:text-6xl"

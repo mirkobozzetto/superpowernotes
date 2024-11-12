@@ -4,7 +4,7 @@ import { features } from "./featureData";
 
 export const LandingFeatures = () => {
   return (
-    <div className="space-y-12 mb-64">
+    <div className="space-y-12 mb-40">
       <div className="gap-6 grid grid-cols-1 md:grid-cols-2 mx-auto mb-16 max-w-4xl">
         {features.map((feature) => (
           <Card

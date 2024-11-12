@@ -25,7 +25,7 @@ export const Onboarding: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-16">
-      <div className="mt-32 px-4 min-h-[200px]">
+      <div className="mt-10 px-4 min-h-[200px]">
         <YouTubeVideo />
       </div>
       <div className="mt-32 min-h-[200px]" ref={ctaRef}>
