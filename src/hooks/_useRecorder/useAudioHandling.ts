@@ -12,6 +12,7 @@ export const useAudioHandling = () => {
     chunks,
     isIOS,
     cleanupAudioResources,
+    initializeForExtension,
   } = useAudioHandlingStore();
 
   return {
@@ -25,5 +26,6 @@ export const useAudioHandling = () => {
     chunksRef: { current: chunks },
     isIOSRef: { current: isIOS },
     cleanupAudioResources,
+    initializeForExtension,
   };
 };

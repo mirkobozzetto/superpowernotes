@@ -6,6 +6,7 @@ type AudioHandlingState = {
   stream: MediaStream | null;
   chunks: Blob[];
   isIOS: boolean;
+  isExtension: boolean;
   getAudioMimeType: () => string;
   setMicPermission: (permission: boolean) => void;
   startRecording: (
@@ -16,6 +17,7 @@ type AudioHandlingState = {
   pauseRecording: () => void;
   resumeRecording: () => void;
   cleanupAudioResources: () => void;
+  initializeForExtension: () => void;
 };
 
 export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => ({
@@ -24,6 +26,14 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => ({
   stream: null,
   chunks: [],
   isIOS: false,
+  isExtension: false,
+
+  initializeForExtension: () => {
+    set({
+      isExtension: true,
+      micPermission: true,
+    });
+  },
 
   getAudioMimeType: () => (get().isIOS ? "audio/wav" : "audio/webm"),
 
