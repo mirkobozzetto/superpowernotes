@@ -38,6 +38,10 @@ export function Navigation() {
   const { data: session, status } = useSession();
   const isAdmin = session?.user?.role === "ADMIN";
 
+  if (pathname === "/recorder-embed") {
+    return null;
+  }
+
   return (
     <nav
       className={cn(

@@ -33,7 +33,7 @@ export default function RootLayout({
       >
         <SessionProvider>
           <Navigation />
-          <div className="mt-16">{children}</div>
+          <div className="md:mt-16 mt-0">{children}</div>
           <Footer />
         </SessionProvider>
       </body>

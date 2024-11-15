@@ -1,4 +1,14 @@
+"use client";
+
+import { usePathname } from "next/navigation";
+
 export const Footer = () => {
+  const pathname = usePathname();
+
+  if (pathname === "/recorder-embed") {
+    return null;
+  }
+
   return (
     <footer className="right-0 bottom-0 left-0 z-50 fixed bg-gradient-to-bl from-gray-900 to-gray-950 h-16">
       <div className="flex justify-between items-center mx-auto px-4 h-full container">
