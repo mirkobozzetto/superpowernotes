@@ -35,6 +35,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
     getAudioMimeType,
     chunksRef,
     cleanupAudioResources,
+    initializeForExtension,
   } = useAudioHandling();
 
   const { isIOS } = useAudioHandlingStore();
