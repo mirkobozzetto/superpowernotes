@@ -1,23 +1,30 @@
+import { useAudioHandlingStore } from "@src/stores/audioHandlingStore";
 import { useEffect } from "react";
 
-interface Props {
-  onPermissionChange: (hasPermission: boolean) => void;
-}
+export const MicrophonePermissionCheck = ({
+  onPermissionChange,
+}: {
+  onPermissionChange: (permission: boolean) => void;
+}) => {
+  const { isExtension } = useAudioHandlingStore();
 
-export const MicrophonePermissionCheck = ({ onPermissionChange }: Props) => {
   useEffect(() => {
+    if (isExtension) {
+      onPermissionChange(true);
+      return;
+    }
+
     const checkMicrophonePermission = async () => {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        stream.getTracks().forEach((track) => track.stop());
+        await navigator.mediaDevices.getUserMedia({ audio: true });
         onPermissionChange(true);
-      } catch (error) {
+      } catch (err) {
         onPermissionChange(false);
       }
     };
 
     checkMicrophonePermission();
-  }, [onPermissionChange]);
+  }, [onPermissionChange, isExtension]);
 
   return null;
 };
