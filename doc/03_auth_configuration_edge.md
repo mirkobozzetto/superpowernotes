@@ -1,85 +1,140 @@
-# Configuration Auth.js avec Edge Runtime
+# Configuration Auth.js et Edge Runtime dans Next.js
 
-## 1. Middleware (middleware.ts)
+## Le Problème
 
-```typescript
-import { auth } from "@src/lib/auth/auth";
-export default auth;
-export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.well-known).*)"],
-};
-```
+L'utilisation de Next.js avec Auth.js en Edge Runtime peut causer deux problèmes majeurs :
 
-**Pourquoi ?**
+1. Erreurs "PrismaClient is not configured to run in Edge Functions"
+2. Assets statiques (images, vidéos, etc.) inaccessibles pour les utilisateurs non connectés
 
-- `export default auth` : Utilise uniquement la version légère d'auth compatible Edge
-- `matcher` : Définit quelles routes doivent passer par le middleware
-  - Exclut les fichiers statiques et API
-  - Prévient les erreurs Prisma en Edge Runtime
-
-## 2. Configuration Edge (auth.config.ts)
+## 1. Configuration de Base (auth.config.ts)
 
 ```typescript
 export const authConfig = {
   providers: [Google],
   session: {
-    strategy: "database",
+    strategy: "jwt",
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
-      // Logique de routage
+      const isLoggedIn = !!auth?.user;
+      const isAuthPage = nextUrl.pathname.startsWith("/auth");
+      const isPublicPage = ["/", "/auth/verify-request"].includes(nextUrl.pathname);
+      const isApiRoute = nextUrl.pathname.startsWith("/api");
+
+      // Important : Gérer tous les assets statiques
+      const isStaticAsset =
+        nextUrl.pathname.startsWith("/_next") ||
+        nextUrl.pathname.includes("/public/") ||
+        nextUrl.pathname.endsWith(".svg") ||
+        nextUrl.pathname.endsWith(".ico") ||
+        nextUrl.pathname.endsWith(".png") ||
+        nextUrl.pathname.endsWith(".jpg") ||
+        nextUrl.pathname.endsWith(".jpeg") ||
+        nextUrl.pathname.endsWith(".gif") ||
+        nextUrl.pathname.endsWith(".webp") ||
+        nextUrl.pathname.endsWith(".mp4") ||
+        nextUrl.pathname.includes("/images/");
+
+      if (isStaticAsset) return true; // Essentiel pour les assets publics
+      if (isAuthPage) return true;
+      if (isPublicPage) return true;
+      if (isApiRoute) return isLoggedIn;
+
+      return isLoggedIn;
     },
   },
-};
+} satisfies NextAuthConfig;
 ```
 
-**Pourquoi ?**
+**Points Clés :**
 
-- Configuration légère sans Prisma pour Edge Runtime
-- Gère les permissions de base :
-  - Pages publiques (/)
-  - Pages d'auth (/auth/\*)
-  - Routes API (/api/\*)
-- Empêche l'erreur "PrismaClient is not configured to run in Edge Functions"
+- Utilisation de JWT pour la compatibilité Edge
+- Gestion exhaustive des assets statiques
+- Configuration des routes publiques et protégées
 
-## 3. Configuration Principale (auth.ts)
+## 2. Configuration Principale (auth.ts)
 
 ```typescript
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  ...authConfig,
-  adapter: PrismaAdapter(prisma),
-  session: { strategy: "jwt" },
-  // ... callbacks
+  ...authConfig,                    // Hérite de la config de base
+  adapter: PrismaAdapter(prisma),   // DB adapter
+  providers: [
+    ...authConfig.providers,        // Providers de la config de base
+    Resend({...}),                 // Providers additionnels
+  ],
+  callbacks: {
+    ...authConfig.callbacks,        // Callbacks de base
+    async session({session, user}) {
+      // Enrichissement de la session
+    },
+    async signIn({user, account}) {
+      // Logique de connexion
+    }
+  }
 });
 ```
 
-**Pourquoi ?**
+**Points Clés :**
 
-- Étend authConfig avec les fonctionnalités compètes
-- Utilise PrismaAdapter pour la persistance
-- Gère la création/mise à jour des utilisateurs
-- S'exécute dans l'environnement Node.js standard
+- Extension de auth.config.ts
+- Ajout des fonctionnalités nécessitant la base de données
+- Configuration des providers additionnels
 
-## Stratégie de Session
+## 3. Middleware (middleware.ts)
 
-- **database** dans auth.config.ts (middleware)
-- **jwt** dans auth.ts (application)
+```typescript
+export { auth as middleware } from "@src/lib/auth/auth";
 
-**Pourquoi cette différence ?**
+export const config = {
+  matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
+};
+```
 
-- Le middleware ne peut pas accéder à la base de données (Edge Runtime)
-- Le JWT permet une vérification rapide sans accès DB
-- Meilleur compromis performance/sécurité
+**Points Clés :**
 
-## En résumé
+- Export simple du middleware
+- Configuration du matcher pour les routes à protéger
 
-1. Le middleware intercepte les requêtes (Edge)
-2. La config légère gère les autorisations basiques
-3. La config complète gère les opérations DB
-4. Plus d'erreurs Prisma en Edge Runtime
-5. Performance optimisée
+## Gestion des Assets Statiques
 
-C'est comme avoir deux versions de l'auth :
+La clé de cette configuration est la gestion correcte des assets statiques via `isStaticAsset` dans auth.config.ts. Cette vérification permet de :
 
-- Version Light → Edge (rapide, sans DB)
-- Version Pro → Node.js (complète, avec DB)
+1. Rendre les images accessibles aux utilisateurs non connectés
+2. Permettre le chargement des favicons et icônes
+3. Autoriser l'accès aux vidéos et autres médias
+4. Conserver la protection des routes importantes
+
+## Points importants
+
+1. **Assets Statiques :**
+
+   - Doivent être explicitement autorisés dans `isStaticAsset`
+   - Inclure tous les types de fichiers nécessaires
+   - Vérifier les chemins spéciaux (/public/, /images/)
+
+2. **Stratégie de Session :**
+
+   - Utiliser "jwt" pour la compatibilité Edge
+   - Éviter les accès DB dans le middleware
+
+3. **Protection :**
+   - Routes API protégées pour les utilisateurs connectés
+   - Assets statiques accessibles à tous
+   - Pages publiques clairement définies
+
+## Résolution des Problèmes Courants
+
+1. **Images non affichées :**
+
+   - Vérifier l'extension dans `isStaticAsset`
+   - Ajouter le chemin du dossier si nécessaire
+
+2. **Erreurs Prisma en Edge :**
+
+   - Utiliser uniquement JWT dans le middleware
+   - Éviter les opérations DB en Edge
+
+3. **Assets Manquants :**
+   - Ajouter les extensions manquantes
+   - Vérifier les chemins spéciaux
