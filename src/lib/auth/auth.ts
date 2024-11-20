@@ -1,13 +1,12 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth, { type DefaultSession } from "next-auth";
-import Google from "next-auth/providers/google";
-import Resend from "next-auth/providers/resend";
 import { prisma } from "../prisma";
-import { sendVerificationRequest } from "./email";
+import { authConfig } from "./auth.config";
 
 declare module "next-auth" {
   interface User {
     role?: "ADMIN" | "USER" | "BETA";
+    emailVerified?: Date;
   }
   interface Session extends DefaultSession {
     user?: User;
@@ -15,29 +14,14 @@ declare module "next-auth" {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(prisma),
-  providers: [
-    Google,
-    Resend({
-      apiKey: process.env.AUTH_RESEND_KEY,
-      from: process.env.EMAIL_FROM || "",
-      sendVerificationRequest: async (params) => {
-        const { identifier, url, provider } = params;
-        await sendVerificationRequest({
-          identifier,
-          url,
-          provider: {
-            ...provider,
-            from: provider.from || "",
-          },
-        });
-      },
-    }),
-  ],
-  pages: {
-    verifyRequest: "/auth/verify-request",
+  secret: process.env.NEXTAUTH_SECRET,
+  session: {
+    strategy: "jwt",
   },
   callbacks: {
+    ...authConfig.callbacks,
     async signIn({ user, account }) {
       if (account?.provider === "google" && user.email) {
         try {
@@ -105,14 +89,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       }
       return true;
-    },
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-        session.user.emailVerified = user.emailVerified;
-        session.user.role = user.role as "ADMIN" | "USER" | "BETA";
-      }
-      return session;
     },
   },
 });
