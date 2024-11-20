@@ -1,8 +1,8 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth, { type DefaultSession } from "next-auth";
-import Google from "next-auth/providers/google";
 import Resend from "next-auth/providers/resend";
 import { prisma } from "../prisma";
+import { authConfig } from "./auth.config";
 import { sendVerificationRequest } from "./email";
 
 declare module "next-auth" {
@@ -15,9 +15,10 @@ declare module "next-auth" {
 }
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   adapter: PrismaAdapter(prisma),
   providers: [
-    Google,
+    ...authConfig.providers,
     Resend({
       apiKey: process.env.AUTH_RESEND_KEY,
       from: process.env.EMAIL_FROM || "",
@@ -38,6 +39,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     verifyRequest: "/auth/verify-request",
   },
   callbacks: {
+    ...authConfig.callbacks,
     async signIn({ user, account }) {
       if (account?.provider === "google" && user.email) {
         try {
