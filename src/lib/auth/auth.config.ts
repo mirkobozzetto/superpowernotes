@@ -4,7 +4,7 @@ import Google from "next-auth/providers/google";
 export const authConfig = {
   providers: [Google],
   session: {
-    strategy: "database",
+    strategy: "jwt",
   },
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
