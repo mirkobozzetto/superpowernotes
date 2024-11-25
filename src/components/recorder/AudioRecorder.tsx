@@ -25,6 +25,10 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
   const [isCancelling, setIsCancelling] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
 
+  useEffect(() => {
+    useAudioHandlingStore.getState().updateBrowserInfo();
+  }, []);
+
   const {
     micPermission,
     setMicPermission,

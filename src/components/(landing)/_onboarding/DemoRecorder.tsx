@@ -11,6 +11,10 @@ import { DemoRecordingControls } from "./DemoRecordingControls";
 import { DemoTranscriptionResult } from "./DemoTranscriptionResult";
 
 export const DemoRecorder: React.FC = () => {
+  useEffect(() => {
+    useAudioHandlingStore.getState().updateBrowserInfo();
+  }, []);
+
   const {
     micPermission,
     setMicPermission,

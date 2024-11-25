@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-interface DemoAudioHandlingState {
+type DemoAudioHandlingState = {
   micPermission: boolean | null;
   mediaRecorder: MediaRecorder | null;
   stream: MediaStream | null;
@@ -17,7 +17,7 @@ interface DemoAudioHandlingState {
   resumeRecording: () => void;
   getAudioMimeType: () => string;
   cleanupAudioResources: () => void;
-}
+};
 
 export const useDemoAudioHandlingStore = create<DemoAudioHandlingState>((set, get) => ({
   micPermission: null,

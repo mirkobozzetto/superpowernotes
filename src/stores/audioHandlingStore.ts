@@ -1,3 +1,4 @@
+import { createBrowserDetection } from "@src/utils/browserDetection";
 import { create } from "zustand";
 
 type AudioHandlingState = {
@@ -19,42 +20,10 @@ type AudioHandlingState = {
   cleanupAudioResources: () => void;
   initializeForExtension: () => void;
   debugLog: (message: string, data?: any) => void;
-};
-
-type BrowserInfo = {
-  isIOS: boolean;
-  browser: string;
-  version: string;
-};
-
-const detectBrowser = (): BrowserInfo => {
-  const userAgent = window.navigator.userAgent.toLowerCase();
-  const isIOS = /iphone|ipad|ipod/.test(userAgent);
-  const isSafari = /safari/.test(userAgent);
-  const isChrome = /chrome/.test(userAgent);
-  const browser = isChrome ? "chrome" : isSafari ? "safari" : "other";
-  const version = userAgent.match(/(version|chrome)\/(\d+)/)?.[2] || "unknown";
-
-  return { isIOS, browser, version };
-};
-
-const getSupportedMimeType = (debug: (msg: string, data?: any) => void): string => {
-  const preferredTypes = ["audio/mp4", "audio/aac", "audio/webm"];
-
-  debug("Testing supported audio formats");
-  const supportedType = preferredTypes.find((type) => {
-    const isSupported = MediaRecorder.isTypeSupported(type);
-    debug(`Format ${type} supported:`, isSupported);
-    return isSupported;
-  });
-
-  const finalType = supportedType || "audio/mp4";
-  debug("Selected audio format:", finalType);
-  return finalType;
+  updateBrowserInfo: () => void;
 };
 
 export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
-  const browserInfo = detectBrowser();
   const debugLog = (message: string, data?: any) => {
     const timestamp = new Date().toISOString();
     console.group(`🎙 [${timestamp}] Audio Recording`);
@@ -63,29 +32,46 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
     console.groupEnd();
   };
 
-  debugLog("Browser Detection:", browserInfo);
-
   return {
     micPermission: null,
     mediaRecorder: null,
     stream: null,
     chunks: [],
-    isIOS: browserInfo.isIOS,
+    isIOS: false,
     isExtension: false,
     debugLog,
 
+    updateBrowserInfo: () => {
+      const browserInfo = createBrowserDetection();
+      debugLog("Browser detection:", browserInfo);
+      set({ isIOS: browserInfo.isIOS });
+    },
+
     initializeForExtension: () => {
       debugLog("Initializing for extension");
+      const browserInfo = createBrowserDetection();
       set({
         isExtension: true,
         micPermission: true,
+        isIOS: browserInfo.isIOS,
       });
     },
 
-    getAudioMimeType: () => getSupportedMimeType(get().debugLog),
+    getAudioMimeType: () => {
+      const preferredTypes = ["audio/mp4", "audio/aac", "audio/webm"];
+      const supportedType = preferredTypes.find((type) => {
+        const isSupported = MediaRecorder.isTypeSupported(type);
+        get().debugLog(`Testing format ${type}:`, isSupported);
+        return isSupported;
+      });
+
+      const finalType = supportedType || "audio/mp4";
+      get().debugLog("Selected audio format:", finalType);
+      return finalType;
+    },
 
     setMicPermission: (permission) => {
-      debugLog("Setting mic permission:", permission);
+      get().debugLog("Setting mic permission:", permission);
       set({ micPermission: permission });
     },
 
@@ -127,10 +113,6 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
           get().cleanupAudioResources();
         };
 
-        mediaRecorder.onerror = (event) => {
-          debug("MediaRecorder error:", event);
-        };
-
         set({ stream, mediaRecorder, chunks: [] });
 
         const timeslice = get().isIOS ? 1000 : undefined;
@@ -145,6 +127,7 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
       }
     },
 
+    // ... reste de votre code inchangé
     stopRecording: () => {
       const { mediaRecorder } = get();
       const debug = get().debugLog;
