@@ -18,79 +18,181 @@ type AudioHandlingState = {
   resumeRecording: () => void;
   cleanupAudioResources: () => void;
   initializeForExtension: () => void;
+  debugLog: (message: string, data?: any) => void;
 };
 
-export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => ({
-  micPermission: null,
-  mediaRecorder: null,
-  stream: null,
-  chunks: [],
-  isIOS: false,
-  isExtension: false,
+type BrowserInfo = {
+  isIOS: boolean;
+  browser: string;
+  version: string;
+};
 
-  initializeForExtension: () => {
-    set({
-      isExtension: true,
-      micPermission: true,
-    });
-  },
+const detectBrowser = (): BrowserInfo => {
+  const userAgent = window.navigator.userAgent.toLowerCase();
+  const isIOS = /iphone|ipad|ipod/.test(userAgent);
+  const isSafari = /safari/.test(userAgent);
+  const isChrome = /chrome/.test(userAgent);
+  const browser = isChrome ? "chrome" : isSafari ? "safari" : "other";
+  const version = userAgent.match(/(version|chrome)\/(\d+)/)?.[2] || "unknown";
 
-  getAudioMimeType: () => (get().isIOS ? "audio/wav" : "audio/webm"),
+  return { isIOS, browser, version };
+};
 
-  setMicPermission: (permission) => set({ micPermission: permission }),
+const getSupportedMimeType = (debug: (msg: string, data?: any) => void): string => {
+  const preferredTypes = ["audio/mp4", "audio/aac", "audio/webm"];
 
-  startRecording: async (onDataAvailable, onStop) => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mimeType = get().getAudioMimeType();
-      const mediaRecorder = new MediaRecorder(stream, { mimeType });
+  debug("Testing supported audio formats");
+  const supportedType = preferredTypes.find((type) => {
+    const isSupported = MediaRecorder.isTypeSupported(type);
+    debug(`Format ${type} supported:`, isSupported);
+    return isSupported;
+  });
 
-      set({ stream, mediaRecorder, chunks: [] });
+  const finalType = supportedType || "audio/mp4";
+  debug("Selected audio format:", finalType);
+  return finalType;
+};
 
-      mediaRecorder.ondataavailable = (event) => {
-        set((state) => ({ chunks: [...state.chunks, event.data] }));
-        onDataAvailable(event);
-      };
+export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
+  const browserInfo = detectBrowser();
+  const debugLog = (message: string, data?: any) => {
+    const timestamp = new Date().toISOString();
+    console.group(`🎙 [${timestamp}] Audio Recording`);
+    console.log(message);
+    if (data) console.log(data);
+    console.groupEnd();
+  };
 
-      mediaRecorder.onstop = () => {
-        onStop();
-        get().cleanupAudioResources();
-      };
+  debugLog("Browser Detection:", browserInfo);
 
-      mediaRecorder.start();
-      set({ micPermission: true });
-    } catch (error) {
-      console.error("Error starting recording:", error);
-      set({ micPermission: false });
-    }
-  },
+  return {
+    micPermission: null,
+    mediaRecorder: null,
+    stream: null,
+    chunks: [],
+    isIOS: browserInfo.isIOS,
+    isExtension: false,
+    debugLog,
 
-  stopRecording: () => {
-    const { mediaRecorder } = get();
-    if (mediaRecorder && mediaRecorder.state !== "inactive") {
-      mediaRecorder.stop();
-    }
-  },
+    initializeForExtension: () => {
+      debugLog("Initializing for extension");
+      set({
+        isExtension: true,
+        micPermission: true,
+      });
+    },
 
-  pauseRecording: () => {
-    const { mediaRecorder } = get();
-    if (mediaRecorder && mediaRecorder.state === "recording") {
-      mediaRecorder.pause();
-    }
-  },
+    getAudioMimeType: () => getSupportedMimeType(get().debugLog),
 
-  resumeRecording: () => {
-    const { mediaRecorder } = get();
-    if (mediaRecorder && mediaRecorder.state === "paused") {
-      mediaRecorder.resume();
-    }
-  },
+    setMicPermission: (permission) => {
+      debugLog("Setting mic permission:", permission);
+      set({ micPermission: permission });
+    },
 
-  cleanupAudioResources: () => {
-    const { stream } = get();
-    if (stream) {
-      stream.getTracks().forEach((track) => track.stop());
-    }
-    set({ stream: null, mediaRecorder: null });
-  },
-}));
+    startRecording: async (onDataAvailable, onStop) => {
+      const debug = get().debugLog;
+      debug("Starting recording");
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          },
+        });
+
+        debug("Got audio stream");
+        const mimeType = get().getAudioMimeType();
+
+        const options = {
+          mimeType,
+          audioBitsPerSecond: 128000,
+        };
+
+        debug("Creating MediaRecorder with options:", options);
+        const mediaRecorder = new MediaRecorder(stream, options);
+
+        mediaRecorder.ondataavailable = (event) => {
+          debug("Data available:", { size: event.data.size, type: event.data.type });
+          if (event.data.size > 0) {
+            set((state) => ({ chunks: [...state.chunks, event.data] }));
+            onDataAvailable(event);
+          }
+        };
+
+        mediaRecorder.onstop = () => {
+          debug("Recording stopped");
+          onStop();
+          get().cleanupAudioResources();
+        };
+
+        mediaRecorder.onerror = (event) => {
+          debug("MediaRecorder error:", event);
+        };
+
+        set({ stream, mediaRecorder, chunks: [] });
+
+        const timeslice = get().isIOS ? 1000 : undefined;
+        debug("Starting MediaRecorder with timeslice:", timeslice);
+        mediaRecorder.start(timeslice);
+
+        set({ micPermission: true });
+      } catch (error) {
+        debug("Error starting recording:", error);
+        set({ micPermission: false });
+        throw error;
+      }
+    },
+
+    stopRecording: () => {
+      const { mediaRecorder } = get();
+      const debug = get().debugLog;
+
+      if (mediaRecorder && mediaRecorder.state !== "inactive") {
+        debug("Stopping recording");
+        mediaRecorder.stop();
+      } else {
+        debug("Cannot stop recording - recorder inactive or null");
+      }
+    },
+
+    pauseRecording: () => {
+      const { mediaRecorder } = get();
+      const debug = get().debugLog;
+
+      if (mediaRecorder && mediaRecorder.state === "recording") {
+        debug("Pausing recording");
+        mediaRecorder.pause();
+      } else {
+        debug("Cannot pause recording - not in recording state");
+      }
+    },
+
+    resumeRecording: () => {
+      const { mediaRecorder } = get();
+      const debug = get().debugLog;
+
+      if (mediaRecorder && mediaRecorder.state === "paused") {
+        debug("Resuming recording");
+        mediaRecorder.resume();
+      } else {
+        debug("Cannot resume recording - not in paused state");
+      }
+    },
+
+    cleanupAudioResources: () => {
+      const { stream } = get();
+      const debug = get().debugLog;
+
+      debug("Cleaning up audio resources");
+      if (stream) {
+        stream.getTracks().forEach((track) => {
+          debug("Stopping track:", track.kind);
+          track.stop();
+        });
+      }
+      set({ stream: null, mediaRecorder: null });
+    },
+  };
+});
