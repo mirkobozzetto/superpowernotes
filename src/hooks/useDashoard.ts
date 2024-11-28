@@ -1,4 +1,5 @@
 import { VoiceNote } from "@prisma/client";
+import { dashboardService } from "@src/services/routes/dashboardService";
 import { useCallback, useEffect, useState } from "react";
 
 export type SearchParams = {
@@ -23,11 +24,7 @@ export function useDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch("/api/voice-notes");
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
+      const data = await dashboardService.fetchAllNotes();
       setNotes(
         data.voiceNotes.sort(
           (a: VoiceNote, b: VoiceNote) =>
@@ -51,23 +48,13 @@ export function useDashboard() {
       e.preventDefault();
       setIsLoading(true);
       setError(null);
-      const queryParams = new URLSearchParams({ ...searchParams });
       try {
-        const response = await fetch(`/api/notes?${queryParams}`);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        const notesArray = Array.isArray(data) ? data : data.voiceNotes;
-        if (Array.isArray(notesArray)) {
-          setNotes(
-            notesArray.sort(
-              (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            )
-          );
-        } else {
-          throw new Error("Received data is not in the expected format");
-        }
+        const notesArray = await dashboardService.searchNotes(searchParams);
+        setNotes(
+          notesArray.sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
+        );
       } catch (error) {
         console.error("Error during search:", error);
         setError("Search failed. Please try again.");
@@ -87,21 +74,7 @@ export function useDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      const url = updatedNote.id ? `/api/voice-notes/${updatedNote.id}` : "/api/notes";
-      const method = updatedNote.id ? "PUT" : "POST";
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedNote),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
+      await dashboardService.saveNote(updatedNote);
       await fetchAllNotes();
     } catch (error) {
       console.error("Error saving note:", error);
@@ -115,14 +88,7 @@ export function useDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch(`/api/voice-notes/${deleteNoteId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
+      await dashboardService.deleteNote(deleteNoteId);
       setNotes((prevNotes) => prevNotes.filter((note) => note.id !== deleteNoteId));
     } catch (error) {
       console.error("Error deleting note:", error);
