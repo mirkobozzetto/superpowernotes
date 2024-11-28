@@ -2,12 +2,12 @@ import { VoiceNote } from "@prisma/client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import TagInput from "../TagInput";
 
-interface NoteModalProps {
+type NoteModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onSave: (note: Partial<VoiceNote>) => void;
   note?: Partial<VoiceNote>;
-}
+};
 
 export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, note }) => {
   const [editedNote, setEditedNote] = useState<Partial<VoiceNote>>({

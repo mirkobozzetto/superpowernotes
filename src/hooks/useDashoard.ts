@@ -87,7 +87,7 @@ export function useDashboard() {
     setIsLoading(true);
     setError(null);
     try {
-      const url = updatedNote.id ? `/api/voice-notes/${updatedNote.id}` : "/api/voice-notes";
+      const url = updatedNote.id ? `/api/voice-notes/${updatedNote.id}` : "/api/notes";
       const method = updatedNote.id ? "PUT" : "POST";
 
       const response = await fetch(url, {
@@ -102,7 +102,6 @@ export function useDashboard() {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      // Après avoir sauvegardé la note, rechargez toutes les notes
       await fetchAllNotes();
     } catch (error) {
       console.error("Error saving note:", error);
