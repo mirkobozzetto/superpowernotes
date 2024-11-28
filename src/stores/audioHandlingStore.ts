@@ -99,9 +99,12 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
         debug("Creating MediaRecorder with options:", options);
         const mediaRecorder = new MediaRecorder(stream, options);
 
+        let hasDataAvailable = false;
+
         mediaRecorder.ondataavailable = (event) => {
           debug("Data available:", { size: event.data.size, type: event.data.type });
-          if (event.data.size > 0) {
+          if (event.data.size > 0 && !hasDataAvailable) {
+            hasDataAvailable = true;
             set((state) => ({ chunks: [...state.chunks, event.data] }));
             onDataAvailable(event);
           }
@@ -115,7 +118,7 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
 
         set({ stream, mediaRecorder, chunks: [] });
 
-        const timeslice = get().isIOS ? 1000 : undefined;
+        const timeslice = get().isIOS ? 3000 : undefined;
         debug("Starting MediaRecorder with timeslice:", timeslice);
         mediaRecorder.start(timeslice);
 
@@ -127,7 +130,6 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
       }
     },
 
-    // ... reste de votre code inchangé
     stopRecording: () => {
       const { mediaRecorder } = get();
       const debug = get().debugLog;

@@ -3,8 +3,10 @@ import {
   MAX_RECORDING_DURATION,
   RECORDING_COMPLETE_EVENT,
 } from "@src/constants/recorderConstants";
+import { useAudioHandlingStore } from "@src/stores/audioHandlingStore";
 import { useRecordingActionsStore } from "@src/stores/recordingActionsStore";
 import { useCallback } from "react";
+import { useIOSDebounce } from "./useIOSDebounce";
 
 export const useRecordingActions = (
   isCancelling: boolean,
@@ -30,6 +32,8 @@ export const useRecordingActions = (
   actualRecordingTimeRef: React.MutableRefObject<number>
 ) => {
   const store = useRecordingActionsStore();
+  const isIOS = useAudioHandlingStore((state) => state.isIOS);
+  const debounce = useIOSDebounce(3000);
 
   const finishRecording = useCallback(async () => {
     console.log("Starting finishRecording");
@@ -45,13 +49,14 @@ export const useRecordingActions = (
     if (chunksRef.current.length > 0 && actualRecordingTimeRef.current > 0) {
       try {
         console.log("Sending audio to server");
-        await sendAudioToServer(
-          new Blob(chunksRef.current, { type: getAudioMimeType() }),
-          actualRecordingTimeRef.current
-        );
-
-        console.log("Audio sent successfully, dispatching event");
-        window.dispatchEvent(new Event(RECORDING_COMPLETE_EVENT));
+        if (!isIOS) {
+          await sendAudioToServer(
+            new Blob(chunksRef.current, { type: getAudioMimeType() }),
+            actualRecordingTimeRef.current
+          );
+          console.log("Audio sent successfully, dispatching event");
+          window.dispatchEvent(new Event(RECORDING_COMPLETE_EVENT));
+        }
       } catch (error) {
         console.error("Error sending audio to server:", error);
         setError("Failed to process recording. Please try again.");
@@ -80,6 +85,7 @@ export const useRecordingActions = (
     getAudioMimeType,
     setError,
     store,
+    isIOS,
   ]);
 
   const startRecording = useCallback(async () => {
@@ -97,9 +103,20 @@ export const useRecordingActions = (
 
     try {
       await startAudioRecording(
-        (event: BlobEvent) => {
+        async (event: BlobEvent) => {
           chunksRef.current.push(event.data);
           store.addChunk(event.data);
+
+          if (isIOS && event.data.size > 0) {
+            await debounce(async () => {
+              try {
+                await sendAudioToServer(event.data, actualRecordingTimeRef.current);
+              } catch (error) {
+                console.error("Error sending iOS audio chunk:", error);
+                setError("Failed to process recording chunk. Please try again.");
+              }
+            });
+          }
         },
         () => {
           if (chunksRef.current.length > 0 && actualRecordingTimeRef.current > 0) {
@@ -153,6 +170,9 @@ export const useRecordingActions = (
     timerRef,
     actualRecordingTimeRef,
     store,
+    isIOS,
+    debounce,
+    sendAudioToServer,
   ]);
 
   const stopRecording = useCallback(() => {
@@ -168,6 +188,8 @@ export const useRecordingActions = (
   }, [stopAudioRecording, setIsRecording, setIsPaused, cleanupAudioResources, timerRef, store]);
 
   const pauseResumeRecording = useCallback(() => {
+    if (isIOS) return;
+
     setIsPaused((prevIsPaused: boolean) => {
       const newIsPaused = !prevIsPaused;
       store.setIsPaused(newIsPaused);
@@ -197,6 +219,7 @@ export const useRecordingActions = (
     timerRef,
     actualRecordingTimeRef,
     store,
+    isIOS,
   ]);
 
   const cancelRecording = useCallback(() => {
