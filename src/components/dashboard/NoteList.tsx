@@ -2,7 +2,7 @@ import { VoiceNote } from "@prisma/client";
 import { format, isValid } from "date-fns";
 import React from "react";
 
-interface NoteListProps {
+type NoteListProps = {
   notes: VoiceNote[];
   isLoading: boolean;
   handleNoteClick: (note: VoiceNote) => void;
@@ -10,7 +10,7 @@ interface NoteListProps {
   setIsNoteModalOpen: (isOpen: boolean) => void;
   setDeleteNoteId: (id: string) => void;
   setIsDeleteModalOpen: (isOpen: boolean) => void;
-}
+};
 
 export const NoteList: React.FC<NoteListProps> = ({
   notes,
