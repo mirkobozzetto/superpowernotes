@@ -18,7 +18,7 @@ export const createBrowserDetection = (): BrowserInfo => {
   try {
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIOS = /iphone|ipad|ipod/.test(userAgent);
-    const isSafari = /safari/.test(userAgent);
+    const isSafari = /^((?!chrome|android).)*safari/i.test(userAgent);
     const isChrome = /chrome/.test(userAgent);
     const browser = isChrome ? "chrome" : isSafari ? "safari" : "other";
     const version = userAgent.match(/(version|chrome)\/(\d+)/)?.[2] || "unknown";

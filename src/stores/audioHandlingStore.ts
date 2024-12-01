@@ -32,10 +32,6 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
     console.groupEnd();
   };
 
-  let lastChunkTime = 0;
-  let recordingStartTime = 0;
-  const MIN_CHUNK_INTERVAL = 2000;
-
   return {
     micPermission: null,
     mediaRecorder: null,
@@ -62,14 +58,14 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
     },
 
     getAudioMimeType: () => {
-      const preferredTypes = ["audio/mp4", "audio/aac", "audio/webm"];
+      const preferredTypes = ["audio/webm", "audio/mp4"];
       const supportedType = preferredTypes.find((type) => {
         const isSupported = MediaRecorder.isTypeSupported(type);
         get().debugLog(`Testing format ${type}:`, isSupported);
         return isSupported;
       });
 
-      const finalType = supportedType || "audio/mp4";
+      const finalType = supportedType || "audio/webm";
       get().debugLog("Selected audio format:", finalType);
       return finalType;
     },
@@ -82,8 +78,6 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
     startRecording: async (onDataAvailable, onStop) => {
       const debug = get().debugLog;
       debug("Starting recording");
-      recordingStartTime = Date.now();
-      lastChunkTime = recordingStartTime;
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -106,23 +100,14 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
         const mediaRecorder = new MediaRecorder(stream, options);
 
         mediaRecorder.ondataavailable = (event) => {
-          const currentTime = Date.now();
-          const timeSinceLastChunk = currentTime - lastChunkTime;
-
           debug("Data available:", {
             size: event.data.size,
             type: event.data.type,
-            timeSinceLastChunk,
           });
 
           if (event.data.size > 0) {
-            if (!get().isIOS || timeSinceLastChunk >= MIN_CHUNK_INTERVAL) {
-              set((state) => ({ chunks: [...state.chunks, event.data] }));
-              onDataAvailable(event);
-              lastChunkTime = currentTime;
-            } else {
-              debug("Skipping chunk due to minimum interval", { timeSinceLastChunk });
-            }
+            set((state) => ({ chunks: [...state.chunks, event.data] }));
+            onDataAvailable(event);
           }
         };
 
@@ -134,9 +119,8 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
 
         set({ stream, mediaRecorder, chunks: [] });
 
-        const timeslice = get().isIOS ? 5000 : undefined;
-        debug("Starting MediaRecorder with timeslice:", timeslice);
-        mediaRecorder.start(timeslice);
+        debug("Starting MediaRecorder");
+        mediaRecorder.start();
 
         set({ micPermission: true });
       } catch (error) {
