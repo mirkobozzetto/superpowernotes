@@ -1,7 +1,5 @@
-"use client";
-
 import { useAudioHandlingStore } from "@src/stores/audioHandlingStore";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 export const MicrophonePermissionCheck = ({
   onPermissionChange,
@@ -9,9 +7,15 @@ export const MicrophonePermissionCheck = ({
   onPermissionChange: (permission: boolean) => void;
 }) => {
   const { isExtension, debugLog } = useAudioHandlingStore();
+  const hasCheckedRef = useRef(false);
 
   useEffect(() => {
     const checkMicrophonePermission = async () => {
+      if (hasCheckedRef.current) {
+        return;
+      }
+      hasCheckedRef.current = true;
+
       debugLog("Checking microphone permissions");
 
       try {
@@ -62,6 +66,10 @@ export const MicrophonePermissionCheck = ({
     };
 
     checkMicrophonePermission();
+
+    return () => {
+      hasCheckedRef.current = false;
+    };
   }, [onPermissionChange, isExtension, debugLog]);
 
   return null;
