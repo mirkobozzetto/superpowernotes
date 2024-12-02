@@ -58,14 +58,14 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
     },
 
     getAudioMimeType: () => {
-      const preferredTypes = ["audio/mp4", "audio/aac", "audio/webm"];
+      const preferredTypes = ["audio/webm", "audio/mp4"];
       const supportedType = preferredTypes.find((type) => {
         const isSupported = MediaRecorder.isTypeSupported(type);
         get().debugLog(`Testing format ${type}:`, isSupported);
         return isSupported;
       });
 
-      const finalType = supportedType || "audio/mp4";
+      const finalType = supportedType || "audio/webm";
       get().debugLog("Selected audio format:", finalType);
       return finalType;
     },
@@ -99,12 +99,13 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
         debug("Creating MediaRecorder with options:", options);
         const mediaRecorder = new MediaRecorder(stream, options);
 
-        let hasDataAvailable = false;
-
         mediaRecorder.ondataavailable = (event) => {
-          debug("Data available:", { size: event.data.size, type: event.data.type });
-          if (event.data.size > 0 && !hasDataAvailable) {
-            hasDataAvailable = true;
+          debug("Data available:", {
+            size: event.data.size,
+            type: event.data.type,
+          });
+
+          if (event.data.size > 0) {
             set((state) => ({ chunks: [...state.chunks, event.data] }));
             onDataAvailable(event);
           }
@@ -118,9 +119,8 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
 
         set({ stream, mediaRecorder, chunks: [] });
 
-        const timeslice = get().isIOS ? 3000 : undefined;
-        debug("Starting MediaRecorder with timeslice:", timeslice);
-        mediaRecorder.start(timeslice);
+        debug("Starting MediaRecorder");
+        mediaRecorder.start();
 
         set({ micPermission: true });
       } catch (error) {

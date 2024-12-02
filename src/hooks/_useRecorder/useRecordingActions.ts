@@ -5,7 +5,7 @@ import {
 } from "@src/constants/recorderConstants";
 import { useAudioHandlingStore } from "@src/stores/audioHandlingStore";
 import { useRecordingActionsStore } from "@src/stores/recordingActionsStore";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useIOSDebounce } from "./useIOSDebounce";
 
 export const useRecordingActions = (
@@ -34,9 +34,16 @@ export const useRecordingActions = (
   const store = useRecordingActionsStore();
   const isIOS = useAudioHandlingStore((state) => state.isIOS);
   const debounce = useIOSDebounce(3000);
+  const isFinishingRef = useRef(false);
 
   const finishRecording = useCallback(async () => {
+    if (isFinishingRef.current) {
+      console.log("Recording finish in progress, skipping duplicate call");
+      return;
+    }
+
     console.log("Starting finishRecording");
+    isFinishingRef.current = true;
     setIsFinishing(true);
     store.setIsFinishing(true);
     stopAudioRecording();
@@ -71,9 +78,9 @@ export const useRecordingActions = (
     store.setIsRecording(false);
     setRecordingTime(0);
     store.setRecordingTime(0);
+    isFinishingRef.current = false;
     console.log("Exiting finishRecording");
   }, [
-    setIsFinishing,
     stopAudioRecording,
     timerRef,
     chunksRef,
@@ -86,13 +93,16 @@ export const useRecordingActions = (
     setError,
     store,
     isIOS,
+    setIsFinishing,
   ]);
 
   const startRecording = useCallback(async () => {
     if (isCancelling) return;
     if (remainingTime !== null && remainingTime <= 0) {
-      setError("You have reached your time limit. Please contact support for more time.");
-      store.setError("You have reached your time limit. Please contact support for more time.");
+      const errorMessage =
+        "You have reached your time limit. Please contact support for more time.";
+      setError(errorMessage);
+      store.setError(errorMessage);
       return;
     }
 
@@ -125,8 +135,9 @@ export const useRecordingActions = (
         }
       );
 
-      startTimeRef.current = Date.now();
-      store.setStartTime(Date.now());
+      const currentTime = Date.now();
+      startTimeRef.current = currentTime;
+      store.setStartTime(currentTime);
       setIsRecording(true);
       store.setIsRecording(true);
       setIsPaused(false);
