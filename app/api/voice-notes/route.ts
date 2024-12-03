@@ -1,4 +1,5 @@
 import { auth } from "@src/lib/auth/auth";
+import { logger } from "@src/lib/logger";
 import { prisma } from "@src/lib/prisma";
 import { NextResponse } from "next/server";
 
@@ -11,6 +12,20 @@ export async function GET() {
   try {
     const voiceNotes = await prisma.voiceNote.findMany({
       where: { userId: session.user.id },
+      include: {
+        folders: {
+          include: {
+            folder: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                parentId: true,
+              },
+            },
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -22,9 +37,14 @@ export async function GET() {
     const totalUsedTime = voiceNotes.reduce((acc, note) => acc + (note.duration ?? 0), 0);
     const remainingTime = user ? user.timeLimit - totalUsedTime : 0;
 
-    return NextResponse.json({ voiceNotes, remainingTime });
+    const formattedNotes = voiceNotes.map((note) => ({
+      ...note,
+      folders: note.folders.map((f) => f.folder),
+    }));
+
+    return NextResponse.json({ voiceNotes: formattedNotes, remainingTime });
   } catch (error) {
-    console.error("Error fetching voice notes:", error);
+    logger.error("Error fetching voice notes:", error);
     return NextResponse.json({ error: "Error fetching voice notes" }, { status: 500 });
   }
 }

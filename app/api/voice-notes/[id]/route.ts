@@ -1,4 +1,5 @@
 import { auth } from "@src/lib/auth/auth";
+import { logger } from "@src/lib/logger";
 import { prisma } from "@src/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -11,11 +12,25 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
   try {
     const { id } = params;
     const body = await request.json();
-    console.log("PUT request received", { params, body });
+    logger.info("PUT request received", { params, body });
     const { transcription, tags, fileName, duration } = body;
 
     const existingNote = await prisma.voiceNote.findUnique({
       where: { id },
+      include: {
+        folders: {
+          include: {
+            folder: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                parentId: true,
+              },
+            },
+          },
+        },
+      },
     });
 
     if (!existingNote || existingNote.userId !== session.user.id) {
@@ -31,11 +46,30 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
         duration,
         modifiedAt: new Date(),
       },
+      include: {
+        folders: {
+          include: {
+            folder: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                parentId: true,
+              },
+            },
+          },
+        },
+      },
     });
 
-    return NextResponse.json(updatedNote);
+    const formattedNote = {
+      ...updatedNote,
+      folders: updatedNote.folders.map((f) => f.folder),
+    };
+
+    return NextResponse.json(formattedNote);
   } catch (error) {
-    console.error("Error updating voice note:", error);
+    logger.error("Error updating voice note:", error);
     return NextResponse.json({ error: "Error updating voice note" }, { status: 500 });
   }
 }
@@ -51,6 +85,9 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
 
     const existingNote = await prisma.voiceNote.findUnique({
       where: { id },
+      include: {
+        folders: true,
+      },
     });
 
     if (!existingNote || existingNote.userId !== session.user.id) {
@@ -61,9 +98,14 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       where: { id },
     });
 
+    logger.info("Note and its folder associations deleted successfully", {
+      noteId: id,
+      folderCount: existingNote.folders.length,
+    });
+
     return new NextResponse(null, { status: 204 });
   } catch (error) {
-    console.error("Error deleting voice note:", error);
+    logger.error("Error deleting voice note:", error);
     return NextResponse.json({ error: "Error deleting voice note" }, { status: 500 });
   }
 }

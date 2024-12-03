@@ -6,6 +6,7 @@ export const SaveVoiceNoteInputSchema = z.object({
   duration: z.number().positive("Duration must be positive"),
   title: z.string().min(1, "Title is required"),
   tags: z.array(z.string()),
+  folderId: z.string().nullable().optional(),
 });
 
 export const VoiceNoteResponseSchema = z.object({

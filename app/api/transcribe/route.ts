@@ -1,5 +1,7 @@
+import type { Folder } from "@prisma/client";
 import { auth } from "@src/lib/auth/auth";
 import { logger } from "@src/lib/logger";
+import { prisma } from "@src/lib/prisma";
 import { audioService } from "@src/services/routes/audioService";
 import { openAIService } from "@src/services/routes/openAIService";
 import { transcribeQueryBuilder } from "@src/services/routes/transcribeQueryBuilder";
@@ -17,6 +19,7 @@ export async function POST(req: Request) {
   }
 
   const userId = session.user.id;
+  let foundFolder: Folder | null = null;
 
   try {
     const user = await transcribeQueryBuilder.getUserTimeInfo(userId);
@@ -25,6 +28,7 @@ export async function POST(req: Request) {
     const validatedData = TranscribeRequestSchema.parse({
       audio: formData.get("audio"),
       duration: Number(formData.get("duration") || 0),
+      folderId: formData.get("folderId") || null,
     });
 
     if (user.currentPeriodRemainingTime < validatedData.duration) {
@@ -34,6 +38,23 @@ export async function POST(req: Request) {
         remainingTime: user.currentPeriodRemainingTime,
       });
       return NextResponse.json({ error: "Time limit exceeded" }, { status: 403 });
+    }
+
+    if (validatedData.folderId) {
+      foundFolder = await prisma.folder.findFirst({
+        where: {
+          id: validatedData.folderId,
+          userId,
+        },
+      });
+
+      if (!foundFolder) {
+        logger.warn("Invalid folder access attempt", {
+          userId,
+          folderId: validatedData.folderId,
+        });
+        return NextResponse.json({ error: "Invalid folder" }, { status: 404 });
+      }
     }
 
     const transcription = await audioService.transcribeAudio(validatedData.audio);
@@ -47,7 +68,8 @@ export async function POST(req: Request) {
       transcription,
       validatedData.duration,
       fileName,
-      tags
+      tags,
+      validatedData.folderId
     );
 
     const response = TranscribeResponseSchema.parse({
@@ -56,6 +78,17 @@ export async function POST(req: Request) {
       fileName: result.voiceNote.fileName,
       duration: validatedData.duration,
       remainingTime: result.remainingTime,
+      folders:
+        validatedData.folderId && foundFolder
+          ? [
+              {
+                id: foundFolder.id,
+                name: foundFolder.name,
+                description: foundFolder.description,
+                parentId: foundFolder.parentId,
+              },
+            ]
+          : undefined,
     });
 
     logger.info("Transcription successful", {
@@ -63,6 +96,7 @@ export async function POST(req: Request) {
       duration: validatedData.duration,
       remainingTime: result.remainingTime,
       transcriptionLength: transcription.length,
+      folderId: validatedData.folderId,
     });
 
     return NextResponse.json(response);

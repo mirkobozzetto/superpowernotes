@@ -45,7 +45,8 @@ export const audioService = {
     transcription: string,
     duration: number,
     title: string,
-    tags: string[]
+    tags: string[],
+    folderId?: string | null
   ) {
     try {
       const validatedInput = SaveVoiceNoteInputSchema.parse({
@@ -54,6 +55,7 @@ export const audioService = {
         duration,
         title,
         tags,
+        folderId,
       });
 
       const user = await prisma.user.findUnique({
@@ -73,14 +75,51 @@ export const audioService = {
         throw new AudioServiceError("Time limit exceeded", "TIME_LIMIT_EXCEEDED");
       }
 
+      const createData = {
+        transcription: validatedInput.transcription,
+        fileName: validatedInput.title,
+        tags: validatedInput.tags,
+        duration: validatedInput.duration,
+        userId: validatedInput.userId,
+      };
+
+      if (validatedInput.folderId) {
+        const folder = await prisma.folder.findUnique({
+          where: {
+            id: validatedInput.folderId,
+            userId: validatedInput.userId,
+          },
+        });
+
+        if (!folder) {
+          throw new AudioServiceError("Invalid folder", "FOLDER_NOT_FOUND");
+        }
+      }
+
       const [voiceNote, updatedUser] = await prisma.$transaction([
         prisma.voiceNote.create({
           data: {
-            transcription: validatedInput.transcription,
-            fileName: validatedInput.title,
-            tags: validatedInput.tags,
-            duration: validatedInput.duration,
-            userId: validatedInput.userId,
+            ...createData,
+            folders: validatedInput.folderId
+              ? {
+                  create: [
+                    {
+                      folder: {
+                        connect: {
+                          id: validatedInput.folderId,
+                        },
+                      },
+                    },
+                  ],
+                }
+              : undefined,
+          },
+          include: {
+            folders: {
+              include: {
+                folder: true,
+              },
+            },
           },
         }),
         prisma.user.update({
@@ -101,6 +140,7 @@ export const audioService = {
         userId: validatedInput.userId,
         voiceNoteId: voiceNote.id,
         duration: validatedInput.duration,
+        folderId: validatedInput.folderId,
       });
 
       return response;

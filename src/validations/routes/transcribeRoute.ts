@@ -1,8 +1,9 @@
 import { z } from "zod";
 
 export const TranscribeRequestSchema = z.object({
-  audio: z.instanceof(File, { message: "No audio file provided" }),
-  duration: z.number().min(0, "Duration must be positive"),
+  audio: z.any(),
+  duration: z.number(),
+  folderId: z.string().nullable().optional(),
 });
 
 export const TranscribeResponseSchema = z.object({
@@ -11,6 +12,16 @@ export const TranscribeResponseSchema = z.object({
   fileName: z.string(),
   duration: z.number(),
   remainingTime: z.number(),
+  folders: z
+    .array(
+      z.object({
+        id: z.string(),
+        name: z.string(),
+        description: z.string().nullable(),
+        parentId: z.string().nullable(),
+      })
+    )
+    .optional(),
 });
 
 export type TranscribeRequest = z.infer<typeof TranscribeRequestSchema>;
