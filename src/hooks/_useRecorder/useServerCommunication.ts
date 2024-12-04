@@ -10,11 +10,15 @@ export const useServerCommunication = (
   updateRemainingTime: UpdateRemainingTimeType,
   setIsFinishing: Dispatch<SetStateAction<boolean>>
 ) => {
-  const sendAudioToServer = async (audioBlob: Blob, duration: number) => {
+  const sendAudioToServer = async (audioBlob: Blob, duration: number, folderId?: string | null) => {
     setIsFinishing(true);
     const formData = new FormData();
     formData.append("audio", audioBlob, `recording.${audioBlob.type.split("/")[1]}`);
     formData.append("duration", duration.toString());
+
+    if (folderId) {
+      formData.append("folderId", folderId);
+    }
 
     try {
       const response = await fetch("/api/transcribe", { method: "POST", body: formData });

@@ -8,6 +8,7 @@ import { useTimeManagement } from "../../hooks/_useRecorder/useTimeManagement";
 import { useAudioHandlingStore } from "../../stores/audioHandlingStore";
 import { RemainingTimeDisplay } from "../utils/RemainingTimeDisplay";
 import { AudioProcessingAnimation } from "./_ui/AudioProcessingAnimation";
+import { FolderSelector } from "./_ui/FolderSelector";
 import { RecordButton } from "./_ui/RecordButton";
 import { RecordingAnimation } from "./_ui/RecordingAnimation";
 import { ControlButtons } from "./_utils/ControlButtons";
@@ -24,6 +25,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
 }) => {
   const [isCancelling, setIsCancelling] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
 
   useEffect(() => {
     useAudioHandlingStore.getState().updateBrowserInfo();
@@ -81,7 +83,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
       resumeAudioRecording,
       getAudioMimeType,
       cleanupAudioResources,
-      sendAudioToServer,
+      (blob: Blob, duration: number) => sendAudioToServer(blob, duration, selectedFolderId),
       setError,
       setIsRecording,
       setIsPaused,
@@ -125,6 +127,12 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
             disabled={isProcessing}
             isIOS={isIOS}
           />
+          <RemainingTimeDisplay remainingTime={remainingTime} />
+          {!isRecording && (
+            <div className="mt-4 w-full max-w-md">
+              <FolderSelector onFolderSelect={setSelectedFolderId} />
+            </div>
+          )}
           {isFinishing && <AudioProcessingAnimation />}
           <div className="flex flex-col items-center w-full">
             <div className="flex justify-center items-center h-12">
@@ -149,7 +157,6 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
           {error && (
             <p className="bg-red-50 p-6 rounded-full w-full text-center text-red-500">{error}</p>
           )}
-          <RemainingTimeDisplay remainingTime={remainingTime} />
         </div>
       )}
     </div>
