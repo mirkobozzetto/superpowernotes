@@ -76,8 +76,8 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
           <SelectItem
             value="none"
             className={cn(
-              "text-gray-900 text-sm py-2.5 pl-4 cursor-pointer",
-              "hover:bg-blue-50 focus:bg-blue-50 outline-none",
+              "text-gray-900 text-sm cursor-pointer",
+              "hover:!bg-blue-50 focus:!bg-blue-50 outline-none",
               "transition-colors duration-150"
             )}
           >
