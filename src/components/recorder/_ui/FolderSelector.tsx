@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@chadcn/components/ui/select";
 import { Textarea } from "@chadcn/components/ui/textarea";
+import { cn } from "@chadcn/lib/utils";
 import { useFolderSelector } from "@src/hooks/_useFolder/useFolderSelector";
 import { useState } from "react";
 
@@ -31,7 +32,7 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
         body: JSON.stringify(data),
       });
 
-      if (!response.ok) throw new Error("Failed to create folder");
+      if (!response.ok) throw new Error("Échec de la création du projet");
 
       const newFolder = await response.json();
       await refetchFolders();
@@ -39,12 +40,12 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
       onFolderSelect(newFolder.id);
       setIsCreateOpen(false);
     } catch (err) {
-      console.error("Error creating folder:", err);
+      console.error("Erreur lors de la création du projet:", err);
     }
   };
 
   if (isLoading) {
-    return <div className="text-gray-500">Loading folders...</div>;
+    return <div className="text-gray-500">Chargement des projets...</div>;
   }
 
   if (error) {
@@ -52,7 +53,7 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
   }
 
   const currentValue = selectedFolder?.id || "none";
-  const currentName = selectedFolder ? selectedFolder.name : "Choisir un dossier";
+  const currentName = selectedFolder ? selectedFolder.name : "Choisir un projet";
 
   return (
     <div className="flex items-center justify-center gap-2 w-full">
@@ -66,13 +67,33 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
         <SelectTrigger className="w-[200px] bg-white text-gray-900 rounded-full border-0 shadow-sm">
           <SelectValue>{currentName}</SelectValue>
         </SelectTrigger>
-        <SelectContent className="bg-white rounded-lg">
-          <SelectItem value="none" className="text-gray-900">
-            Aucun dossier
+        <SelectContent
+          className={cn(
+            "bg-white rounded-lg py-2 overflow-hidden",
+            "border border-gray-200 shadow-lg"
+          )}
+        >
+          <SelectItem
+            value="none"
+            className={cn(
+              "text-gray-900 text-sm py-2.5 pl-4 cursor-pointer",
+              "hover:bg-blue-50 focus:bg-blue-50 outline-none",
+              "transition-colors duration-150"
+            )}
+          >
+            {`Choisir un projet`}
           </SelectItem>
           {currentFolders.map((folder) => (
-            <SelectItem key={folder.id} value={folder.id} className="text-gray-900">
-              {folder.name}
+            <SelectItem
+              key={folder.id}
+              value={folder.id}
+              className={cn(
+                "text-gray-900 text-sm py-2.5 pl-4 pr-8 cursor-pointer relative",
+                "hover:bg-blue-50 focus:bg-blue-50 outline-none",
+                "transition-colors duration-150"
+              )}
+            >
+              <span className="block truncate">{folder.name}</span>
             </SelectItem>
           ))}
         </SelectContent>
@@ -81,15 +102,21 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
       <Button
         variant="outline"
         onClick={() => setIsCreateOpen(true)}
-        className="bg-white hover:bg-gray-100 rounded-full shadow-sm border-0"
+        className={cn(
+          "bg-white hover:bg-blue-50",
+          "rounded-full shadow-sm border-0",
+          "transition-colors duration-150"
+        )}
       >
-        Nouveau dossier
+        Nouveau projet
       </Button>
 
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="bg-white sm:max-w-[425px] rounded-lg">
+        <DialogContent className={cn("bg-white sm:max-w-[425px] rounded-lg", "border-0 shadow-xl")}>
           <DialogHeader>
-            <DialogTitle className="text-gray-900">Créer un nouveau dossier</DialogTitle>
+            <DialogTitle className="text-lg font-semibold text-gray-900">
+              Créer un nouveau projet
+            </DialogTitle>
           </DialogHeader>
           <form
             onSubmit={async (e) => {
@@ -105,8 +132,12 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
             <div className="space-y-2">
               <Input
                 name="name"
-                placeholder="Nom du dossier"
-                className="w-full rounded-full"
+                placeholder="Nom du projet"
+                className={cn(
+                  "w-full rounded-full",
+                  "border-gray-200 focus:border-blue-300",
+                  "transition-colors duration-150"
+                )}
                 required
               />
             </div>
@@ -114,11 +145,24 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
               <Textarea
                 name="description"
                 placeholder="Description (optionnel)"
-                className="w-full min-h-[100px] rounded-lg"
+                className={cn(
+                  "w-full min-h-[100px] rounded-full",
+                  "border-gray-200 focus:border-blue-300",
+                  "transition-colors duration-150",
+                  "resize-none"
+                )}
               />
             </div>
-            <Button type="submit" className="w-full rounded-full">
-              Créer le dossier
+            <Button
+              type="submit"
+              className={cn(
+                "w-full rounded-full",
+                "bg-blue-500 hover:bg-blue-600",
+                "text-white font-medium",
+                "transition-colors duration-150"
+              )}
+            >
+              Créer le projet
             </Button>
           </form>
         </DialogContent>
