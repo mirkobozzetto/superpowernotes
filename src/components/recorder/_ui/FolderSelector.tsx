@@ -73,16 +73,19 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
             "border border-gray-200 shadow-lg"
           )}
         >
-          <SelectItem
-            value="none"
-            className={cn(
-              "text-gray-900 text-sm cursor-pointer",
-              "hover:!bg-blue-50 focus:!bg-blue-50 outline-none",
-              "transition-colors duration-150"
-            )}
-          >
-            {`Choisir un projet`}
-          </SelectItem>
+          {selectedFolder && (
+            <SelectItem
+              value="none"
+              className={cn(
+                "text-gray-900 text-sm cursor-pointer",
+                "hover:!bg-blue-50 focus:!bg-blue-50 outline-none",
+                "transition-colors duration-150"
+              )}
+            >
+              {`Retour à la sélection`}
+            </SelectItem>
+          )}
+
           {currentFolders.map((folder) => (
             <SelectItem
               key={folder.id}
@@ -112,9 +115,21 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
       </Button>
 
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className={cn("bg-white sm:max-w-[425px] rounded-lg", "border-0 shadow-xl")}>
+        <DialogContent
+          className={cn(
+            "fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%]",
+            "bg-white shadow-xl mx-4 p-8 rounded-lg w-full max-w-md",
+            "border-0",
+            "data-[state=open]:animate-in data-[state=closed]:animate-out",
+            "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+            "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+            "data-[state=closed]:slide-out-to-left-1/2 data-[state=open]:slide-in-from-left-1/2",
+            "data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-top-[48%]",
+            "m-8"
+          )}
+        >
           <DialogHeader>
-            <DialogTitle className="text-lg font-semibold text-gray-900">
+            <DialogTitle className="mb-4 text-2xl font-bold text-gray-800">
               Créer un nouveau projet
             </DialogTitle>
           </DialogHeader>
@@ -146,7 +161,7 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
                 name="description"
                 placeholder="Description (optionnel)"
                 className={cn(
-                  "w-full min-h-[100px] rounded-full",
+                  "w-full min-h-[100px] rounded-lg",
                   "border-gray-200 focus:border-blue-300",
                   "transition-colors duration-150",
                   "resize-none"
