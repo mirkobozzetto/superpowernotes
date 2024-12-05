@@ -1,57 +1,60 @@
-type TranscriptionResponse = {
-  transcription: string;
-  duration: number;
-  tags: string[];
+import type { VoiceNote } from "@prisma/client";
+import type {
+  SearchParamsType,
+  VoiceNoteUpdateInput,
+} from "@src/validations/routes/voiceNoteRoutes";
+import { voiceNotesApi } from "./routes/voiceNotesApi";
+
+export type NotesWithTimeLimit = {
+  notes: VoiceNote[];
   remainingTime?: number;
 };
 
-type VoiceNoteData = {
-  transcription: string;
-  duration: number;
-  tags: string[];
-  fileName?: string;
-};
-
 export const voiceNotesService = {
-  async transcribeAudio(audioBlob: Blob, duration: number): Promise<TranscriptionResponse> {
-    const formData = new FormData();
-    formData.append("audio", audioBlob, `recording.${audioBlob.type.split("/")[1]}`);
-    formData.append("duration", duration.toString());
-
-    const response = await fetch("/api/transcribe", {
-      method: "POST",
-      body: formData,
-    });
-
-    if (!response.ok) {
-      throw new Error(`Transcription error: ${response.status} ${response.statusText}`);
+  async getAllNotes(): Promise<NotesWithTimeLimit> {
+    try {
+      const { voiceNotes, remainingTime } = await voiceNotesApi.fetchAll();
+      return {
+        notes: this.sortNotesByDate(voiceNotes),
+        remainingTime,
+      };
+    } catch (error) {
+      console.error("Error in getAllNotes", error);
+      throw new Error("Failed to fetch notes");
     }
-
-    const data = await response.json();
-    if (!data.transcription) {
-      throw new Error("No transcription received from server");
-    }
-
-    return data;
   },
 
-  async saveVoiceNote(data: VoiceNoteData) {
-    const response = await fetch("/api/voice-notes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...data,
-        fileName: data.fileName || "",
-      }),
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(
-        `Save error: ${response.status} ${response.statusText}. Details: ${errorText}`
-      );
+  async searchNotes(searchParams: SearchParamsType): Promise<VoiceNote[]> {
+    try {
+      const notes = await voiceNotesApi.search(searchParams);
+      return this.sortNotesByDate(notes);
+    } catch (error) {
+      console.error("Error in searchNotes", error);
+      throw new Error("Failed to search notes");
     }
+  },
 
-    return response.json();
+  async saveNote(note: VoiceNoteUpdateInput & { id?: string }): Promise<VoiceNote> {
+    try {
+      return await voiceNotesApi.save(note);
+    } catch (error) {
+      console.error("Error in saveNote", error);
+      throw new Error("Failed to save note");
+    }
+  },
+
+  async deleteNote(noteId: string): Promise<void> {
+    try {
+      await voiceNotesApi.delete(noteId);
+    } catch (error) {
+      console.error("Error in deleteNote", error);
+      throw new Error("Failed to delete note");
+    }
+  },
+
+  sortNotesByDate(notes: VoiceNote[]): VoiceNote[] {
+    return [...notes].sort(
+      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   },
 };

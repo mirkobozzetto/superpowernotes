@@ -1,19 +1,34 @@
 import { auth } from "@src/lib/auth/auth";
 import { logger } from "@src/lib/logger";
 import { prisma } from "@src/lib/prisma";
+import { buildNotesQuery } from "@src/services/routes/notesQueryBuilder";
 import { NextResponse } from "next/server";
 
-export async function GET() {
+export async function GET(request: Request) {
   const session = await auth();
-  if (!session || !session.user) {
+  if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    const voiceNotes = await prisma.voiceNote.findMany({
-      where: { userId: session.user.id },
-      orderBy: { createdAt: "desc" },
+    const { searchParams } = new URL(request.url);
+    const tags = searchParams.get("tags");
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
+    const keyword = searchParams.get("keyword");
+
+    const parsedTags = tags ? tags.split(",").filter(Boolean) : undefined;
+    const parsedStartDate = startDate ? new Date(startDate) : undefined;
+    const parsedEndDate = endDate ? new Date(endDate) : undefined;
+
+    const query = buildNotesQuery(session.user.id, {
+      tags: parsedTags,
+      startDate: parsedStartDate,
+      endDate: parsedEndDate,
+      keyword: keyword || undefined,
     });
+
+    const voiceNotes = await prisma.voiceNote.findMany(query);
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },

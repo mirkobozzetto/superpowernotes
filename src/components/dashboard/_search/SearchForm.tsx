@@ -1,13 +1,13 @@
-import { SearchParams } from "@src/hooks/useDashoard";
+import { SearchParamsType } from "@src/validations/routes/voiceNoteRoutes";
 import React from "react";
 import { SearchInputs } from "./SearchInputs";
 
-export interface SearchFormProps {
-  searchParams: SearchParams;
+export type SearchFormProps = {
+  searchParams: SearchParamsType;
   handleSearch: (e: React.FormEvent) => Promise<void>;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isLoading: boolean;
-}
+};
 
 export const SearchForm: React.FC<SearchFormProps> = ({
   handleSearch,
