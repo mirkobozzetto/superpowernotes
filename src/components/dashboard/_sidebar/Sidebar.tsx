@@ -1,0 +1,98 @@
+"use client";
+
+import { Button } from "@chadcn/components/ui/button";
+import { cn } from "@chadcn/lib/utils";
+import { type Folder } from "@prisma/client";
+import { useProjects } from "@src/hooks/_useProjects/useProjects";
+import { ChevronDown, FolderIcon } from "lucide-react";
+
+type FolderItemProps = {
+  folder: Folder;
+  depth?: number;
+  onSelect: (folderId: string) => void;
+  selectedFolderId?: string | null;
+};
+
+const FolderItem = ({ folder, depth = 0, onSelect, selectedFolderId }: FolderItemProps) => {
+  const { subFolders } = useProjects();
+  const hasChildren = subFolders[folder.id]?.length > 0;
+  const isSelected = selectedFolderId === folder.id;
+
+  return (
+    <div className="flex flex-col">
+      <Button
+        variant="ghost"
+        className={cn(
+          "flex w-full items-center justify-between px-4 py-2 text-sm hover:bg-gray-100",
+          isSelected && "bg-gray-100 font-medium",
+          depth > 0 && "pl-8"
+        )}
+        onClick={() => onSelect(folder.id)}
+      >
+        <div className="flex items-center gap-2">
+          <FolderIcon className="h-4 w-4" />
+          <span className="truncate">{folder.name}</span>
+        </div>
+        {hasChildren && <ChevronDown className="h-4 w-4" />}
+      </Button>
+
+      {hasChildren && (
+        <div className="ml-4 border-l">
+          {subFolders[folder.id].map((subfolder) => (
+            <FolderItem
+              key={subfolder.id}
+              folder={subfolder}
+              depth={depth + 1}
+              onSelect={onSelect}
+              selectedFolderId={selectedFolderId}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export function Sidebar() {
+  const { rootFolders, selectedFolderId, selectFolder, isLoading, error } = useProjects();
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen w-64 flex-col border-r bg-white p-4">
+        <h2 className="mb-4 text-lg font-semibold">Projects</h2>
+        <div className="text-sm text-gray-500">Loading projects...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-screen w-64 flex-col border-r bg-white p-4">
+        <h2 className="mb-4 text-lg font-semibold">Projects</h2>
+        <div className="text-sm text-red-500">{error}</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex h-screen w-64 flex-col border-r bg-white">
+      <div className="border-b p-4">
+        <h2 className="text-lg font-semibold">Projects</h2>
+      </div>
+      <div className="flex-1 space-y-1 overflow-y-auto p-2">
+        {rootFolders.length === 0 ? (
+          <div className="p-4 text-sm text-gray-500">No projects available</div>
+        ) : (
+          rootFolders.map((folder) => (
+            <FolderItem
+              key={folder.id}
+              folder={folder}
+              onSelect={selectFolder}
+              selectedFolderId={selectedFolderId}
+            />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
