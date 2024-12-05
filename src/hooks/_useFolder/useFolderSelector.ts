@@ -1,4 +1,5 @@
 import type { Folder } from "@prisma/client";
+import { folderService } from "@src/services/hooks/folderService";
 import { useCallback, useEffect, useState } from "react";
 
 export const useFolderSelector = () => {
@@ -11,14 +12,15 @@ export const useFolderSelector = () => {
   const fetchFolders = useCallback(async () => {
     try {
       setIsLoading(true);
-      console.log("Fetching folders...");
-      const response = await fetch("/api/folders");
-      if (!response.ok) {
-        throw new Error("Failed to fetch folders");
+      const { data, error: serviceError } = await folderService.fetchFolders();
+
+      if (serviceError) {
+        throw new Error(serviceError.message);
       }
-      const data = await response.json();
-      console.log("Fetched folders:", data);
-      setFolders(data);
+
+      if (data) {
+        setFolders(data);
+      }
     } catch (err) {
       console.error("Error fetching folders:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch folders");
@@ -55,8 +57,6 @@ export const useFolderSelector = () => {
   const currentFolders = folders.filter((folder) =>
     !selectedFolder ? !folder.parentId : folder.parentId === selectedFolder.id
   );
-
-  console.log("Current folders:", currentFolders);
 
   const navigateToParent = useCallback(() => {
     if (parentFolder) {
