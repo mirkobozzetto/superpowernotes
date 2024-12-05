@@ -16,19 +16,40 @@ export async function GET(request: Request) {
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
     const keyword = searchParams.get("keyword");
+    const folderId = searchParams.get("folderId");
 
-    const parsedTags = tags ? tags.split(",").filter(Boolean) : undefined;
-    const parsedStartDate = startDate ? new Date(startDate) : undefined;
-    const parsedEndDate = endDate ? new Date(endDate) : undefined;
+    let voiceNotes;
 
-    const query = buildNotesQuery(session.user.id, {
-      tags: parsedTags,
-      startDate: parsedStartDate,
-      endDate: parsedEndDate,
-      keyword: keyword || undefined,
-    });
+    if (folderId) {
+      const folder = await prisma.folder.findUnique({
+        where: {
+          id: folderId,
+          userId: session.user.id,
+        },
+        include: {
+          notesToFolders: {
+            include: {
+              note: true,
+            },
+          },
+        },
+      });
 
-    const voiceNotes = await prisma.voiceNote.findMany(query);
+      if (!folder) {
+        return NextResponse.json({ error: "Folder not found" }, { status: 404 });
+      }
+
+      voiceNotes = folder.notesToFolders.map((nf) => nf.note);
+    } else {
+      const query = buildNotesQuery(session.user.id, {
+        tags: tags ? tags.split(",").filter(Boolean) : undefined,
+        startDate: startDate ? new Date(startDate) : undefined,
+        endDate: endDate ? new Date(endDate) : undefined,
+        keyword: keyword || undefined,
+      });
+
+      voiceNotes = await prisma.voiceNote.findMany(query);
+    }
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -42,40 +63,5 @@ export async function GET(request: Request) {
   } catch (error) {
     logger.error("Error fetching voice notes:", error);
     return NextResponse.json({ error: "Error fetching voice notes" }, { status: 500 });
-  }
-}
-
-export async function POST(request: Request) {
-  const session = await auth();
-  if (!session?.user?.id) {
-    logger.warn("Unauthorized note creation attempt");
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
-  try {
-    const data = await request.json();
-    const { fileName, transcription, tags, duration } = data;
-
-    const newNote = await prisma.voiceNote.create({
-      data: {
-        fileName,
-        transcription,
-        tags: tags || [],
-        duration: duration || 0,
-        userId: session.user.id,
-      },
-    });
-
-    logger.info("Note created successfully", {
-      userId: session.user.id,
-      noteId: newNote.id,
-    });
-
-    return NextResponse.json(newNote);
-  } catch (error) {
-    logger.error("Error creating note", {
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
-    return NextResponse.json({ error: "Error creating note" }, { status: 500 });
   }
 }

@@ -10,8 +10,10 @@ export type FetchNotesResponse = {
 };
 
 export const voiceNotesApi = {
-  async fetchAll(): Promise<FetchNotesResponse> {
-    const response = await fetch("/api/voice-notes");
+  async fetchAll(folderId?: string | null): Promise<FetchNotesResponse> {
+    const url = folderId ? `/api/folders/${folderId}/notes` : "/api/voice-notes";
+
+    const response = await fetch(url);
     if (!response.ok) {
       console.error("Error fetching notes", { status: response.status });
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -19,7 +21,7 @@ export const voiceNotesApi = {
     return response.json();
   },
 
-  async search(params: SearchParamsType): Promise<VoiceNote[]> {
+  async search(params: SearchParamsType & { folderId?: string | null }): Promise<VoiceNote[]> {
     const queryParams = new URLSearchParams(params as Record<string, string>);
     const response = await fetch(`/api/notes?${queryParams}`);
     if (!response.ok) {

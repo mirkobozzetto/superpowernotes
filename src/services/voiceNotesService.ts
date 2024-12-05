@@ -10,10 +10,14 @@ export type NotesWithTimeLimit = {
   remainingTime?: number;
 };
 
+export type SearchNotesParams = SearchParamsType & {
+  folderId?: string | null;
+};
+
 export const voiceNotesService = {
-  async getAllNotes(): Promise<NotesWithTimeLimit> {
+  async getAllNotes(folderId?: string | null): Promise<NotesWithTimeLimit> {
     try {
-      const { voiceNotes, remainingTime } = await voiceNotesApi.fetchAll();
+      const { voiceNotes, remainingTime } = await voiceNotesApi.fetchAll(folderId);
       return {
         notes: this.sortNotesByDate(voiceNotes),
         remainingTime,
@@ -24,9 +28,9 @@ export const voiceNotesService = {
     }
   },
 
-  async searchNotes(searchParams: SearchParamsType): Promise<VoiceNote[]> {
+  async searchNotes(params: SearchNotesParams): Promise<VoiceNote[]> {
     try {
-      const notes = await voiceNotesApi.search(searchParams);
+      const notes = await voiceNotesApi.search(params);
       return this.sortNotesByDate(notes);
     } catch (error) {
       console.error("Error in searchNotes", error);

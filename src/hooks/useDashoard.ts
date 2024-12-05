@@ -1,4 +1,5 @@
 import type { VoiceNote } from "@prisma/client";
+import { useProjects } from "@src/hooks/_useProjects/useProjects";
 import { voiceNotesService } from "@src/services/voiceNotesService";
 import type { SearchParamsType } from "@src/validations/routes/voiceNoteRoutes";
 import { useCallback, useEffect, useState } from "react";
@@ -14,18 +15,26 @@ export function useDashboard() {
     keyword: "",
   });
 
+  const { selectedFolderId } = useProjects();
+
   const fetchAllNotes = useCallback(async () => {
     setIsLoading(true);
     setError(null);
     try {
-      const { notes: fetchedNotes } = await voiceNotesService.getAllNotes();
-      setNotes(fetchedNotes);
+      if (selectedFolderId) {
+        const response = await fetch(`/api/folders/${selectedFolderId}/notes`);
+        const folderNotes = await response.json();
+        setNotes(folderNotes);
+      } else {
+        const { notes: fetchedNotes } = await voiceNotesService.getAllNotes();
+        setNotes(fetchedNotes);
+      }
     } catch (error) {
       setError("Failed to fetch notes. Please try again.");
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [selectedFolderId]);
 
   useEffect(() => {
     fetchAllNotes();
@@ -37,15 +46,20 @@ export function useDashboard() {
       setIsLoading(true);
       setError(null);
       try {
-        const searchedNotes = await voiceNotesService.searchNotes(searchParams);
-        setNotes(searchedNotes);
+        const params = new URLSearchParams({
+          ...searchParams,
+          ...(selectedFolderId && { folderId: selectedFolderId }),
+        } as Record<string, string>);
+        const response = await fetch(`/api/notes?${params}`);
+        const data = await response.json();
+        setNotes(data.voiceNotes);
       } catch (error) {
         setError("Search failed. Please try again.");
       } finally {
         setIsLoading(false);
       }
     },
-    [searchParams]
+    [searchParams, selectedFolderId]
   );
 
   const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
