@@ -1,0 +1,31 @@
+import { FolderModal } from "@src/components/dashboard/_modals/FolderModal";
+import { useNoteManagerStore } from "@src/stores/noteManagerStore";
+import React, { useState } from "react";
+
+type CreateFolderButtonProps = {
+  isLoading: boolean;
+};
+
+export const CreateFolderButton: React.FC<CreateFolderButtonProps> = ({ isLoading }) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const createFolder = useNoteManagerStore((state) => state.createFolder);
+
+  const handleSave = async (folderData: { name: string; description?: string }) => {
+    await createFolder(folderData);
+    setIsModalOpen(false);
+  };
+
+  return (
+    <>
+      <button
+        onClick={() => setIsModalOpen(true)}
+        className="bg-white hover:bg-gray-100 px-4 py-2 border rounded-full w-full font-bold transition-colors duration-200"
+        disabled={isLoading}
+      >
+        Create New Project
+      </button>
+
+      <FolderModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSave={handleSave} />
+    </>
+  );
+};

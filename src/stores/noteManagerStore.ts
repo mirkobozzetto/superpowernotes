@@ -32,6 +32,7 @@ type Actions = {
   deleteNote: (noteId: string) => Promise<void>;
   computeRootFolders: (folders: Folder[]) => Folder[];
   computeSubFolders: (folders: Folder[]) => FolderMap;
+  createFolder: (data: { name: string; description?: string }) => Promise<void>;
 };
 
 type NoteManagerStore = State & Actions;
@@ -171,5 +172,24 @@ export const useNoteManagerStore = create<NoteManagerStore>((set, get) => ({
       }
       return acc;
     }, {});
+  },
+
+  createFolder: async (data) => {
+    const store = get();
+    store.setLoading(true);
+    try {
+      const response = await fetch("/api/folders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) throw new Error("Failed to create folder");
+      await store.fetchFolders();
+    } catch (error) {
+      store.setError("Failed to create folder");
+    } finally {
+      store.setLoading(false);
+    }
   },
 }));

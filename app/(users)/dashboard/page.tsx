@@ -4,6 +4,7 @@ import { VoiceNote } from "@prisma/client";
 import { ConfirmModal } from "@src/components/dashboard/_modals/ConfirmModal";
 import { NoteModal } from "@src/components/dashboard/_modals/NoteModal";
 import { SearchForm } from "@src/components/dashboard/_search/SearchForm";
+import { CreateFolderButton } from "@src/components/dashboard/CreateFolderButton";
 import { CreateNoteButton } from "@src/components/dashboard/CreateNoteButton";
 import { NoteList } from "@src/components/dashboard/NoteList";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
@@ -65,6 +66,8 @@ export default function Dashboard() {
         handleInputChange={handleInputChange}
         isLoading={isLoading}
       />
+
+      <CreateFolderButton isLoading={isLoading} />
 
       <CreateNoteButton
         isLoading={isLoading}

@@ -1,11 +1,11 @@
 import { VoiceNote } from "@prisma/client";
 import React from "react";
 
-interface CreateNoteButtonProps {
+type CreateNoteButtonProps = {
   isLoading: boolean;
   setEditingNote: (note: Partial<VoiceNote>) => void;
   setIsNoteModalOpen: (isOpen: boolean) => void;
-}
+};
 
 export const CreateNoteButton: React.FC<CreateNoteButtonProps> = ({
   isLoading,
