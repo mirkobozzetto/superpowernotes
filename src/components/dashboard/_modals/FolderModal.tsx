@@ -1,18 +1,16 @@
+import type { Folder } from "@prisma/client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-type CreateFolderData = {
-  name: string;
-  description?: string | null;
-};
+type FolderInput = Pick<Folder, "name" | "description">;
 
 type FolderModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (folder: CreateFolderData) => void;
+  onSave: (folder: FolderInput) => Promise<void>;
 };
 
 export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSave }) => {
-  const [folderData, setFolderData] = useState<CreateFolderData>({
+  const [folderData, setFolderData] = useState<FolderInput>({
     name: "",
     description: null,
   });
@@ -33,12 +31,13 @@ export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSav
         alert("Please enter a project name");
         return;
       }
-      onSave({
+      await onSave({
         name: folderData.name.trim(),
         description: folderData.description?.trim() || null,
       });
+      onClose();
     },
-    [folderData, onSave]
+    [folderData, onSave, onClose]
   );
 
   const handleKeyDown = useCallback(
@@ -62,7 +61,7 @@ export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSav
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
       const { name, value } = e.target;
-      setFolderData((prev) => ({ ...prev, [name]: value }));
+      setFolderData((prev) => ({ ...prev, [name]: value || null }));
     },
     []
   );
@@ -91,7 +90,7 @@ export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSav
           />
           <textarea
             name="description"
-            value={folderData.description ?? ""}
+            value={folderData.description || ""}
             onChange={handleChange}
             placeholder="Project Description (optional)"
             className="border-gray-300 p-3 border focus:border-transparent rounded-lg focus:ring-2 focus:ring-blue-500 h-48 resize-none"

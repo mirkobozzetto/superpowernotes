@@ -32,7 +32,7 @@ type Actions = {
   deleteNote: (noteId: string) => Promise<void>;
   computeRootFolders: (folders: Folder[]) => Folder[];
   computeSubFolders: (folders: Folder[]) => FolderMap;
-  createFolder: (data: { name: string; description?: string }) => Promise<void>;
+  createFolder: (data: Pick<Folder, "name" | "description">) => Promise<void>;
 };
 
 type NoteManagerStore = State & Actions;

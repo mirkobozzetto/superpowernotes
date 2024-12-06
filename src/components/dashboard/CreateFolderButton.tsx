@@ -1,3 +1,4 @@
+import type { Folder } from "@prisma/client";
 import { FolderModal } from "@src/components/dashboard/_modals/FolderModal";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import React, { useState } from "react";
@@ -10,7 +11,7 @@ export const CreateFolderButton: React.FC<CreateFolderButtonProps> = ({ isLoadin
   const [isModalOpen, setIsModalOpen] = useState(false);
   const createFolder = useNoteManagerStore((state) => state.createFolder);
 
-  const handleSave = async (folderData: { name: string; description?: string }) => {
+  const handleSave = async (folderData: Pick<Folder, "name" | "description">) => {
     await createFolder(folderData);
     setIsModalOpen(false);
   };
