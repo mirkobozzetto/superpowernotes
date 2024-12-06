@@ -1,12 +1,12 @@
 import type { Folder } from "@prisma/client";
 
-type CreateFolderData = {
+export type CreateFolderData = {
   name: string;
-  description?: string;
+  description: string | null;
   parentId?: string | null;
 };
 
-type FolderServiceResponse<T> = {
+export type FolderServiceResponse<T> = {
   data?: T;
   error?: { message: string };
 };

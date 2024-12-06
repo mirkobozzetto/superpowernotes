@@ -1,25 +1,25 @@
-import type { Folder } from "@prisma/client";
+import type { CreateFolderData } from "@src/services/folderService";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-
-type FolderInput = Pick<Folder, "name" | "description">;
 
 type FolderModalProps = {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (folder: FolderInput) => Promise<void>;
+  onSave: (folderData: CreateFolderData) => Promise<void>;
+  title?: string;
 };
 
-export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSave }) => {
-  const [folderData, setFolderData] = useState<FolderInput>({
+export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSave, title }) => {
+  const [folderData, setFolderData] = useState<CreateFolderData>({
     name: "",
     description: null,
+    parentId: null,
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
-      setFolderData({ name: "", description: null });
+      setFolderData({ name: "", description: null, parentId: null });
       setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [isOpen]);
@@ -32,6 +32,7 @@ export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSav
         return;
       }
       await onSave({
+        ...folderData,
         name: folderData.name.trim(),
         description: folderData.description?.trim() || null,
       });
@@ -77,7 +78,7 @@ export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSav
         className="bg-white shadow-xl mx-4 p-8 rounded-lg w-full max-w-4xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-6 font-bold text-2xl text-gray-800">Create New Project</h2>
+        <h2 className="mb-6 font-bold text-2xl text-gray-800">{title || "Create New Project"}</h2>
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <input
             ref={inputRef}
