@@ -2,7 +2,7 @@ import { Button } from "@chadcn/components/ui/button";
 import { cn } from "@chadcn/lib/utils";
 import { type Folder } from "@prisma/client";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
-import { ChevronDown, FolderIcon } from "lucide-react";
+import { ChevronDown, FolderIcon, Globe } from "lucide-react";
 import { useEffect } from "react";
 
 type FolderItemProps = {
@@ -84,6 +84,22 @@ export function Sidebar() {
         <h2 className="text-lg font-semibold">Projects</h2>
       </div>
       <div className="flex-1 space-y-1 overflow-y-auto p-2">
+        <Button
+          variant="ghost"
+          className={cn(
+            "flex w-full items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 mb-4",
+            !selectedFolderId && "bg-gray-100 font-medium"
+          )}
+          onClick={() => selectFolder(null)}
+        >
+          <div className="flex items-center gap-2">
+            <Globe className="h-4 w-4" />
+            <span className="truncate">Toutes mes notes</span>
+          </div>
+        </Button>
+
+        <div className="w-full h-px bg-gray-200 my-2" />
+
         {rootFolders.length === 0 ? (
           <div className="p-4 text-sm text-gray-500">No projects available</div>
         ) : (
