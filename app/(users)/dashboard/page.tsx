@@ -1,12 +1,13 @@
 "use client";
+
 import { VoiceNote } from "@prisma/client";
 import { ConfirmModal } from "@src/components/dashboard/_modals/ConfirmModal";
 import { NoteModal } from "@src/components/dashboard/_modals/NoteModal";
 import { SearchForm } from "@src/components/dashboard/_search/SearchForm";
 import { CreateNoteButton } from "@src/components/dashboard/CreateNoteButton";
 import { NoteList } from "@src/components/dashboard/NoteList";
-import { useDashboard } from "@src/hooks/useDashoard";
-import { useState } from "react";
+import { useNoteManagerStore } from "@src/stores/noteManagerStore";
+import { useEffect, useState } from "react";
 
 export default function Dashboard() {
   const {
@@ -15,16 +16,20 @@ export default function Dashboard() {
     error,
     searchParams,
     handleSearch,
-    handleInputChange,
-    handleSaveNote,
-    handleDelete,
-    fetchAllNotes,
-  } = useDashboard();
+    updateSearchParams,
+    saveNote,
+    deleteNote,
+    fetchNotes,
+  } = useNoteManagerStore();
 
   const [editingNote, setEditingNote] = useState<VoiceNote | undefined>(undefined);
   const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+
+  useEffect(() => {
+    fetchNotes();
+  }, [fetchNotes]);
 
   const handleNoteClick = (note: VoiceNote) => {
     setEditingNote(note);
@@ -38,12 +43,16 @@ export default function Dashboard() {
 
   const handleSaveAndClose = async (note: Partial<VoiceNote>) => {
     try {
-      await handleSaveNote(note);
+      await saveNote(note);
       closeNoteModal();
-      await fetchAllNotes();
     } catch (error) {
       console.error("Failed to save note:", error);
     }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    updateSearchParams(name, value);
   };
 
   return (
@@ -83,9 +92,9 @@ export default function Dashboard() {
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={() => (deleteNoteId ? handleDelete(deleteNoteId) : Promise.resolve())}
+        onConfirm={() => (deleteNoteId ? deleteNote(deleteNoteId) : Promise.resolve())}
         title="Confirm Deletion"
-        message="Are you sure you want to delete this note?."
+        message="Are you sure you want to delete this note?"
       />
     </div>
   );

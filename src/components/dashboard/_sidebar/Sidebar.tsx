@@ -1,10 +1,9 @@
-"use client";
-
 import { Button } from "@chadcn/components/ui/button";
 import { cn } from "@chadcn/lib/utils";
 import { type Folder } from "@prisma/client";
-import { useProjects } from "@src/hooks/_useProjects/useProjects";
+import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { ChevronDown, FolderIcon } from "lucide-react";
+import { useEffect } from "react";
 
 type FolderItemProps = {
   folder: Folder;
@@ -14,7 +13,7 @@ type FolderItemProps = {
 };
 
 const FolderItem = ({ folder, depth = 0, onSelect, selectedFolderId }: FolderItemProps) => {
-  const { subFolders } = useProjects();
+  const { subFolders } = useNoteManagerStore();
   const hasChildren = subFolders[folder.id]?.length > 0;
   const isSelected = selectedFolderId === folder.id;
 
@@ -54,7 +53,12 @@ const FolderItem = ({ folder, depth = 0, onSelect, selectedFolderId }: FolderIte
 };
 
 export function Sidebar() {
-  const { rootFolders, selectedFolderId, selectFolder, isLoading, error } = useProjects();
+  const { rootFolders, selectedFolderId, selectFolder, isLoading, error, fetchFolders } =
+    useNoteManagerStore();
+
+  useEffect(() => {
+    fetchFolders();
+  }, [fetchFolders]);
 
   if (isLoading) {
     return (
