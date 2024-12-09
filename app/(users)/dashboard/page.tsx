@@ -7,8 +7,9 @@ import { SearchForm } from "@src/components/dashboard/_search/SearchForm";
 import { CreateNoteButton } from "@src/components/dashboard/CreateNoteButton";
 import { NoteList } from "@src/components/dashboard/NoteList";
 import { ProjectManagementButton } from "@src/components/dashboard/ProjectManagementButton";
+import { RecordVoiceButton } from "@src/components/dashboard/RecordVoiceButton";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Dashboard() {
   const {
@@ -36,6 +37,10 @@ export default function Dashboard() {
     setEditingNote(note);
     setIsNoteModalOpen(true);
   };
+
+  const handleRecordingComplete = useCallback(() => {
+    fetchNotes();
+  }, [fetchNotes]);
 
   const closeNoteModal = () => {
     setIsNoteModalOpen(false);
@@ -74,6 +79,8 @@ export default function Dashboard() {
         setEditingNote={(note) => setEditingNote(note as VoiceNote)}
         setIsNoteModalOpen={setIsNoteModalOpen}
       />
+
+      <RecordVoiceButton isLoading={isLoading} onRecordingComplete={handleRecordingComplete} />
 
       <NoteList
         notes={notes}
