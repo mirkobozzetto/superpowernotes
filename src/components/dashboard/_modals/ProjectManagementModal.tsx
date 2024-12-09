@@ -1,7 +1,7 @@
 import type { Folder } from "@prisma/client";
 import { folderService } from "@src/services/folderService";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
-import { FolderDown, FolderPlus, Trash2 } from "lucide-react";
+import { FolderDown, FolderPlus, Pencil, Trash2 } from "lucide-react";
 import React, { useState } from "react";
 import { ConfirmModal } from "./ConfirmModal";
 import { FolderModal } from "./FolderModal";
@@ -17,6 +17,7 @@ export const ProjectManagementModal: React.FC<ProjectManagementModalProps> = ({
 }) => {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isCreateSubModalOpen, setIsCreateSubModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const { selectedFolderId, folders, fetchFolders, selectFolder } = useNoteManagerStore();
 
@@ -41,6 +42,17 @@ export const ProjectManagementModal: React.FC<ProjectManagementModalProps> = ({
     if (!result.error) {
       await fetchFolders();
       setIsCreateSubModalOpen(false);
+      onClose();
+    }
+  };
+
+  const handleEdit = async (folderData: Pick<Folder, "name" | "description">) => {
+    if (!selectedFolderId) return;
+
+    const result = await folderService.updateFolder(selectedFolderId, folderData);
+    if (!result.error) {
+      await fetchFolders();
+      setIsEditModalOpen(false);
       onClose();
     }
   };
@@ -99,6 +111,19 @@ export const ProjectManagementModal: React.FC<ProjectManagementModalProps> = ({
                 </button>
 
                 <button
+                  onClick={() => setIsEditModalOpen(true)}
+                  className="flex items-center gap-3 p-4 border rounded-lg hover:bg-gray-50 transition-colors w-full text-left"
+                >
+                  <Pencil className="w-5 h-5" />
+                  <div>
+                    <div className="font-semibold">Modifier le projet</div>
+                    <div className="text-sm text-gray-500">
+                      Modifier le nom ou la description de &quot;{selectedFolder.name}&quot;
+                    </div>
+                  </div>
+                </button>
+
+                <button
                   onClick={() => setIsDeleteModalOpen(true)}
                   className="flex items-center gap-3 p-4 border rounded-lg hover:bg-gray-50 transition-colors w-full text-left text-red-500"
                 >
@@ -131,6 +156,16 @@ export const ProjectManagementModal: React.FC<ProjectManagementModalProps> = ({
           onClose={() => setIsCreateSubModalOpen(false)}
           onSave={handleCreateSub}
           title={`Nouveau sous-projet dans "${selectedFolder?.name}"`}
+        />
+      )}
+
+      {isEditModalOpen && (
+        <FolderModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onSave={handleEdit}
+          title={`Modifier "${selectedFolder?.name}"`}
+          initialData={selectedFolder}
         />
       )}
 

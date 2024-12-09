@@ -6,9 +6,19 @@ type FolderModalProps = {
   onClose: () => void;
   onSave: (folderData: CreateFolderData) => Promise<void>;
   title?: string;
+  initialData?: {
+    name: string;
+    description: string | null;
+  };
 };
 
-export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSave, title }) => {
+export const FolderModal: React.FC<FolderModalProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  title,
+  initialData,
+}) => {
   const [folderData, setFolderData] = useState<CreateFolderData>({
     name: "",
     description: null,
@@ -19,16 +29,24 @@ export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSav
 
   useEffect(() => {
     if (isOpen) {
-      setFolderData({ name: "", description: null, parentId: null });
+      if (initialData) {
+        setFolderData({
+          name: initialData.name,
+          description: initialData.description,
+          parentId: null,
+        });
+      } else {
+        setFolderData({ name: "", description: null, parentId: null });
+      }
       setTimeout(() => inputRef.current?.focus(), 100);
     }
-  }, [isOpen]);
+  }, [isOpen, initialData]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       if (!folderData.name.trim()) {
-        alert("Please enter a project name");
+        alert("Veuillez entrer un nom de projet");
         return;
       }
       await onSave({
@@ -69,6 +87,8 @@ export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSav
 
   if (!isOpen) return null;
 
+  const isEditMode = !!initialData;
+
   return (
     <div
       className="z-50 fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50 backdrop-blur-sm"
@@ -86,14 +106,14 @@ export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSav
             name="name"
             value={folderData.name}
             onChange={handleChange}
-            placeholder="Project Name"
+            placeholder="Nom du projet"
             className="border-gray-300 p-3 border focus:border-transparent rounded-lg focus:ring-2 focus:ring-blue-500"
           />
           <textarea
             name="description"
             value={folderData.description || ""}
             onChange={handleChange}
-            placeholder="Project Description (optional)"
+            placeholder="Description du projet (optionnel)"
             className="border-gray-300 p-3 border focus:border-transparent rounded-lg focus:ring-2 focus:ring-blue-500 h-48 resize-none"
           />
           <div className="flex justify-end space-x-4 mt-6">
@@ -102,13 +122,13 @@ export const FolderModal: React.FC<FolderModalProps> = ({ isOpen, onClose, onSav
               onClick={onClose}
               className="border-gray-300 hover:bg-gray-100 px-6 py-2 border rounded-full text-gray-700 transition-colors duration-200"
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="submit"
               className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded-full text-white transition-colors duration-200"
             >
-              Create
+              {isEditMode ? "Enregistrer" : "Créer"}
             </button>
           </div>
         </form>

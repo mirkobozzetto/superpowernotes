@@ -18,7 +18,11 @@ export const folderQueryBuilder = {
 
   async createFolder(
     userId: string,
-    data: { name: string; description?: string; parentId?: string }
+    data: {
+      name: string;
+      description?: string | null;
+      parentId?: string | null;
+    }
   ) {
     return prisma.folder.create({
       data: {

@@ -1,19 +1,19 @@
 import { z } from "zod";
 
 export const CreateFolderSchema = z.object({
-  name: z.string().min(1, "Folder name is required"),
-  description: z.string().optional(),
-  parentId: z.string().optional(),
+  name: z.string().min(1, "Project name is required"),
+  description: z.string().nullish(), // Accepte null et undefined
+  parentId: z.string().nullish().optional(),
 });
 
 export const FolderResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
-  description: z.string().nullable(),
+  description: z.string().nullish(),
   userId: z.string(),
+  parentId: z.string().nullish(),
   createdAt: z.date(),
   updatedAt: z.date(),
-  parentId: z.string().nullable(),
 });
 
 export type CreateFolderInput = z.infer<typeof CreateFolderSchema>;
