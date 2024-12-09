@@ -87,9 +87,9 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
         <h2 className="mb-6 font-bold text-2xl text-gray-800">
           {isTextNote
             ? editedNote.id
-              ? "Edit Text Note"
-              : "Create New Text Note"
-            : "Edit Voice Note"}
+              ? "Modifier la note"
+              : "Créer une note"
+            : "Modifier la note vocale"}
         </h2>
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <input
@@ -98,14 +98,14 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
             name="fileName"
             value={editedNote.fileName ?? ""}
             onChange={handleChange}
-            placeholder="Note Title"
+            placeholder="Titre de la note"
             className="border-gray-300 p-3 border focus:border-transparent rounded-lg focus:ring-2 focus:ring-blue-500"
           />
           <textarea
             name="transcription"
             value={editedNote.transcription ?? ""}
             onChange={handleChange}
-            placeholder={isTextNote ? "Note Content" : "Transcription"}
+            placeholder={isTextNote ? "Contenu de la note" : "Transcription"}
             className="border-gray-300 p-3 border focus:border-transparent rounded-lg focus:ring-2 focus:ring-blue-500 h-48 resize-none"
           />
           <TagInput tags={editedNote.tags ?? []} onChange={handleTagsChange} />
@@ -115,13 +115,13 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
               onClick={onClose}
               className="border-gray-300 hover:bg-gray-100 px-6 py-2 border rounded-full text-gray-700 transition-colors duration-200"
             >
-              Cancel
+              Annuler
             </button>
             <button
               type="submit"
               className="bg-blue-500 hover:bg-blue-600 px-6 py-2 rounded-full text-white transition-colors duration-200"
             >
-              Save
+              Enregistrer
             </button>
           </div>
         </form>

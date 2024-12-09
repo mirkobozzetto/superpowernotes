@@ -4,9 +4,9 @@ import { VoiceNote } from "@prisma/client";
 import { ConfirmModal } from "@src/components/dashboard/_modals/ConfirmModal";
 import { NoteModal } from "@src/components/dashboard/_modals/NoteModal";
 import { SearchForm } from "@src/components/dashboard/_search/SearchForm";
-import { CreateFolderButton } from "@src/components/dashboard/CreateFolderButton";
 import { CreateNoteButton } from "@src/components/dashboard/CreateNoteButton";
 import { NoteList } from "@src/components/dashboard/NoteList";
+import { ProjectManagementButton } from "@src/components/dashboard/ProjectManagementButton";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { useEffect, useState } from "react";
 
@@ -67,7 +67,7 @@ export default function Dashboard() {
         isLoading={isLoading}
       />
 
-      <CreateFolderButton isLoading={isLoading} />
+      <ProjectManagementButton isLoading={isLoading} />
 
       <CreateNoteButton
         isLoading={isLoading}
