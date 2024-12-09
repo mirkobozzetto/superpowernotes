@@ -5,6 +5,7 @@ import { ConfirmModal } from "@src/components/dashboard/_modals/ConfirmModal";
 import { NoteModal } from "@src/components/dashboard/_modals/NoteModal";
 import { SearchForm } from "@src/components/dashboard/_search/SearchForm";
 import { CreateNoteButton } from "@src/components/dashboard/CreateNoteButton";
+import { FolderHeader } from "@src/components/dashboard/FolderHeader";
 import { NoteList } from "@src/components/dashboard/NoteList";
 import { ProjectManagementButton } from "@src/components/dashboard/ProjectManagementButton";
 import { RecordVoiceButton } from "@src/components/dashboard/RecordVoiceButton";
@@ -62,8 +63,10 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="space-y-4 mx-auto p-4 container">
+    <div className="space-y-4 mx-auto p-4 container md:pt-4 pt-20 pb-20">
       {error && <div className="mb-4 text-red-500">{error}</div>}
+
+      <FolderHeader />
 
       <SearchForm
         searchParams={searchParams}
@@ -71,15 +74,12 @@ export default function Dashboard() {
         handleInputChange={handleInputChange}
         isLoading={isLoading}
       />
-
       <ProjectManagementButton isLoading={isLoading} />
-
       <CreateNoteButton
         isLoading={isLoading}
         setEditingNote={(note) => setEditingNote(note as VoiceNote)}
         setIsNoteModalOpen={setIsNoteModalOpen}
       />
-
       <RecordVoiceButton isLoading={isLoading} onRecordingComplete={handleRecordingComplete} />
 
       <NoteList
@@ -91,14 +91,12 @@ export default function Dashboard() {
         setDeleteNoteId={setDeleteNoteId}
         setIsDeleteModalOpen={setIsDeleteModalOpen}
       />
-
       <NoteModal
         isOpen={isNoteModalOpen}
         onClose={closeNoteModal}
         onSave={handleSaveAndClose}
         note={editingNote}
       />
-
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}

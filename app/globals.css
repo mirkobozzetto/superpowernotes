@@ -112,17 +112,11 @@ body {
   }
 }
 
-test {
-  color: #ae1e1e51;
-}
-
-@layer base {
+/* @layer base {
   * {
     @apply focus:outline-none
     focus:ring-0
     focus:ring-transparent
-    focus:border-none
-    focus-visible:outline-none
     focus-visible:ring-0
     hover:outline-none
     active:outline-none
@@ -136,7 +130,6 @@ test {
     @apply border-none
     outline-none
     ring-0
-    focus:border-transparent
     focus:ring-0;
   }
-}
+} */

@@ -52,7 +52,7 @@ const FolderItem = ({ folder, depth = 0, onSelect, selectedFolderId }: FolderIte
   );
 };
 
-export function Sidebar() {
+export function Sidebar({ onProjectSelect }: { onProjectSelect?: () => void }) {
   const { rootFolders, selectedFolderId, selectFolder, isLoading, error, fetchFolders } =
     useNoteManagerStore();
 
@@ -60,37 +60,39 @@ export function Sidebar() {
     fetchFolders();
   }, [fetchFolders]);
 
-  if (isLoading) {
-    return (
-      <div className="flex h-screen w-64 flex-col border-r bg-white p-4">
-        <h2 className="mb-4 text-lg font-semibold">Projects</h2>
-        <div className="text-sm text-gray-500">Loading projects...</div>
-      </div>
-    );
-  }
+  const handleSelect = (folderId: string | null) => {
+    selectFolder(folderId);
+    onProjectSelect?.();
+  };
 
-  if (error) {
+  const handleBackgroundClick = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).classList.contains("bg-white")) {
+      onProjectSelect?.();
+    }
+  };
+
+  if (isLoading || error) {
     return (
       <div className="flex h-screen w-64 flex-col border-r bg-white p-4">
         <h2 className="mb-4 text-lg font-semibold">Projects</h2>
-        <div className="text-sm text-red-500">{error}</div>
+        <div className="text-sm text-gray-500">{isLoading ? "Loading projects..." : error}</div>
       </div>
     );
   }
 
   return (
-    <div className="flex h-screen w-64 flex-col border-r bg-white">
+    <div className="flex h-screen w-64 flex-col border-r bg-white" onClick={handleBackgroundClick}>
       <div className="border-b p-4">
         <h2 className="text-lg font-semibold">Projects</h2>
       </div>
-      <div className="flex-1 space-y-1 overflow-y-auto p-2">
+      <div className="flex-1 space-y-1 overflow-y-auto p-2 bg-white">
         <Button
           variant="ghost"
           className={cn(
             "flex w-full items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 mb-4",
             !selectedFolderId && "bg-gray-100 font-medium"
           )}
-          onClick={() => selectFolder(null)}
+          onClick={() => handleSelect(null)}
         >
           <div className="flex items-center gap-2">
             <Globe className="h-4 w-4" />
@@ -107,7 +109,9 @@ export function Sidebar() {
             <FolderItem
               key={folder.id}
               folder={folder}
-              onSelect={selectFolder}
+              onSelect={(folderId) => {
+                handleSelect(folderId);
+              }}
               selectedFolderId={selectedFolderId}
             />
           ))

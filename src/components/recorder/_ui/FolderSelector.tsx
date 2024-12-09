@@ -117,15 +117,15 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent
           className={cn(
-            "fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%]",
-            "bg-white shadow-xl mx-4 p-8 rounded-lg w-full max-w-md",
+            "fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]",
+            "bg-white shadow-xl rounded-lg",
+            "md:w-1/4 sm:w-2/3 md:w-1/2 p-6",
             "border-0",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
             "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
             "data-[state=closed]:slide-out-to-left-1/2 data-[state=open]:slide-in-from-left-1/2",
-            "data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-top-[48%]",
-            "m-8"
+            "data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-top-[48%]"
           )}
         >
           <DialogHeader>

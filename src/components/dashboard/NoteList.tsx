@@ -29,7 +29,7 @@ export const NoteList: React.FC<NoteListProps> = ({
   return isLoading ? (
     <div className="flex justify-center">
       <p className="inline-block border-gray-100 bg-gray-50 px-4 py-2 border rounded-full text-center text-gray-500 text-sm animate-pulse">
-        Loading...
+        Chargement des notes...
       </p>
     </div>
   ) : (
@@ -53,7 +53,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                 setIsNoteModalOpen(true);
               }}
             >
-              Edit
+              Éditer
             </button>
             <button
               className="px-3 py-1 border rounded-full"
@@ -63,7 +63,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                 setIsDeleteModalOpen(true);
               }}
             >
-              Delete
+              Supprimer
             </button>
           </div>
         </li>
