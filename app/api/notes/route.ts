@@ -65,3 +65,36 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Error fetching voice notes" }, { status: 500 });
   }
 }
+
+export async function POST(request: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const data = await request.json();
+    const { folderId, ...noteData } = data;
+
+    const note = await prisma.voiceNote.create({
+      data: {
+        ...noteData,
+        userId: session.user.id,
+      },
+    });
+
+    if (folderId) {
+      await prisma.notesToFolders.create({
+        data: {
+          folderId,
+          noteId: note.id,
+        },
+      });
+    }
+
+    return NextResponse.json(note);
+  } catch (error) {
+    logger.error("Error creating note:", error);
+    return NextResponse.json({ error: "Error creating note" }, { status: 500 });
+  }
+}

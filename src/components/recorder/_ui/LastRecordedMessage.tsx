@@ -13,7 +13,7 @@ export const LastRecordedMessage: React.FC<LastRecordedMessageProps> = ({
   if (!voiceNote) return null;
 
   return (
-    <div className="bg-blue-50 mt-4 mb-2 p-4 rounded-lg w-full max-w-md">
+    <div className="bg-gradient-to-r from-blue-50 to-blue-100 shadow-md mt-4 mb-4 p-8 border border-blue-200 rounded-lg w-full max-w-md">
       <div className="flex justify-center items-start mb-2">
         <h3 className="font-bold text-xl">{voiceNote.fileName}</h3>
       </div>

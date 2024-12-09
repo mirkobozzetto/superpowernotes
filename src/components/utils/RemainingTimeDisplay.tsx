@@ -30,8 +30,7 @@ export const RemainingTimeDisplay: React.FC<RemainingTimeDisplayProps> = ({ rema
           />
         </svg>
         <span>
-          Remaining time: {minutes.toString().padStart(2, "0")}:
-          {seconds.toString().padStart(2, "0")}
+          Temps restant: {minutes.toString().padStart(2, "0")}:{seconds.toString().padStart(2, "0")}
         </span>
       </div>
     </div>

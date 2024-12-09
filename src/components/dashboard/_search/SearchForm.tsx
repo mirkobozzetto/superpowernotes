@@ -20,7 +20,7 @@ export const SearchForm: React.FC<SearchFormProps> = ({
       className="bg-white hover:bg-gray-150 mt-2 mb-2 px-4 py-2 border rounded-full w-full font-bold transition-colors duration-200"
       disabled={isLoading}
     >
-      Search
+      Rechercher
     </button>
     <SearchInputs handleInputChange={handleInputChange} />
   </form>

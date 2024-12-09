@@ -25,14 +25,14 @@ export const SearchInputs: React.FC<Pick<SearchFormProps, "handleInputChange">> 
         <input
           type="text"
           name="tags"
-          placeholder="Search tags (comma-separated)"
+          placeholder="Rechercher par tags (séparés par des virgules)"
           onChange={handleInputChange}
           className="flex-grow p-2 border rounded-full focus:ring-2 focus:ring-blue-500 text-center placeholder-center focus:outline-none"
         />
         <input
           type="text"
           name="keyword"
-          placeholder="Search keyword"
+          placeholder="Rechercher par mot clé"
           onChange={handleInputChange}
           className="flex-grow p-2 border rounded-full focus:ring-2 focus:ring-blue-500 text-center placeholder-center focus:outline-none"
         />
@@ -49,7 +49,7 @@ export const SearchInputs: React.FC<Pick<SearchFormProps, "handleInputChange">> 
           showMonthDropdown
           showYearDropdown
           dropdownMode="select"
-          placeholderText="From - To"
+          placeholderText="Du - Au"
         />
       </div>
     </div>
