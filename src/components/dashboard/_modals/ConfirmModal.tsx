@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState } from "react";
 
-interface ConfirmModalProps {
+type ConfirmModalProps = {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => Promise<void> | void;
   title: string;
   message: string;
-}
+};
 
 export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   isOpen,
