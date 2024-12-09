@@ -59,6 +59,7 @@ export const RecordVoiceButton = ({ isLoading, onRecordingComplete }: RecordVoic
           <AudioRecorder
             onRecordingComplete={handleRecordingFinish}
             onRecordingStateChange={handleRecordingStateChange}
+            inDashboard={true}
           />
         </DialogContent>
       </Dialog>

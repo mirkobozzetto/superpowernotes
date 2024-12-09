@@ -1,4 +1,5 @@
 import { MAX_RECORDING_DURATION } from "@src/constants/recorderConstants";
+import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import React, { useEffect, useRef, useState } from "react";
 import { useAudioHandling } from "../../hooks/_useRecorder/useAudioHandling";
 import { useRecordingActions } from "../../hooks/_useRecorder/useRecordingActions";
@@ -17,19 +18,24 @@ import { MicrophonePermissionCheck } from "./_utils/MicrophonePermissionCheck";
 export type AudioRecorderProps = {
   onRecordingComplete: () => void;
   onRecordingStateChange?: (isRecording: boolean) => void;
+  inDashboard?: boolean;
 };
 
 export const AudioRecorder: React.FC<AudioRecorderProps> = ({
   onRecordingComplete,
   onRecordingStateChange,
+  inDashboard = false,
 }) => {
   const [isCancelling, setIsCancelling] = useState(false);
   const [isFinishing, setIsFinishing] = useState(false);
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const { selectedFolderId: contextFolderId } = useNoteManagerStore();
 
   useEffect(() => {
-    useAudioHandlingStore.getState().updateBrowserInfo();
-  }, []);
+    if (inDashboard && contextFolderId) {
+      setSelectedFolderId(contextFolderId);
+    }
+  }, [inDashboard, contextFolderId]);
 
   const {
     micPermission,
@@ -128,7 +134,7 @@ export const AudioRecorder: React.FC<AudioRecorderProps> = ({
             isIOS={isIOS}
           />
           <RemainingTimeDisplay remainingTime={remainingTime} />
-          {!isRecording && (
+          {!isRecording && !inDashboard && (
             <div className="mt-4 w-full max-w-md">
               <FolderSelector onFolderSelect={setSelectedFolderId} />
             </div>
