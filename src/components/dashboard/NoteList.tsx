@@ -1,7 +1,35 @@
 import { VoiceNote } from "@prisma/client";
 import { format, isValid } from "date-fns";
-import React from "react";
+import React, { LegacyRef } from "react";
+import { useDrag } from "react-dnd";
 import { NoteMoveButton } from "./NoteMoveButton";
+
+type DraggableNoteItemProps = {
+  note: VoiceNote;
+  onClick: () => void;
+  children: React.ReactNode;
+};
+
+const DraggableNoteItem: React.FC<DraggableNoteItemProps> = ({ note, onClick, children }) => {
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: "NOTE",
+    item: { id: note.id },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  }));
+
+  return (
+    <li
+      ref={drag as unknown as LegacyRef<HTMLLIElement>}
+      style={{ opacity: isDragging ? 0.5 : 1 }}
+      className="bg-white shadow-md p-4 border rounded-2xl cursor-pointer"
+      onClick={onClick}
+    >
+      {children}
+    </li>
+  );
+};
 
 type NoteListProps = {
   notes: VoiceNote[];
@@ -36,11 +64,7 @@ export const NoteList: React.FC<NoteListProps> = ({
   ) : (
     <ul className="space-y-4" style={{ marginBottom: "10vh" }}>
       {notes.map((note) => (
-        <li
-          key={note.id}
-          className="bg-white shadow-md p-4 border rounded-2xl cursor-pointer"
-          onClick={() => handleNoteClick(note)}
-        >
+        <DraggableNoteItem key={note.id} note={note} onClick={() => handleNoteClick(note)}>
           <h3 className="mb-4 font-bold text-lg">{note.fileName || "Untitled"}</h3>
           <p className="mb-4 text-gray-700">{note.transcription}</p>
           <p className="mb-4 text-gray-500 text-sm">Tags: {note.tags?.join(", ") || ""}</p>
@@ -60,7 +84,6 @@ export const NoteList: React.FC<NoteListProps> = ({
               note={note}
               isLoading={isLoading}
               onMoveComplete={() => {
-                // Juste rafraîchir les notes sans ouvrir la modale
                 const event = new Event("noteMoved");
                 window.dispatchEvent(event);
               }}
@@ -76,7 +99,7 @@ export const NoteList: React.FC<NoteListProps> = ({
               Supprimer
             </button>
           </div>
-        </li>
+        </DraggableNoteItem>
       ))}
     </ul>
   );
