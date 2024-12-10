@@ -2,7 +2,7 @@ import { z } from "zod";
 
 export const CreateFolderSchema = z.object({
   name: z.string().min(1, "Project name is required"),
-  description: z.string().nullish(), // Accepte null et undefined
+  description: z.string().nullish(),
   parentId: z.string().nullish().optional(),
 });
 

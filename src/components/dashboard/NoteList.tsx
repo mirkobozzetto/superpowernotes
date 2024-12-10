@@ -1,6 +1,7 @@
 import { VoiceNote } from "@prisma/client";
 import { format, isValid } from "date-fns";
 import React from "react";
+import { NoteMoveButton } from "./NoteMoveButton";
 
 type NoteListProps = {
   notes: VoiceNote[];
@@ -29,7 +30,7 @@ export const NoteList: React.FC<NoteListProps> = ({
   return isLoading ? (
     <div className="flex justify-center">
       <p className="inline-block border-gray-100 bg-gray-50 px-4 py-2 border rounded-full text-center text-gray-500 text-sm animate-pulse">
-        Chargement des notes...
+        Loading...
       </p>
     </div>
   ) : (
@@ -55,6 +56,15 @@ export const NoteList: React.FC<NoteListProps> = ({
             >
               Éditer
             </button>
+            <NoteMoveButton
+              note={note}
+              isLoading={isLoading}
+              onMoveComplete={() => {
+                // Juste rafraîchir les notes sans ouvrir la modale
+                const event = new Event("noteMoved");
+                window.dispatchEvent(event);
+              }}
+            />
             <button
               className="px-3 py-1 border rounded-full"
               onClick={(e) => {

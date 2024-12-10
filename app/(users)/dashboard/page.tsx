@@ -34,6 +34,15 @@ export default function Dashboard() {
     fetchNotes();
   }, [fetchNotes]);
 
+  useEffect(() => {
+    const handleNoteMoved = () => {
+      fetchNotes();
+    };
+
+    window.addEventListener("noteMoved", handleNoteMoved);
+    return () => window.removeEventListener("noteMoved", handleNoteMoved);
+  }, [fetchNotes]);
+
   const handleNoteClick = (note: VoiceNote) => {
     setEditingNote(note);
     setIsNoteModalOpen(true);
