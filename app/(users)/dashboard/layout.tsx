@@ -7,6 +7,11 @@ import { ChevronRight } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
+import { TouchBackend } from "react-dnd-touch-backend";
+
+const isTouchDevice = () => {
+  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
+};
 
 type DashboardLayoutProps = {
   children: ReactNode;
@@ -24,8 +29,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     setIsOpen(false);
   };
 
+  const backend = isTouchDevice() ? TouchBackend : HTML5Backend;
+
   return (
-    <DndProvider backend={HTML5Backend}>
+    <DndProvider backend={backend}>
       <div className="flex h-screen overflow-hidden bg-background">
         <div className="hidden md:block">
           <Sidebar />
@@ -37,6 +44,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"
               onClick={handleOverlayClick}
             />
+
             <div className="relative h-full w-[300px] bg-white shadow-xl">
               <Sidebar onProjectSelect={handleProjectSelect} />
             </div>

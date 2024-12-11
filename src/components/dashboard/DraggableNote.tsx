@@ -33,11 +33,12 @@ export const DraggableNoteItem: React.FC<DraggableNoteItemProps> = ({
   return (
     <li
       ref={drag as unknown as LegacyRef<HTMLLIElement>}
-      className={`bg-white shadow-md p-4 border rounded-2xl cursor-pointer transition-all duration-200 ${
+      className={`bg-white shadow-md p-4 border rounded-2xl cursor-move touch-manipulation ${
         isDragging ? "opacity-50" : ""
       }`}
       onClick={onClick}
     >
+      <div className="md:hidden text-xs text-gray-400 mb-2">Maintenir appuyé pour déplacer</div>
       {children}
     </li>
   );
