@@ -1,9 +1,9 @@
-import { Button } from "@chadcn/components/ui/button";
 import { cn } from "@chadcn/lib/utils";
 import { type Folder } from "@prisma/client";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { ChevronDown, FolderIcon, Globe } from "lucide-react";
 import { useEffect } from "react";
+import { DroppableButton } from "./DroppableButton";
 
 type FolderItemProps = {
   folder: Folder;
@@ -19,21 +19,21 @@ const FolderItem = ({ folder, depth = 0, onSelect, selectedFolderId }: FolderIte
 
   return (
     <div className="flex flex-col">
-      <Button
-        variant="ghost"
+      <DroppableButton
+        folderId={folder.id}
+        onClick={() => onSelect(folder.id)}
         className={cn(
           "flex w-full items-center justify-between px-4 py-2 text-sm hover:bg-gray-100",
           isSelected && "bg-gray-100 font-medium",
           depth > 0 && "pl-8"
         )}
-        onClick={() => onSelect(folder.id)}
       >
         <div className="flex items-center gap-2">
           <FolderIcon className="h-4 w-4" />
           <span className="truncate">{folder.name}</span>
         </div>
         {hasChildren && <ChevronDown className="h-4 w-4" />}
-      </Button>
+      </DroppableButton>
 
       {hasChildren && (
         <div className="ml-4 border-l">
@@ -65,12 +65,6 @@ export function Sidebar({ onProjectSelect }: { onProjectSelect?: () => void }) {
     onProjectSelect?.();
   };
 
-  const handleBackgroundClick = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).classList.contains("bg-white")) {
-      onProjectSelect?.();
-    }
-  };
-
   if (isLoading || error) {
     return (
       <div className="flex h-screen w-64 flex-col border-r bg-white p-4">
@@ -81,24 +75,24 @@ export function Sidebar({ onProjectSelect }: { onProjectSelect?: () => void }) {
   }
 
   return (
-    <div className="flex h-screen w-64 flex-col border-r bg-white" onClick={handleBackgroundClick}>
+    <div className="flex h-screen w-64 flex-col border-r bg-white">
       <div className="border-b p-4">
         <h2 className="text-lg font-semibold">Projects</h2>
       </div>
       <div className="flex-1 space-y-1 overflow-y-auto p-2 bg-white">
-        <Button
-          variant="ghost"
+        <DroppableButton
+          folderId={null}
+          onClick={() => handleSelect(null)}
           className={cn(
             "flex w-full items-center justify-between px-4 py-2 text-sm hover:bg-gray-100 mb-4",
             !selectedFolderId && "bg-gray-100 font-medium"
           )}
-          onClick={() => handleSelect(null)}
         >
           <div className="flex items-center gap-2">
             <Globe className="h-4 w-4" />
             <span className="truncate">Toutes mes notes</span>
           </div>
-        </Button>
+        </DroppableButton>
 
         <div className="w-full h-px bg-gray-200 my-2" />
 
@@ -109,9 +103,7 @@ export function Sidebar({ onProjectSelect }: { onProjectSelect?: () => void }) {
             <FolderItem
               key={folder.id}
               folder={folder}
-              onSelect={(folderId) => {
-                handleSelect(folderId);
-              }}
+              onSelect={handleSelect}
               selectedFolderId={selectedFolderId}
             />
           ))

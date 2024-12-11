@@ -22,7 +22,6 @@ export const FolderHeader = () => {
     return (
       <div className="py-4 text-center">
         <h2 className="text-xl font-semibold mb-1">Toutes mes notes</h2>
-        <p className="text-gray-600 text-sm">Affichage de toutes vos notes</p>
       </div>
     );
   }

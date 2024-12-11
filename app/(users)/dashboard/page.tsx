@@ -14,6 +14,7 @@ import { useCallback, useEffect, useState } from "react";
 
 export default function Dashboard() {
   const {
+    initialize,
     notes,
     isLoading,
     error,
@@ -31,7 +32,19 @@ export default function Dashboard() {
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchNotes();
+    const initializeData = async () => {
+      await initialize();
+    };
+    initializeData();
+  }, [initialize]);
+
+  useEffect(() => {
+    const handleNoteMoved = () => {
+      fetchNotes();
+    };
+
+    window.addEventListener("noteMoved", handleNoteMoved);
+    return () => window.removeEventListener("noteMoved", handleNoteMoved);
   }, [fetchNotes]);
 
   useEffect(() => {

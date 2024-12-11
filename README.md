@@ -1,62 +1,46 @@
-Super Power Notes
+# Super Power Notes 🚀
 
-Welcome to Super Power Notes — the next-generation note-taking application that transforms the way you capture, transcribe, and organize your thoughts. Leveraging the power of OpenAI’s Whisper model, Super Power Notes allows you to record audio notes, automatically transcribe them, tag them for easy retrieval, and edit them on the fly.
+## Overview
 
-Features
+Super Power Notes is a powerful, intuitive note-taking web application designed to function as your second brain.
+Built with a focus on user experience, it combines voice-to-text capabilities with traditional note-taking features, making it a versatile tool for both personal and professional use.
 
-    •	Voice Transcription: Record your thoughts and let our app transcribe them using the Whisper AI model.
-    •	Tagging System: Organize your notes with customizable tags for efficient searching and filtering.
-    •	Note Editing: Edit your transcriptions directly within the app to ensure accuracy and clarity.
-    •	User Roles: Supports both regular users and admins, each with specific permissions and monthly usage limits.
-    •	Search Functionality: Advanced search options to find notes by tags, keywords, and date ranges.
-    •	Responsive UI: A clean and intuitive interface built with React and Tailwind CSS for a seamless user experience.
+## Key Features
 
-Technology Stack
+- 🎤 Voice-to-text notes using Whisper AI technology
+- 📝 Traditional text note-taking
+- 🌐 Cross-browser extension support
+- 📁 Thematic organization and project management
+- 🎯 Intuitive and user-friendly interface
+- 🧠 Second brain methodology implementation
 
-    •	Frontend: React with Next.js, Tailwind CSS for styling.
-    •	Backend: Next.js API Routes, Prisma ORM connected to a PostgreSQL database.
-    •	Authentication: NextAuth.js with Prisma adapter for secure user management.
-    •	AI Integration: OpenAI’s Whisper model for audio transcription.
-    •	State Management: Custom React hooks for handling recording and dashboard functionalities.
+## Current Status
 
-Core Components
+The application is currently in active development with core features implemented:
 
-AudioRecorder
+- Voice and text note-taking
+- Project organization
+- Browser extension integration
+- Theme-based note categorization
 
-    •	Handles microphone permissions and audio recording functionalities.
-    •	Integrates with useRecorder hook for recording logic.
-    •	Displays recording animation and controls during an active recording session.
+## Roadmap
 
-NoteList
+### Upcoming Features
 
-    •	Displays a list of transcribed notes with options to edit or delete.
-    •	Shows note details like title, transcription snippet, tags, and creation date.
-    •	Provides interactive buttons for editing and deleting notes.
+- 👥 Collaborative note-taking
+- 🔒 End-to-end encryption (Telegram-style security)
+- 🤖 Custom AI agents for enterprise use cases
+- 🔌 Customizable plugins for business integration
+- 📱 Mobile application development
 
-API Routes
+## License
 
-    •	/api/transcribe: Handles audio file uploads and returns transcriptions.
-    •	/api/voice-notes: CRUD operations for managing voice notes.
-    •	/api/searchNotes: Advanced search endpoint to filter notes based on tags, keywords, and dates.
-    •	/api/auth: Authentication routes managed by NextAuth.js.
+Bozzetto Mirko - 2024
 
-Getting Started
+## Contact
 
-    Note: Installation instructions are omitted intentionally.
+bozzettomirko88@gmail.com
 
-Clone the repository and explore the codebase to understand how Super Power Notes can revolutionize your note-taking experience.
+---
 
-Future Enhancements
-
-    •	Advanced Editing Tools: Rich-text editing for transcriptions.
-    •	Collaboration Features: Share notes with team members and collaborate in real-time.
-    •	Cross-Platform Support: Native applications for iOS and Android devices.
-    •	AI Summarization: Automatic summarization of lengthy transcriptions.
-
-Contributing
-
-We welcome contributions! Feel free to submit issues, fork the repository, and create pull requests.
-
-License
-
-This project is licensed under the MIT License.
+⚠️ This project is private and under active development.
