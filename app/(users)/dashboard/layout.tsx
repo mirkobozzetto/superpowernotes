@@ -4,67 +4,30 @@ import { Sidebar } from "@src/components/dashboard/_sidebar/Sidebar";
 import { SidebarTrigger } from "@src/components/dashboard/_sidebar/SidebarTrigger";
 import { CustomDragPreview } from "@src/components/dashboard/CustomDragPreview";
 import { useSelectedFolder } from "@src/hooks/_useFolder/useSelectedFolder";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { DndProvider, useDragLayer } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { TouchBackend } from "react-dnd-touch-backend";
 
-const isTouchDevice = () => {
-  return "ontouchstart" in window || navigator.maxTouchPoints > 0;
-};
-
-const simulateDragEvent = (event: MouseEvent | Touch) => {
-  const dragEndEvent = new MouseEvent("mouseup", {
-    clientX: event.clientX,
-    clientY: event.clientY,
-    bubbles: true,
-  });
-  document.dispatchEvent(dragEndEvent);
-
-  setTimeout(() => {
-    const dragStartEvent = new MouseEvent("mousedown", {
-      clientX: event.clientX,
-      clientY: event.clientY,
-      bubbles: true,
-    });
-    document.dispatchEvent(dragStartEvent);
-  }, 250);
-};
-
-const GlobalDragMonitor = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) => {
-  const lastEventRef = useRef<{ x: number; y: number } | null>(null);
-  const { isDragging, item, currentOffset } = useDragLayer((monitor) => ({
-    isDragging: monitor.isDragging(),
-    item: monitor.getItem(),
-    currentOffset: monitor.getClientOffset(),
-  }));
+function useIsTouchDevice() {
+  const [isTouch, setIsTouch] = useState(false);
 
   useEffect(() => {
-    const handleDragEvent = (event: MouseEvent | TouchEvent) => {
-      if (isDragging && item?.type === "NOTE") {
-        const eventData = "touches" in event ? event.touches[0] : event;
-        lastEventRef.current = { x: eventData.clientX, y: eventData.clientY };
-      }
-    };
+    setIsTouch("ontouchstart" in window || navigator.maxTouchPoints > 0);
+  }, []);
 
-    window.addEventListener("mousemove", handleDragEvent);
-    window.addEventListener("touchmove", handleDragEvent);
+  return isTouch;
+}
 
-    return () => {
-      window.removeEventListener("mousemove", handleDragEvent);
-      window.removeEventListener("touchmove", handleDragEvent);
-    };
-  }, [isDragging, item]);
+const GlobalDragMonitor = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) => {
+  const { isDragging, item } = useDragLayer((monitor) => ({
+    isDragging: monitor.isDragging(),
+    item: monitor.getItem(),
+  }));
 
   useEffect(() => {
     if (isDragging && item?.type === "NOTE") {
       setIsOpen(true);
-      if (lastEventRef.current) {
-        simulateDragEvent({
-          clientX: lastEventRef.current.x,
-          clientY: lastEventRef.current.y,
-        } as MouseEvent);
-      }
     } else {
       setIsOpen(false);
     }
@@ -79,6 +42,7 @@ type DashboardLayoutProps = {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const isTouch = useIsTouchDevice();
   useSelectedFolder();
 
   const handleProjectSelect = () => {
@@ -89,7 +53,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     setIsOpen(false);
   };
 
-  const backend = isTouchDevice() ? TouchBackend : HTML5Backend;
+  const backend = isTouch ? TouchBackend : HTML5Backend;
 
   return (
     <DndProvider backend={backend}>
