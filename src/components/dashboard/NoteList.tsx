@@ -1,35 +1,8 @@
 import { VoiceNote } from "@prisma/client";
 import { format, isValid } from "date-fns";
-import React, { LegacyRef } from "react";
-import { useDrag } from "react-dnd";
+import React from "react";
+import { DraggableNoteItem } from "./DraggableNote";
 import { NoteMoveButton } from "./NoteMoveButton";
-
-type DraggableNoteItemProps = {
-  note: VoiceNote;
-  onClick: () => void;
-  children: React.ReactNode;
-};
-
-const DraggableNoteItem: React.FC<DraggableNoteItemProps> = ({ note, onClick, children }) => {
-  const [{ isDragging }, drag] = useDrag(() => ({
-    type: "NOTE",
-    item: { id: note.id },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  }));
-
-  return (
-    <li
-      ref={drag as unknown as LegacyRef<HTMLLIElement>}
-      style={{ opacity: isDragging ? 0.5 : 1 }}
-      className="bg-white shadow-md p-4 border rounded-2xl cursor-pointer"
-      onClick={onClick}
-    >
-      {children}
-    </li>
-  );
-};
 
 type NoteListProps = {
   notes: VoiceNote[];

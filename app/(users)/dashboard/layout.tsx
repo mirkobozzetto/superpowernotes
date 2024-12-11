@@ -1,6 +1,7 @@
 "use client";
 
 import { Sidebar } from "@src/components/dashboard/_sidebar/Sidebar";
+import { CustomDragPreview } from "@src/components/dashboard/CustomDragPreview";
 import { ChevronRight } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { DndProvider } from "react-dnd";
@@ -53,6 +54,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="container mx-auto p-4">{children}</div>
         </main>
       </div>
+      <CustomDragPreview />
     </DndProvider>
   );
 }

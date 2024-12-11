@@ -1,45 +1,9 @@
-import { Button } from "@chadcn/components/ui/button";
 import { cn } from "@chadcn/lib/utils";
 import { type Folder } from "@prisma/client";
-import { noteMoveService } from "@src/services/noteMoveService";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { ChevronDown, FolderIcon, Globe } from "lucide-react";
-import { LegacyRef, useEffect } from "react";
-import { useDrop } from "react-dnd";
-
-type DroppableButtonProps = {
-  folderId: string | null;
-  onClick: () => void;
-  children: React.ReactNode;
-  className?: string;
-};
-
-const DroppableButton: React.FC<DroppableButtonProps> = ({
-  folderId,
-  onClick,
-  children,
-  className,
-}) => {
-  const [{ isOver }, drop] = useDrop(() => ({
-    accept: "NOTE",
-    drop: async (item: { id: string }) => {
-      await noteMoveService.moveNote(item.id, folderId);
-      const event = new Event("noteMoved");
-      window.dispatchEvent(event);
-    },
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-    }),
-  }));
-
-  return (
-    <div ref={drop as unknown as LegacyRef<HTMLDivElement>} className={cn(isOver && "bg-blue-50")}>
-      <Button variant="ghost" className={className} onClick={onClick}>
-        {children}
-      </Button>
-    </div>
-  );
-};
+import { useEffect } from "react";
+import { DroppableButton } from "./DroppableButton";
 
 type FolderItemProps = {
   folder: Folder;
