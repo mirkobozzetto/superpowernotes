@@ -2,6 +2,7 @@
 
 import { Sidebar } from "@src/components/dashboard/_sidebar/Sidebar";
 import { CustomDragPreview } from "@src/components/dashboard/CustomDragPreview";
+import { useSelectedFolder } from "@src/hooks/_useFolder/useSelectedFolder";
 import { ChevronRight } from "lucide-react";
 import { type ReactNode, useState } from "react";
 import { DndProvider } from "react-dnd";
@@ -13,6 +14,7 @@ type DashboardLayoutProps = {
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isOpen, setIsOpen] = useState(false);
+  useSelectedFolder();
 
   const handleProjectSelect = () => {
     setIsOpen(false);

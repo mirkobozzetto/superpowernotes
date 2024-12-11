@@ -7,6 +7,8 @@ import type {
 } from "@src/validations/routes/voiceNoteRoutes";
 import { create } from "zustand";
 
+const SELECTED_FOLDER_KEY = "lastSelectedFolder";
+
 type FolderMap = { [key: string]: Folder[] };
 
 type State = {
@@ -18,9 +20,11 @@ type State = {
   searchParams: SearchParamsType;
   isLoading: boolean;
   error: string | null;
+  isInitialized: boolean;
 };
 
 type Actions = {
+  initialize: () => Promise<void>;
   setError: (error: string | null) => void;
   setLoading: (isLoading: boolean) => void;
   selectFolder: (folderId: string | null) => Promise<void>;
@@ -51,6 +55,21 @@ export const useNoteManagerStore = create<NoteManagerStore>((set, get) => ({
   },
   isLoading: false,
   error: null,
+  isInitialized: false,
+
+  initialize: async () => {
+    const store = get();
+    if (store.isInitialized) return;
+
+    const savedFolderId = localStorage.getItem(SELECTED_FOLDER_KEY);
+    if (savedFolderId) {
+      await store.selectFolder(savedFolderId);
+    } else {
+      await store.fetchNotes();
+    }
+
+    set({ isInitialized: true });
+  },
 
   setError: (error) => set({ error }),
   setLoading: (isLoading) => set({ isLoading }),
@@ -62,9 +81,11 @@ export const useNoteManagerStore = create<NoteManagerStore>((set, get) => ({
       if (folderId) {
         const notes = await folderService.getFolderNotes(folderId);
         set({ notes, selectedFolderId: folderId });
+        localStorage.setItem(SELECTED_FOLDER_KEY, folderId);
       } else {
         const { notes: fetchedNotes } = await voiceNotesService.getAllNotes();
         set({ notes: fetchedNotes, selectedFolderId: null });
+        localStorage.removeItem(SELECTED_FOLDER_KEY);
       }
     } catch (error) {
       store.setError("Failed to fetch notes for selected folder");

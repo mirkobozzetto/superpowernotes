@@ -1,6 +1,7 @@
 import { Button } from "@chadcn/components/ui/button";
 import { cn } from "@chadcn/lib/utils";
 import { noteMoveService } from "@src/services/noteMoveService";
+import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { LegacyRef } from "react";
 import { useDrop } from "react-dnd";
 
@@ -17,10 +18,13 @@ export const DroppableButton: React.FC<DroppableButtonProps> = ({
   children,
   className,
 }) => {
+  const { selectFolder } = useNoteManagerStore();
+
   const [{ isOver, canDrop }, drop] = useDrop(() => ({
     accept: "NOTE",
     drop: async (item: { id: string }) => {
       await noteMoveService.moveNote(item.id, folderId);
+      selectFolder(folderId);
       const event = new Event("noteMoved");
       window.dispatchEvent(event);
     },
