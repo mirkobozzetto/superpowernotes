@@ -49,7 +49,7 @@ export const RecordVoiceButton = ({ isLoading, onRecordingComplete }: RecordVoic
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogOverlay className="bg-black/30 backdrop-blur-[2px]" />
-        <DialogContent className="w-full max-w-[66vw] bg-white rounded-lg border-0 shadow-lg">
+        <DialogContent className="w-full max-w-[87.5vw] bg-white rounded-lg border-0 shadow-lg">
           <DialogHeader>
             <DialogTitle>Enregistrer une note vocale</DialogTitle>
             <DialogDescription>
