@@ -6,7 +6,7 @@
     "@email"
   ],
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --experimental-https",
     "email": "email dev",
     "build": "prisma generate && prisma db push && next build",
     "start": "next start",
