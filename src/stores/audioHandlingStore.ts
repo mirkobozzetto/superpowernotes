@@ -58,7 +58,7 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
     },
 
     getAudioMimeType: () => {
-      const preferredTypes = ["audio/webm", "audio/mp4"];
+      const preferredTypes = ["audio/wav"];
       const supportedType = preferredTypes.find((type) => {
         const isSupported = MediaRecorder.isTypeSupported(type);
         get().debugLog(`Testing format ${type}:`, isSupported);

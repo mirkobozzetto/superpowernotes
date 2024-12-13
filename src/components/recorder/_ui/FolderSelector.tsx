@@ -119,7 +119,7 @@ export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
           className={cn(
             "fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%]",
             "bg-white shadow-xl rounded-lg",
-            "md:w-1/4 sm:w-2/3 md:w-1/2 p-6",
+            "sm:w-2/3 md:w-1/2 p-6",
             "border-0",
             "data-[state=open]:animate-in data-[state=closed]:animate-out",
             "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
