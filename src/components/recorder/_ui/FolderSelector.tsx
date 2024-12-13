@@ -10,7 +10,7 @@ import {
 } from "@chadcn/components/ui/select";
 import { Textarea } from "@chadcn/components/ui/textarea";
 import { cn } from "@chadcn/lib/utils";
-import { useFolderSelector } from "@src/hooks/_useFolder/useFolderSelector";
+import { usePersistentFolderSelector } from "@src/hooks/_useFolder/usePersistentFolderSelector";
 import { useState } from "react";
 
 type FolderSelectorProps = {
@@ -20,7 +20,7 @@ type FolderSelectorProps = {
 export const FolderSelector = ({ onFolderSelect }: FolderSelectorProps) => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const { currentFolders, selectedFolder, isLoading, error, selectFolder, refetchFolders } =
-    useFolderSelector();
+    usePersistentFolderSelector();
 
   const handleCreateFolder = async (data: { name: string; description?: string }) => {
     try {
