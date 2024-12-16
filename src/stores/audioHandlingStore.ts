@@ -1,4 +1,4 @@
-import { AUDIO_MIME_TYPES, WHISPER_SUPPORTED_FORMATS } from "@src/constants/audioConstants";
+import { AUDIO_MIME_TYPES } from "@src/constants/audioConstants";
 import { createBrowserDetection } from "@src/utils/browserDetection";
 import { create } from "zustand";
 
@@ -59,25 +59,64 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
     },
 
     getAudioMimeType: () => {
-      const supportedType = WHISPER_SUPPORTED_FORMATS.find((type) => {
-        const isSupported = MediaRecorder.isTypeSupported(type);
-        get().debugLog(`Testing format ${type}:`, isSupported);
-        return isSupported;
+      const browserInfo = createBrowserDetection();
+      debugLog("Checking available audio formats", {
+        browser: browserInfo,
+        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
       });
 
-      const finalType = supportedType || AUDIO_MIME_TYPES.WEBM;
-      get().debugLog("Selected audio format:", finalType);
-      return finalType;
+      const preferredFormats =
+        browserInfo.browser === "safari" || browserInfo.isIOS
+          ? [AUDIO_MIME_TYPES.MP3, AUDIO_MIME_TYPES.AAC]
+          : [AUDIO_MIME_TYPES.WEBM];
+
+      debugLog("Testing formats for browser", {
+        preferredFormats,
+        browser: browserInfo.browser,
+      });
+
+      for (const format of preferredFormats) {
+        const isSupported = MediaRecorder.isTypeSupported(format);
+        debugLog(`Testing format ${format}:`, {
+          isSupported,
+          browser: browserInfo,
+        });
+        if (isSupported) {
+          debugLog("Found supported format:", format);
+          return format;
+        }
+      }
+
+      const allFormats = Object.values(AUDIO_MIME_TYPES);
+      for (const format of allFormats) {
+        const isSupported = MediaRecorder.isTypeSupported(format);
+        if (isSupported) {
+          debugLog("Found fallback format:", format);
+          return format;
+        }
+      }
+
+      debugLog("No supported format found, using basic audio");
+      return "audio/mp4";
     },
 
     setMicPermission: (permission) => {
-      get().debugLog("Setting mic permission:", permission);
+      debugLog("Setting microphone permission:", {
+        permission,
+        previous: get().micPermission,
+      });
       set({ micPermission: permission });
     },
 
     startRecording: async (onDataAvailable, onStop) => {
+      const browserInfo = createBrowserDetection();
       const debug = get().debugLog;
-      debug("Starting recording");
+
+      debug("Starting recording attempt", {
+        browser: browserInfo,
+        userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+        isIOS: browserInfo.isIOS,
+      });
 
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -88,10 +127,16 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
           },
         });
 
-        debug("Microphone permission granted");
-        set({ micPermission: true });
+        debug("Audio stream obtained", {
+          tracks: stream.getAudioTracks().map((track) => ({
+            kind: track.kind,
+            label: track.label,
+            enabled: track.enabled,
+            constraints: track.getConstraints(),
+          })),
+        });
 
-        debug("Got audio stream");
+        set({ micPermission: true });
         const mimeType = get().getAudioMimeType();
 
         const options = {
@@ -99,33 +144,50 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
           audioBitsPerSecond: 128000,
         };
 
-        debug("Creating MediaRecorder with options:", options);
-        const mediaRecorder = new MediaRecorder(stream, options);
+        debug("Initializing MediaRecorder", { options });
 
-        mediaRecorder.ondataavailable = (event) => {
-          debug("Data available:", {
-            size: event.data.size,
-            type: event.data.type,
+        try {
+          const mediaRecorder = new MediaRecorder(stream, options);
+          debug("MediaRecorder created successfully");
+
+          mediaRecorder.ondataavailable = (event) => {
+            debug("Data available from MediaRecorder:", {
+              size: event.data.size,
+              type: event.data.type,
+            });
+
+            if (event.data.size > 0) {
+              set((state) => ({ chunks: [...state.chunks, event.data] }));
+              onDataAvailable(event);
+            }
+          };
+
+          mediaRecorder.onstop = () => {
+            debug("MediaRecorder stopped");
+            onStop();
+            get().cleanupAudioResources();
+          };
+
+          set({ stream, mediaRecorder, chunks: [] });
+          debug("Starting MediaRecorder");
+          mediaRecorder.start();
+        } catch (recorderError) {
+          debug("MediaRecorder initialization failed", {
+            error: recorderError instanceof Error ? recorderError.message : "Unknown error",
+            name: recorderError instanceof Error ? recorderError.name : "Unknown",
+            mimeType,
+            browser: browserInfo,
           });
+          throw recorderError;
+        }
+      } catch (error) {
+        debug("Recording setup failed", {
+          errorType: error instanceof Error ? error.name : "Unknown",
+          errorMessage: error instanceof Error ? error.message : "Unknown error",
+          stack: error instanceof Error ? error.stack : undefined,
+          browser: browserInfo,
+        });
 
-          if (event.data.size > 0) {
-            set((state) => ({ chunks: [...state.chunks, event.data] }));
-            onDataAvailable(event);
-          }
-        };
-
-        mediaRecorder.onstop = () => {
-          debug("Recording stopped");
-          onStop();
-          get().cleanupAudioResources();
-        };
-
-        set({ stream, mediaRecorder, chunks: [] });
-
-        debug("Starting MediaRecorder");
-        mediaRecorder.start();
-      } catch (error: unknown) {
-        debug("Error starting recording:", error);
         if (
           error instanceof Error &&
           (error.name === "NotAllowedError" || error.name === "PermissionDeniedError")
@@ -142,10 +204,15 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
       const debug = get().debugLog;
 
       if (mediaRecorder && mediaRecorder.state !== "inactive") {
-        debug("Stopping recording");
+        debug("Stopping recording", {
+          state: mediaRecorder.state,
+          mimeType: mediaRecorder.mimeType,
+        });
         mediaRecorder.stop();
       } else {
-        debug("Cannot stop recording - recorder inactive or null");
+        debug("Cannot stop recording - recorder inactive or null", {
+          recorderState: mediaRecorder?.state || "null",
+        });
       }
     },
 
@@ -157,7 +224,9 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
         debug("Pausing recording");
         mediaRecorder.pause();
       } else {
-        debug("Cannot pause recording - not in recording state");
+        debug("Cannot pause recording", {
+          state: mediaRecorder?.state || "null",
+        });
       }
     },
 
@@ -169,7 +238,9 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
         debug("Resuming recording");
         mediaRecorder.resume();
       } else {
-        debug("Cannot resume recording - not in paused state");
+        debug("Cannot resume recording", {
+          state: mediaRecorder?.state || "null",
+        });
       }
     },
 
@@ -180,7 +251,11 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
       debug("Cleaning up audio resources");
       if (stream) {
         stream.getTracks().forEach((track) => {
-          debug("Stopping track:", track.kind);
+          debug("Stopping audio track", {
+            kind: track.kind,
+            label: track.label,
+            enabled: track.enabled,
+          });
           track.stop();
         });
       }

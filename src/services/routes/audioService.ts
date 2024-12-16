@@ -73,14 +73,26 @@ export const audioService = {
 
   async transcribeAudio(audioFile: File): Promise<string> {
     try {
+      logger.info("Starting transcription process", {
+        fileType: audioFile.type,
+        fileSize: audioFile.size,
+        name: audioFile.name,
+        userAgent: typeof window !== "undefined" ? window.navigator.userAgent : "unknown",
+      });
+
       let fileToTranscribe = audioFile;
 
       if (!WHISPER_SUPPORTED_FORMATS.includes(audioFile.type as WhisperFormat)) {
-        logger.info("Converting audio to compatible format", {
+        logger.warn("Converting audio format", {
           originalFormat: audioFile.type,
           originalSize: audioFile.size,
+          supportedFormats: WHISPER_SUPPORTED_FORMATS,
         });
         fileToTranscribe = await this.convertToCompatibleFormat(audioFile);
+        logger.info("Conversion completed", {
+          newFormat: fileToTranscribe.type,
+          newSize: fileToTranscribe.size,
+        });
       }
 
       const transcription = await openai.audio.transcriptions.create({
@@ -88,15 +100,19 @@ export const audioService = {
         model: "whisper-1",
       });
 
-      logger.info("Audio transcription successful", {
-        fileSize: fileToTranscribe.size,
+      logger.info("Transcription successful", {
+        inputFormat: fileToTranscribe.type,
+        inputSize: fileToTranscribe.size,
         transcriptionLength: transcription.text.length,
+        converted: fileToTranscribe !== audioFile,
       });
 
       return transcription.text;
     } catch (error) {
       logger.error("Transcription failed", {
         error: error instanceof Error ? error.message : "Unknown error",
+        stack: error instanceof Error ? error.stack : undefined,
+        fileType: audioFile.type,
         fileSize: audioFile.size,
       });
       throw new AudioServiceError("Failed to transcribe audio", "TRANSCRIPTION_FAILED");
