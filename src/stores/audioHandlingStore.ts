@@ -58,7 +58,13 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
     },
 
     getAudioMimeType: () => {
-      const preferredTypes = ["audio/wav"];
+      const preferredTypes = [
+        "audio/webm;codecs=opus",
+        "audio/webm",
+        "audio/mp4;codecs=mp4a.40.2",
+        "audio/aac",
+        "audio/mpeg",
+      ];
       const supportedType = preferredTypes.find((type) => {
         const isSupported = MediaRecorder.isTypeSupported(type);
         get().debugLog(`Testing format ${type}:`, isSupported);
@@ -87,6 +93,9 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
             autoGainControl: true,
           },
         });
+
+        debug("Microphone permission granted");
+        set({ micPermission: true });
 
         debug("Got audio stream");
         const mimeType = get().getAudioMimeType();
@@ -121,11 +130,15 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
 
         debug("Starting MediaRecorder");
         mediaRecorder.start();
-
-        set({ micPermission: true });
-      } catch (error) {
+      } catch (error: unknown) {
         debug("Error starting recording:", error);
-        set({ micPermission: false });
+        if (
+          error instanceof Error &&
+          (error.name === "NotAllowedError" || error.name === "PermissionDeniedError")
+        ) {
+          debug("Microphone permission denied");
+          set({ micPermission: false });
+        }
         throw error;
       }
     },
