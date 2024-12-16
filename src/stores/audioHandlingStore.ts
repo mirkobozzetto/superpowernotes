@@ -1,3 +1,4 @@
+import { AUDIO_MIME_TYPES, WHISPER_SUPPORTED_FORMATS } from "@src/constants/audioConstants";
 import { createBrowserDetection } from "@src/utils/browserDetection";
 import { create } from "zustand";
 
@@ -58,20 +59,13 @@ export const useAudioHandlingStore = create<AudioHandlingState>((set, get) => {
     },
 
     getAudioMimeType: () => {
-      const preferredTypes = [
-        "audio/webm;codecs=opus",
-        "audio/webm",
-        "audio/mp4;codecs=mp4a.40.2",
-        "audio/aac",
-        "audio/mpeg",
-      ];
-      const supportedType = preferredTypes.find((type) => {
+      const supportedType = WHISPER_SUPPORTED_FORMATS.find((type) => {
         const isSupported = MediaRecorder.isTypeSupported(type);
         get().debugLog(`Testing format ${type}:`, isSupported);
         return isSupported;
       });
 
-      const finalType = supportedType || "audio/webm";
+      const finalType = supportedType || AUDIO_MIME_TYPES.WEBM;
       get().debugLog("Selected audio format:", finalType);
       return finalType;
     },
