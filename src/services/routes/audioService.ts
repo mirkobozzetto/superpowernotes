@@ -1,3 +1,4 @@
+import { path as ffmpegPath } from "@ffmpeg-installer/ffmpeg";
 import { AUDIO_MIME_TYPES, WHISPER_SUPPORTED_FORMATS } from "@src/constants/audioConstants";
 import { logger } from "@src/lib/logger";
 import { SaveVoiceNoteInputSchema, VoiceNoteResponseSchema } from "@src/validations/audioService";
@@ -8,6 +9,8 @@ import { prisma } from "../../lib/prisma";
 
 export type AudioMimeType = (typeof AUDIO_MIME_TYPES)[keyof typeof AUDIO_MIME_TYPES];
 export type WhisperFormat = (typeof WHISPER_SUPPORTED_FORMATS)[number];
+
+ffmpeg.setFfmpegPath(ffmpegPath);
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
