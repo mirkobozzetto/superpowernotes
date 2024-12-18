@@ -1,17 +1,11 @@
-import { AUDIO_MIME_TYPES, WHISPER_SUPPORTED_FORMATS } from "@src/constants/audioConstants";
+import { WHISPER_SUPPORTED_FORMATS } from "@src/constants/audioConstants";
 import { logger } from "@src/lib/logger";
 import { SaveVoiceNoteInputSchema, VoiceNoteResponseSchema } from "@src/validations/audioService";
 import OpenAI from "openai";
 import { prisma } from "../../lib/prisma";
+import { AudioConversionError, audioConversionService } from "../audioConversion";
 
-export type AudioMimeType = (typeof AUDIO_MIME_TYPES)[keyof typeof AUDIO_MIME_TYPES];
 export type WhisperFormat = (typeof WHISPER_SUPPORTED_FORMATS)[number];
-
-const CONVERSION_SERVICE_URL = process.env.CONVERSION_SERVICE_URL || "http://localhost:4000";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
 
 export class AudioServiceError extends Error {
   constructor(
@@ -23,33 +17,11 @@ export class AudioServiceError extends Error {
   }
 }
 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 export const audioService = {
-  async convertToCompatibleFormat(audioFile: File): Promise<File> {
-    const arrayBuffer = await audioFile.arrayBuffer();
-
-    const response = await fetch(`${CONVERSION_SERVICE_URL}/convert`, {
-      method: "POST",
-      headers: {
-        "Content-Type": audioFile.type,
-      },
-      body: arrayBuffer,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      logger.error("Audio conversion failed", { error: errorData.error });
-      throw new AudioServiceError(
-        errorData.error || "Failed to convert audio",
-        errorData.code || "CONVERSION_FAILED"
-      );
-    }
-
-    const convertedBuffer = await response.arrayBuffer();
-    return new File([convertedBuffer], "converted.mp3", {
-      type: AUDIO_MIME_TYPES.MP3,
-    });
-  },
-
   async transcribeAudio(audioFile: File): Promise<string> {
     try {
       logger.info("Starting transcription process", {
@@ -67,7 +39,7 @@ export const audioService = {
           originalSize: audioFile.size,
           supportedFormats: WHISPER_SUPPORTED_FORMATS,
         });
-        fileToTranscribe = await this.convertToCompatibleFormat(audioFile);
+        fileToTranscribe = await audioConversionService.convertToCompatibleFormat(audioFile);
         logger.info("Conversion completed", {
           newFormat: fileToTranscribe.type,
           newSize: fileToTranscribe.size,
@@ -88,6 +60,10 @@ export const audioService = {
 
       return transcription.text;
     } catch (error) {
+      if (error instanceof AudioConversionError) {
+        throw new AudioServiceError(error.message, error.code);
+      }
+
       logger.error("Transcription failed", {
         error: error instanceof Error ? error.message : "Unknown error",
         stack: error instanceof Error ? error.stack : undefined,
