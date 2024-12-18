@@ -1,16 +1,13 @@
-import { path as ffmpegPath } from "@ffmpeg-installer/ffmpeg";
 import { AUDIO_MIME_TYPES, WHISPER_SUPPORTED_FORMATS } from "@src/constants/audioConstants";
 import { logger } from "@src/lib/logger";
 import { SaveVoiceNoteInputSchema, VoiceNoteResponseSchema } from "@src/validations/audioService";
-import ffmpeg from "fluent-ffmpeg";
 import OpenAI from "openai";
-import { PassThrough, Readable } from "stream";
 import { prisma } from "../../lib/prisma";
 
 export type AudioMimeType = (typeof AUDIO_MIME_TYPES)[keyof typeof AUDIO_MIME_TYPES];
 export type WhisperFormat = (typeof WHISPER_SUPPORTED_FORMATS)[number];
 
-ffmpeg.setFfmpegPath(ffmpegPath);
+const CONVERSION_SERVICE_URL = process.env.CONVERSION_SERVICE_URL || "http://localhost:4000";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -26,51 +23,30 @@ export class AudioServiceError extends Error {
   }
 }
 
-const createReadStream = (buffer: Buffer): Readable => {
-  return new Readable({
-    read() {
-      this.push(buffer);
-      this.push(null);
-    },
-  });
-};
-
 export const audioService = {
   async convertToCompatibleFormat(audioFile: File): Promise<File> {
     const arrayBuffer = await audioFile.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    const inputStream = createReadStream(buffer);
-    const passThrough = new PassThrough();
 
-    return new Promise<File>((resolve, reject) => {
-      const chunks: Uint8Array[] = [];
+    const response = await fetch(`${CONVERSION_SERVICE_URL}/convert`, {
+      method: "POST",
+      headers: {
+        "Content-Type": audioFile.type,
+      },
+      body: arrayBuffer,
+    });
 
-      ffmpeg(inputStream)
-        .toFormat("mp3")
-        .audioCodec("libmp3lame")
-        .audioBitrate(128)
-        .on("error", (err: Error) => {
-          logger.error("Audio conversion failed", { error: err.message });
-          reject(new AudioServiceError("Failed to convert audio", "CONVERSION_FAILED"));
-        })
-        .pipe(passThrough);
+    if (!response.ok) {
+      const errorData = await response.json();
+      logger.error("Audio conversion failed", { error: errorData.error });
+      throw new AudioServiceError(
+        errorData.error || "Failed to convert audio",
+        errorData.code || "CONVERSION_FAILED"
+      );
+    }
 
-      passThrough.on("data", (chunk: Uint8Array) => {
-        chunks.push(chunk);
-      });
-
-      passThrough.on("end", () => {
-        const concatenatedBuffer = Buffer.concat(chunks);
-        const convertedFile = new File([concatenatedBuffer], "converted.mp3", {
-          type: AUDIO_MIME_TYPES.MP3,
-        });
-        resolve(convertedFile);
-      });
-
-      passThrough.on("error", (err) => {
-        logger.error("Stream error:", err);
-        reject(new AudioServiceError("Failed to process audio stream", "STREAM_ERROR"));
-      });
+    const convertedBuffer = await response.arrayBuffer();
+    return new File([convertedBuffer], "converted.mp3", {
+      type: AUDIO_MIME_TYPES.MP3,
     });
   },
 
