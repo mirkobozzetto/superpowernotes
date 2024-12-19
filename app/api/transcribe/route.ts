@@ -1,3 +1,5 @@
+export const maxDuration = 300; // 5 min
+
 import type { Folder } from "@prisma/client";
 import { auth } from "@src/lib/auth/auth";
 import { logger } from "@src/lib/logger";
