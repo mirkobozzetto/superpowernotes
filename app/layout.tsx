@@ -15,9 +15,13 @@ const afcadFlux = localFont({
 export const metadata: Metadata = {
   title: "Super Power Notes",
   description: "Magical note taking app",
+  manifest: "/manifest.json",
   icons: {
     icon: "/favicon.svg",
+    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon.svg",
   },
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({
