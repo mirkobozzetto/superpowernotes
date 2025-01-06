@@ -7,9 +7,8 @@ import {
   DialogTitle,
 } from "@chadcn/components/ui/dialog";
 import { VoiceNote } from "@prisma/client";
-import { useNoteManagerStore } from "@src/stores/noteManagerStore";
+import { useDashboardActions } from "@src/hooks/_useDashboardActions/useDashboardActions";
 import { FileText, Mic, Plus, Settings } from "lucide-react";
-import { useState } from "react";
 import { AudioRecorder } from "../recorder/AudioRecorder";
 import { ProjectManagementModal } from "./_modals/ProjectManagementModal";
 
@@ -26,39 +25,25 @@ export const DashboardActions = ({
   setIsNoteModalOpen,
   onRecordingComplete,
 }: DashboardActionsProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
-  const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const { selectedFolderId } = useNoteManagerStore();
-
-  const handleProjectClick = () => {
-    setIsProjectModalOpen(true);
-    setIsExpanded(false);
-  };
-
-  const handleCreateNoteClick = () => {
-    const newNote: Partial<VoiceNote> = {
-      fileName: null,
-      transcription: "",
-      tags: [],
-      duration: null,
-      userId: "", // Sera rempli par le backend
-    };
-    setEditingNote(newNote as VoiceNote);
-    setIsNoteModalOpen(true);
-    setIsExpanded(false);
-  };
-
-  const handleRecordClick = () => {
-    setIsRecordingModalOpen(true);
-    setIsExpanded(false);
-  };
-
-  const handleRecordingFinish = () => {
-    onRecordingComplete();
-    setIsRecordingModalOpen(false);
-  };
+  const {
+    isExpanded,
+    setIsExpanded,
+    isProjectModalOpen,
+    setIsProjectModalOpen,
+    isRecordingModalOpen,
+    setIsRecordingModalOpen,
+    isRecording,
+    setIsRecording,
+    selectedFolderId,
+    handleProjectClick,
+    handleCreateNoteClick,
+    handleRecordClick,
+    handleRecordingFinish,
+  } = useDashboardActions({
+    setEditingNote,
+    setIsNoteModalOpen,
+    onRecordingComplete,
+  });
 
   return (
     <div className="space-y-4">
