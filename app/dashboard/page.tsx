@@ -4,11 +4,9 @@ import { VoiceNote } from "@prisma/client";
 import { ConfirmModal } from "@src/components/dashboard/_modals/ConfirmModal";
 import { NoteModal } from "@src/components/dashboard/_modals/NoteModal";
 import { SearchForm } from "@src/components/dashboard/_search/SearchForm";
-import { CreateNoteButton } from "@src/components/dashboard/CreateNoteButton";
+import { DashboardActions } from "@src/components/dashboard/DashboardActions";
 import { FolderHeader } from "@src/components/dashboard/FolderHeader";
 import { NoteList } from "@src/components/dashboard/NoteList";
-import { ProjectManagementButton } from "@src/components/dashboard/ProjectManagementButton";
-import { RecordVoiceButton } from "@src/components/dashboard/RecordVoiceButton";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { useCallback, useEffect, useState } from "react";
 
@@ -96,13 +94,13 @@ export default function Dashboard() {
         handleInputChange={handleInputChange}
         isLoading={isLoading}
       />
-      <ProjectManagementButton isLoading={isLoading} />
-      <CreateNoteButton
+
+      <DashboardActions
         isLoading={isLoading}
-        setEditingNote={(note) => setEditingNote(note as VoiceNote)}
+        setEditingNote={(note) => setEditingNote(note)}
         setIsNoteModalOpen={setIsNoteModalOpen}
+        onRecordingComplete={handleRecordingComplete}
       />
-      <RecordVoiceButton isLoading={isLoading} onRecordingComplete={handleRecordingComplete} />
 
       <NoteList
         notes={notes}

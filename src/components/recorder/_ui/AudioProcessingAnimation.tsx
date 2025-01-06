@@ -19,8 +19,8 @@ export const AudioProcessingAnimation: React.FC = () => {
               <path d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
             </svg>
           </div>
-          <p className="mb-2 font-semibold text-center text-gray-800">Processing your audio...</p>
-          <p className="text-center text-gray-600 text-sm">{`Please don't close this page.`}</p>
+          <p className="mb-2 font-semibold text-center text-gray-800">{`Traitement de l'audio...`}</p>
+          <p className="text-center text-gray-600 text-sm">{`Cette opération peut prendre quelques secondes.`}</p>
         </div>
       </div>
     </div>

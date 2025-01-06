@@ -20,7 +20,7 @@ export const SearchInputs: React.FC<Pick<SearchFormProps, "handleInputChange">> 
   };
 
   return (
-    <div className="flex flex-col space-y-2">
+    <div className="flex flex-col space-y-4">
       <div className="flex sm:flex-row flex-col sm:space-x-2 space-y-2 sm:space-y-0">
         <input
           type="text"
