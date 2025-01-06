@@ -1,4 +1,5 @@
 import type { Folder } from "@prisma/client";
+import { voiceNotesService } from "./voiceNotesService";
 
 export type CreateFolderData = {
   name: string;
@@ -25,7 +26,8 @@ export const folderService = {
     if (!response.ok) {
       throw new Error("Failed to fetch folder notes");
     }
-    return response.json();
+    const notes = await response.json();
+    return voiceNotesService.sortNotesByDate(notes);
   },
 
   async createFolder(data: CreateFolderData): Promise<FolderServiceResponse<Folder>> {
