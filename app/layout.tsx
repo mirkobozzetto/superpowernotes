@@ -1,8 +1,8 @@
 import { cn } from "@chadcn/lib/utils";
 import { Footer } from "@src/components/navigation/Footer";
 import { Navigation } from "@src/components/navigation/Navigation";
+import { ClientProviders } from "@src/providers/ClientProviders";
 import type { Metadata } from "next";
-import { SessionProvider } from "next-auth/react";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -35,11 +35,11 @@ export default function RootLayout({
         className={cn("flex flex-col min-h-screen pb-16 dots", `${afcadFlux.variable} antialiased`)}
         style={afcadFlux.style}
       >
-        <SessionProvider>
+        <ClientProviders>
           <Navigation />
           <div className="md:mt-16 mt-0">{children}</div>
           <Footer />
-        </SessionProvider>
+        </ClientProviders>
       </body>
     </html>
   );

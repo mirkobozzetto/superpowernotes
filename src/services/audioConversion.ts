@@ -2,7 +2,7 @@ import { AUDIO_MIME_TYPES } from "@src/constants/audioConstants";
 import { logger } from "@src/lib/logger";
 
 const CONVERSION_SERVICE_URL = process.env.CONVERSION_SERVICE_URL || "http://localhost:4000";
-const CONVERSION_TIMEOUT = 30000; // 30 secondes
+const CONVERSION_TIMEOUT = 30000;
 
 export class AudioConversionError extends Error {
   constructor(

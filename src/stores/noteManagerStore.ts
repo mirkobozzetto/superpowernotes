@@ -37,6 +37,7 @@ type Actions = {
   computeRootFolders: (folders: Folder[]) => Folder[];
   computeSubFolders: (folders: Folder[]) => FolderMap;
   createFolder: (data: Pick<Folder, "name" | "description">) => Promise<void>;
+  setNotes: (notes: VoiceNote[]) => void;
 };
 
 type NoteManagerStore = State & Actions;
@@ -213,4 +214,6 @@ export const useNoteManagerStore = create<NoteManagerStore>((set, get) => ({
       store.setLoading(false);
     }
   },
+
+  setNotes: (notes) => set({ notes }),
 }));

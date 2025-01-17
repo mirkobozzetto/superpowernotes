@@ -6,17 +6,20 @@ import { NoteModal } from "@src/components/dashboard/_modals/NoteModal";
 import { SearchForm } from "@src/components/dashboard/_search/SearchForm";
 import { DashboardActions } from "@src/components/dashboard/DashboardActions";
 import { FolderHeader } from "@src/components/dashboard/FolderHeader";
-import { NoteList } from "@src/components/dashboard/NoteList";
+import { NoteListWithQuery } from "@src/components/dashboard/NoteListWithQuery";
 import { useDashboardHandlers } from "@src/hooks/_useDashboard/useDashboardHandlers";
+import { useNotesRefetch } from "@src/lib/query/hooks/notes/useNotesRefetch";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { useState } from "react";
 
 export default function Dashboard() {
-  const { notes, isLoading, error, searchParams, handleSearch, deleteNote } = useNoteManagerStore();
+  const { isLoading, error, searchParams, handleSearch, deleteNote } = useNoteManagerStore();
+  const { invalidateNotes } = useNotesRefetch();
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
 
   const {
     handleNoteClick,
-    handleRecordingComplete,
+    handleRecordingComplete: baseHandleRecordingComplete,
     closeNoteModal,
     handleSaveAndClose,
     handleInputChange,
@@ -26,6 +29,11 @@ export default function Dashboard() {
   const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
+
+  const handleRecordingComplete = async () => {
+    await invalidateNotes();
+    baseHandleRecordingComplete();
+  };
 
   return (
     <div className="space-y-4 mx-auto p-4 container md:pt-4 pt-20 pb-20">
@@ -47,14 +55,15 @@ export default function Dashboard() {
         onRecordingComplete={handleRecordingComplete}
       />
 
-      <NoteList
-        notes={notes}
+      <NoteListWithQuery
         isLoading={isLoading}
+        selectedFolderId={selectedFolderId}
         handleNoteClick={(note) => handleNoteClick(note, setEditingNote, setIsNoteModalOpen)}
         setEditingNote={setEditingNote}
         setIsNoteModalOpen={setIsNoteModalOpen}
         setDeleteNoteId={setDeleteNoteId}
         setIsDeleteModalOpen={setIsDeleteModalOpen}
+        onRecordingComplete={handleRecordingComplete}
       />
 
       <NoteModal
