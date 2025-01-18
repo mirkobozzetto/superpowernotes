@@ -17,7 +17,7 @@ export const useDashboardActions = ({
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const { selectedFolderId } = useNoteManagerStore();
+  const { selectedFolderId, fetchNotes } = useNoteManagerStore();
 
   const handleProjectClick = () => {
     setIsProjectModalOpen(true);
@@ -45,8 +45,16 @@ export const useDashboardActions = ({
   };
 
   const handleRecordingFinish = () => {
-    onRecordingComplete();
     setIsRecordingModalOpen(false);
+    setIsExpanded(false);
+    const interval = setInterval(() => {
+      onRecordingComplete();
+      fetchNotes();
+    }, 3000);
+
+    setTimeout(() => {
+      clearInterval(interval);
+    }, 10000);
   };
 
   return {

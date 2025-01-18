@@ -1,38 +1,85 @@
 "use client";
 
 import { VoiceNote } from "@prisma/client";
+import { DashboardActions } from "@src/components/dashboard/_actionsButton/DashboardActions";
 import { ConfirmModal } from "@src/components/dashboard/_modals/ConfirmModal";
 import { NoteModal } from "@src/components/dashboard/_modals/NoteModal";
 import { SearchForm } from "@src/components/dashboard/_search/SearchForm";
-import { DashboardActions } from "@src/components/dashboard/DashboardActions";
 import { FolderHeader } from "@src/components/dashboard/FolderHeader";
-import { NoteListWithQuery } from "@src/components/dashboard/NoteListWithQuery";
-import { useDashboardHandlers } from "@src/hooks/_useDashboard/useDashboardHandlers";
-import { useNotesRefetch } from "@src/lib/query/hooks/notes/useNotesRefetch";
+import { NoteList } from "@src/components/dashboard/NoteList";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export default function Dashboard() {
-  const { isLoading, error, searchParams, handleSearch, deleteNote } = useNoteManagerStore();
-  const { invalidateNotes } = useNotesRefetch();
-  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
-
   const {
-    handleNoteClick,
-    handleRecordingComplete: baseHandleRecordingComplete,
-    closeNoteModal,
-    handleSaveAndClose,
-    handleInputChange,
-  } = useDashboardHandlers();
+    initialize,
+    notes,
+    isLoading,
+    error,
+    searchParams,
+    handleSearch,
+    updateSearchParams,
+    saveNote,
+    deleteNote,
+    fetchNotes,
+  } = useNoteManagerStore();
 
   const [editingNote, setEditingNote] = useState<VoiceNote | undefined>(undefined);
   const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
 
-  const handleRecordingComplete = async () => {
-    await invalidateNotes();
-    baseHandleRecordingComplete();
+  useEffect(() => {
+    const initializeData = async () => {
+      await initialize();
+    };
+    initializeData();
+  }, [initialize]);
+
+  useEffect(() => {
+    const handleNoteMoved = () => {
+      fetchNotes();
+    };
+
+    window.addEventListener("noteMoved", handleNoteMoved);
+    return () => window.removeEventListener("noteMoved", handleNoteMoved);
+  }, [fetchNotes]);
+
+  useEffect(() => {
+    const handleNoteMoved = () => {
+      fetchNotes();
+    };
+
+    window.addEventListener("noteMoved", handleNoteMoved);
+    return () => window.removeEventListener("noteMoved", handleNoteMoved);
+  }, [fetchNotes]);
+
+  const handleNoteClick = (note: VoiceNote) => {
+    setEditingNote(note);
+    setIsNoteModalOpen(true);
+  };
+
+  const handleRecordingComplete = useCallback(() => {
+    fetchNotes();
+  }, [fetchNotes]);
+
+  const closeNoteModal = () => {
+    setIsNoteModalOpen(false);
+    setEditingNote(undefined);
+  };
+
+  const handleSaveAndClose = async (note: Partial<VoiceNote>) => {
+    try {
+      await saveNote(note);
+      closeNoteModal();
+    } catch (error) {
+      console.error("Failed to save note:", error);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    updateSearchParams(name, value);
   };
 
   return (
@@ -50,29 +97,26 @@ export default function Dashboard() {
 
       <DashboardActions
         isLoading={isLoading}
-        setEditingNote={(note: Partial<VoiceNote>) => setEditingNote(note as VoiceNote | undefined)}
+        setEditingNote={(note) => setEditingNote(note)}
         setIsNoteModalOpen={setIsNoteModalOpen}
         onRecordingComplete={handleRecordingComplete}
       />
 
-      <NoteListWithQuery
+      <NoteList
+        notes={notes}
         isLoading={isLoading}
-        selectedFolderId={selectedFolderId}
-        handleNoteClick={(note) => handleNoteClick(note, setEditingNote, setIsNoteModalOpen)}
+        handleNoteClick={handleNoteClick}
         setEditingNote={setEditingNote}
         setIsNoteModalOpen={setIsNoteModalOpen}
         setDeleteNoteId={setDeleteNoteId}
         setIsDeleteModalOpen={setIsDeleteModalOpen}
-        onRecordingComplete={handleRecordingComplete}
       />
-
       <NoteModal
         isOpen={isNoteModalOpen}
-        onClose={() => closeNoteModal(setIsNoteModalOpen, setEditingNote)}
-        onSave={(note) => handleSaveAndClose(note, setIsNoteModalOpen, setEditingNote)}
+        onClose={closeNoteModal}
+        onSave={handleSaveAndClose}
         note={editingNote}
       />
-
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}

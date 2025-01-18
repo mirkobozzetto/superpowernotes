@@ -1,5 +1,6 @@
 import { type VoiceNote } from "@prisma/client";
 import { useNotes } from "@src/lib/query/hooks/notes/useNotes";
+import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { useEffect } from "react";
 import { NoteList } from "./NoteList";
 
@@ -24,7 +25,10 @@ export const NoteListWithQuery = ({
   selectedFolderId,
   onRecordingComplete,
 }: NoteListWithQueryProps) => {
-  const { notes, isLoading: queryLoading, startPolling } = useNotes(selectedFolderId);
+  const storeNotes = useNoteManagerStore((state) => state.notes);
+  const { notes: folderNotes, isLoading: queryLoading, startPolling } = useNotes(selectedFolderId);
+
+  const displayNotes = selectedFolderId ? folderNotes : storeNotes;
 
   useEffect(() => {
     if (onRecordingComplete) {
@@ -34,7 +38,7 @@ export const NoteListWithQuery = ({
 
   return (
     <NoteList
-      notes={notes}
+      notes={displayNotes}
       isLoading={queryLoading || baseIsLoading}
       handleNoteClick={handleNoteClick}
       setEditingNote={setEditingNote}
