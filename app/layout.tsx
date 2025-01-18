@@ -1,6 +1,7 @@
 import { cn } from "@chadcn/lib/utils";
 import { Footer } from "@src/components/navigation/Footer";
 import { Navigation } from "@src/components/navigation/Navigation";
+
 import { ClientProviders } from "@src/providers/ClientProviders";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
