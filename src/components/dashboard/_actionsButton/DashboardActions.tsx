@@ -59,8 +59,8 @@ export const DashboardActions = ({
       />
 
       <RecordingModal
-        isOpen={isRecordingModalOpen}
-        onOpenChange={setIsRecordingModalOpen}
+        isRecordingModalOpen={isRecordingModalOpen}
+        setIsRecordingModalOpen={setIsRecordingModalOpen}
         handleRecordingFinish={handleRecordingFinish}
         setIsRecording={setIsRecording}
       />
