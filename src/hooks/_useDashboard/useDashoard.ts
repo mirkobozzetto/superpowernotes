@@ -1,110 +1,104 @@
-import type { VoiceNote } from "@prisma/client";
-import { useProjects } from "@src/hooks/_useProjects/useProjects";
-import { voiceNotesService } from "@src/services/voiceNotesService";
-import type { SearchParamsType } from "@src/validations/routes/voiceNoteRoutes";
+import { VoiceNote } from "@prisma/client";
+import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { useCallback, useEffect, useState } from "react";
 
-export function useDashboard() {
-  const [notes, setNotes] = useState<VoiceNote[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [searchParams, setSearchParams] = useState<SearchParamsType>({
-    tags: "",
-    startDate: "",
-    endDate: "",
-    keyword: "",
-  });
+export const useDashboard = () => {
+  const {
+    initialize,
+    notes,
+    isLoading,
+    error,
+    searchParams,
+    handleSearch,
+    updateSearchParams,
+    saveNote,
+    deleteNote,
+    fetchNotes,
+  } = useNoteManagerStore();
 
-  const { selectedFolderId } = useProjects();
-
-  const fetchAllNotes = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      if (selectedFolderId) {
-        const response = await fetch(`/api/folders/${selectedFolderId}/notes`);
-        const folderNotes = await response.json();
-        setNotes(folderNotes);
-      } else {
-        const { notes: fetchedNotes } = await voiceNotesService.getAllNotes();
-        setNotes(fetchedNotes);
-      }
-    } catch (error) {
-      setError("Failed to fetch notes. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [selectedFolderId]);
+  const [editingNote, setEditingNote] = useState<VoiceNote | undefined>(undefined);
+  const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
 
   useEffect(() => {
-    fetchAllNotes();
-  }, [fetchAllNotes]);
+    const initializeData = async () => {
+      await initialize();
+    };
+    initializeData();
+  }, [initialize]);
 
-  const handleSearch = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      setIsLoading(true);
-      setError(null);
-      try {
-        const params = new URLSearchParams({
-          ...searchParams,
-          ...(selectedFolderId && { folderId: selectedFolderId }),
-        } as Record<string, string>);
-        const response = await fetch(`/api/notes?${params}`);
-        const data = await response.json();
-        setNotes(data.voiceNotes);
-      } catch (error) {
-        setError("Search failed. Please try again.");
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [searchParams, selectedFolderId]
-  );
+  useEffect(() => {
+    const handleNoteMoved = () => {
+      fetchNotes();
+    };
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setSearchParams((prev) => ({ ...prev, [name]: value }));
+    window.addEventListener("noteMoved", handleNoteMoved);
+    return () => window.removeEventListener("noteMoved", handleNoteMoved);
+  }, [fetchNotes]);
+
+  const handleNoteClick = useCallback((note: VoiceNote) => {
+    setEditingNote(note);
+    setIsNoteModalOpen(true);
   }, []);
 
-  const handleSaveNote = useCallback(
-    async (updatedNote: Partial<VoiceNote>) => {
-      setIsLoading(true);
-      setError(null);
+  const handleRecordingComplete = useCallback(() => {
+    fetchNotes();
+  }, [fetchNotes]);
+
+  const closeNoteModal = useCallback(() => {
+    setIsNoteModalOpen(false);
+    setEditingNote(undefined);
+  }, []);
+
+  const handleSaveAndClose = useCallback(
+    async (note: Partial<VoiceNote>) => {
       try {
-        await voiceNotesService.saveNote(updatedNote);
-        await fetchAllNotes();
+        await saveNote(note);
+        closeNoteModal();
       } catch (error) {
-        setError("Failed to save note. Please try again.");
-      } finally {
-        setIsLoading(false);
+        console.error("Failed to save note:", error);
       }
     },
-    [fetchAllNotes]
+    [saveNote, closeNoteModal]
   );
 
-  const handleDelete = useCallback(async (noteId: string) => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      await voiceNotesService.deleteNote(noteId);
-      setNotes((prevNotes) => prevNotes.filter((note) => note.id !== noteId));
-    } catch (error) {
-      setError("Failed to delete note. Please try again.");
-    } finally {
-      setIsLoading(false);
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = e.target;
+      updateSearchParams(name, value);
+    },
+    [updateSearchParams]
+  );
+
+  const handleDeleteConfirm = useCallback(async () => {
+    if (deleteNoteId) {
+      await deleteNote(deleteNoteId);
+      setIsDeleteModalOpen(false);
     }
-  }, []);
+  }, [deleteNote, deleteNoteId]);
 
   return {
     notes,
     isLoading,
     error,
     searchParams,
+    editingNote,
+    deleteNoteId,
+    isDeleteModalOpen,
+    isNoteModalOpen,
+
+    setEditingNote,
+    setDeleteNoteId,
+    setIsDeleteModalOpen,
+    setIsNoteModalOpen,
+
     handleSearch,
+    handleNoteClick,
+    handleRecordingComplete,
+    closeNoteModal,
+    handleSaveAndClose,
     handleInputChange,
-    handleSaveNote,
-    handleDelete,
-    fetchAllNotes,
+    handleDeleteConfirm,
   };
-}
+};

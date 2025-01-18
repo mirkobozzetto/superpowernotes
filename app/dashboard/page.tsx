@@ -1,86 +1,34 @@
 "use client";
 
-import { VoiceNote } from "@prisma/client";
 import { DashboardActions } from "@src/components/dashboard/_actionsButton/DashboardActions";
 import { ConfirmModal } from "@src/components/dashboard/_modals/ConfirmModal";
 import { NoteModal } from "@src/components/dashboard/_modals/NoteModal";
 import { SearchForm } from "@src/components/dashboard/_search/SearchForm";
 import { FolderHeader } from "@src/components/dashboard/FolderHeader";
 import { NoteList } from "@src/components/dashboard/NoteList";
-import { useNoteManagerStore } from "@src/stores/noteManagerStore";
-import { useCallback, useEffect, useState } from "react";
+import { useDashboard } from "@src/hooks/_useDashboard/useDashoard";
 
 export default function Dashboard() {
   const {
-    initialize,
     notes,
     isLoading,
     error,
     searchParams,
+    editingNote,
+    isDeleteModalOpen,
+    isNoteModalOpen,
+    setEditingNote,
+    setIsNoteModalOpen,
+    setDeleteNoteId,
+    setIsDeleteModalOpen,
     handleSearch,
-    updateSearchParams,
-    saveNote,
-    deleteNote,
-    fetchNotes,
-  } = useNoteManagerStore();
-
-  const [editingNote, setEditingNote] = useState<VoiceNote | undefined>(undefined);
-  const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isNoteModalOpen, setIsNoteModalOpen] = useState(false);
-
-  useEffect(() => {
-    const initializeData = async () => {
-      await initialize();
-    };
-    initializeData();
-  }, [initialize]);
-
-  useEffect(() => {
-    const handleNoteMoved = () => {
-      fetchNotes();
-    };
-
-    window.addEventListener("noteMoved", handleNoteMoved);
-    return () => window.removeEventListener("noteMoved", handleNoteMoved);
-  }, [fetchNotes]);
-
-  useEffect(() => {
-    const handleNoteMoved = () => {
-      fetchNotes();
-    };
-
-    window.addEventListener("noteMoved", handleNoteMoved);
-    return () => window.removeEventListener("noteMoved", handleNoteMoved);
-  }, [fetchNotes]);
-
-  const handleNoteClick = (note: VoiceNote) => {
-    setEditingNote(note);
-    setIsNoteModalOpen(true);
-  };
-
-  const handleRecordingComplete = useCallback(() => {
-    fetchNotes();
-  }, [fetchNotes]);
-
-  const closeNoteModal = () => {
-    setIsNoteModalOpen(false);
-    setEditingNote(undefined);
-  };
-
-  const handleSaveAndClose = async (note: Partial<VoiceNote>) => {
-    try {
-      await saveNote(note);
-      closeNoteModal();
-    } catch (error) {
-      console.error("Failed to save note:", error);
-    }
-  };
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    updateSearchParams(name, value);
-  };
+    handleNoteClick,
+    handleRecordingComplete,
+    closeNoteModal,
+    handleSaveAndClose,
+    handleInputChange,
+    handleDeleteConfirm,
+  } = useDashboard();
 
   return (
     <div className="space-y-4 mx-auto p-4 container md:pt-4 pt-20 pb-20">
@@ -97,7 +45,7 @@ export default function Dashboard() {
 
       <DashboardActions
         isLoading={isLoading}
-        setEditingNote={(note) => setEditingNote(note)}
+        setEditingNote={setEditingNote}
         setIsNoteModalOpen={setIsNoteModalOpen}
         onRecordingComplete={handleRecordingComplete}
       />
@@ -111,16 +59,18 @@ export default function Dashboard() {
         setDeleteNoteId={setDeleteNoteId}
         setIsDeleteModalOpen={setIsDeleteModalOpen}
       />
+
       <NoteModal
         isOpen={isNoteModalOpen}
         onClose={closeNoteModal}
         onSave={handleSaveAndClose}
         note={editingNote}
       />
+
       <ConfirmModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={() => (deleteNoteId ? deleteNote(deleteNoteId) : Promise.resolve())}
+        onConfirm={handleDeleteConfirm}
         title="Confirm Deletion"
         message="Are you sure you want to delete this note?"
       />
