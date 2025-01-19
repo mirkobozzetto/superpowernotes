@@ -38,7 +38,6 @@ export const DraggableNoteItem: React.FC<DraggableNoteItemProps> = ({
       }`}
       onClick={onClick}
     >
-      {/* <div className="md:hidden text-xs text-gray-400 mb-2">Maintenir appuyé pour déplacer</div> */}
       {children}
     </li>
   );
