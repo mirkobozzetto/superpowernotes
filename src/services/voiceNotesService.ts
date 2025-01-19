@@ -61,4 +61,13 @@ export const voiceNotesService = {
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );
   },
+
+  async checkForNewNoteAfter(referenceNoteId: string): Promise<boolean> {
+    try {
+      const { voiceNotes } = await voiceNotesApi.fetchAll();
+      return voiceNotes.length > 0 && voiceNotes[0].id !== referenceNoteId;
+    } catch {
+      return false;
+    }
+  },
 };

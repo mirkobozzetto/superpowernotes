@@ -1,4 +1,5 @@
 import { VoiceNote } from "@prisma/client";
+import { voiceNotesService } from "@src/services/voiceNotesService";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { useEffect, useRef, useState } from "react";
 
@@ -20,17 +21,13 @@ export const useDashboardActions = ({
   const [referenceNote, setReferenceNote] = useState<VoiceNote | null>(null);
   const { selectedFolderId, fetchNotes, notes } = useNoteManagerStore();
   const checkingInterval = useRef<ReturnType<typeof setInterval>>();
-  const initialNoteRef = useRef<string>();
+  const initialNoteId = useRef<string>();
 
   useEffect(() => {
     if (notes.length > 0 && !referenceNote) {
       setReferenceNote(notes[0]);
     }
-    return () => {
-      if (checkingInterval.current) {
-        clearInterval(checkingInterval.current);
-      }
-    };
+    return () => checkingInterval.current && clearInterval(checkingInterval.current);
   }, [notes, referenceNote]);
 
   const handleProjectClick = () => {
@@ -59,21 +56,18 @@ export const useDashboardActions = ({
   };
 
   const waitForNewNote = () => {
-    initialNoteRef.current = notes[0]?.id;
+    initialNoteId.current = notes[0]?.id;
 
     const checkForNewNote = async () => {
-      await fetchNotes();
-      if (notes.length > 0 && notes[0].id !== initialNoteRef.current) {
-        if (checkingInterval.current) {
-          clearInterval(checkingInterval.current);
-          checkingInterval.current = undefined;
-        }
-        initialNoteRef.current = undefined;
+      const hasNewNote = await voiceNotesService.checkForNewNoteAfter(initialNoteId.current!);
+      if (hasNewNote) {
+        checkingInterval.current && clearInterval(checkingInterval.current);
+        await fetchNotes();
         onRecordingComplete();
       }
     };
 
-    checkingInterval.current = setInterval(checkForNewNote, 4000);
+    checkingInterval.current = setInterval(checkForNewNote, 5000);
   };
 
   const handleRecordingFinish = () => {
