@@ -1,5 +1,5 @@
 import { cn } from "@chadcn/lib/utils";
-import { ChevronRight } from "lucide-react";
+import { Menu } from "lucide-react";
 
 export const SidebarTrigger = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) => void }) => {
   return (
@@ -12,8 +12,9 @@ export const SidebarTrigger = ({ setIsOpen }: { setIsOpen: (isOpen: boolean) => 
         "transition-all duration-200",
         "hover:bg-gray-50"
       )}
+      aria-label="Toggle menu"
     >
-      <ChevronRight className="h-5 w-5" />
+      <Menu className="h-5 w-5" strokeWidth={2.5} />
     </button>
   );
 };

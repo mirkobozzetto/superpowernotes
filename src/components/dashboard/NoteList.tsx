@@ -49,7 +49,12 @@ export const NoteList: React.FC<NoteListProps> = ({
       <ul className="space-y-4" style={{ marginBottom: "10vh" }}>
         {notes.map((note) => (
           <DraggableNoteItem key={note.id} note={note} onClick={() => handleNoteClick(note)}>
-            <h3 className="mb-4 font-bold text-lg">{note.fileName || "Untitled"}</h3>
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="font-bold text-lg">{note.fileName || "Untitled"}</h3>
+              <div onClick={(e) => e.stopPropagation()}>
+                <CopyToClipboard text={note.transcription} className="!rounded-full" />
+              </div>
+            </div>
             <p className="mb-4 text-gray-700">{note.transcription}</p>
             <p className="mb-4 text-gray-500 text-sm">Tags: {note.tags?.join(", ") || ""}</p>
             <p className="mb-4 text-gray-400 text-xs">Created: {formatDate(note.createdAt)}</p>
@@ -82,7 +87,6 @@ export const NoteList: React.FC<NoteListProps> = ({
               >
                 Supprimer
               </button>
-              <CopyToClipboard text={note.transcription} className="!rounded-full !p-1 !px-3" />
             </div>
           </DraggableNoteItem>
         ))}
