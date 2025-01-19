@@ -18,17 +18,18 @@ export const useDashboardActions = ({
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
   const [referenceNote, setReferenceNote] = useState<VoiceNote | null>(null);
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const { selectedFolderId, fetchNotes, notes } = useNoteManagerStore();
+  const intervalRef = useRef<ReturnType<typeof setInterval>>();
+  const hasFoundNewNote = useRef(false);
 
   useEffect(() => {
     if (notes.length > 0 && !referenceNote) {
       setReferenceNote(notes[0]);
     }
+
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
-        intervalRef.current = null;
       }
     };
   }, [notes, referenceNote]);
@@ -58,20 +59,21 @@ export const useDashboardActions = ({
     setIsExpanded(false);
   };
 
-  const stopPolling = () => {
-    if (intervalRef.current) {
-      clearInterval(intervalRef.current);
-      intervalRef.current = null;
-    }
-  };
-
   const waitForNewNote = () => {
+    hasFoundNewNote.current = false;
     const checkForNewNote = async () => {
       await fetchNotes();
+
+      if (!notes.length || !referenceNote) return;
+
       const latestNote = notes[0];
-      if (!referenceNote || (latestNote && latestNote.id !== referenceNote.id)) {
-        stopPolling();
+      if (!hasFoundNewNote.current && latestNote.id !== referenceNote.id) {
+        hasFoundNewNote.current = true;
+        setReferenceNote(latestNote);
         onRecordingComplete();
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
       }
     };
 
