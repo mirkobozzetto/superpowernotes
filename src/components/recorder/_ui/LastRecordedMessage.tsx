@@ -1,21 +1,19 @@
 import { VoiceNote } from "@prisma/client";
-import React from "react";
+import { CopyToClipboard } from "@src/components/actions/CopyToClipboard";
 
 export type LastRecordedMessageProps = {
   voiceNote: VoiceNote | null;
   isNewRecording?: boolean;
 };
 
-export const LastRecordedMessage: React.FC<LastRecordedMessageProps> = ({
-  voiceNote,
-  isNewRecording,
-}) => {
+export const LastRecordedMessage: React.FC<LastRecordedMessageProps> = ({ voiceNote }) => {
   if (!voiceNote) return null;
 
   return (
     <div className="bg-gradient-to-r from-blue-50 to-blue-100 shadow-md mt-4 mb-4 p-8 border border-blue-200 rounded-lg w-full max-w-md">
-      <div className="flex justify-center items-start mb-2">
+      <div className="flex justify-between items-start mb-2">
         <h3 className="font-bold text-xl">{voiceNote.fileName}</h3>
+        <CopyToClipboard text={voiceNote.transcription} />
       </div>
       <p className="justify-center my-6 text-center text-md">{voiceNote.transcription}</p>
       <div className="flex flex-wrap justify-center">

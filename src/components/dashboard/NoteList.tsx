@@ -1,4 +1,5 @@
 import { VoiceNote } from "@prisma/client";
+import { CopyToClipboard } from "@src/components/actions/CopyToClipboard";
 import { format, isValid } from "date-fns";
 import React from "react";
 import { DraggableNoteItem } from "./DraggableNote";
@@ -52,7 +53,7 @@ export const NoteList: React.FC<NoteListProps> = ({
             <p className="mb-4 text-gray-700">{note.transcription}</p>
             <p className="mb-4 text-gray-500 text-sm">Tags: {note.tags?.join(", ") || ""}</p>
             <p className="mb-4 text-gray-400 text-xs">Created: {formatDate(note.createdAt)}</p>
-            <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
+            <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
               <button
                 className="px-3 py-1 border rounded-full"
                 onClick={(e) => {
@@ -81,6 +82,7 @@ export const NoteList: React.FC<NoteListProps> = ({
               >
                 Supprimer
               </button>
+              <CopyToClipboard text={note.transcription} className="!rounded-full !p-1 !px-3" />
             </div>
           </DraggableNoteItem>
         ))}
