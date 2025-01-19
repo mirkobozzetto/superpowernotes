@@ -1,6 +1,6 @@
 import { VoiceNote } from "@prisma/client";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type UseDashboardActionsProps = {
   setEditingNote: (note: VoiceNote | undefined) => void;
@@ -17,7 +17,14 @@ export const useDashboardActions = ({
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const { selectedFolderId, fetchNotes } = useNoteManagerStore();
+  const [referenceNote, setReferenceNote] = useState<VoiceNote | null>(null);
+  const { selectedFolderId, fetchNotes, notes } = useNoteManagerStore();
+
+  useEffect(() => {
+    if (notes.length > 0 && !referenceNote) {
+      setReferenceNote(notes[0]);
+    }
+  }, [notes, referenceNote]);
 
   const handleProjectClick = () => {
     setIsProjectModalOpen(true);
@@ -44,17 +51,37 @@ export const useDashboardActions = ({
     setIsExpanded(false);
   };
 
+  const checkForNewNote = async (): Promise<boolean> => {
+    await fetchNotes();
+    if (notes.length === 0) return false;
+
+    const latestNote = notes[0];
+    if (!referenceNote) return true;
+
+    const isNewNote = latestNote.id !== referenceNote.id;
+    if (isNewNote) {
+      setReferenceNote(latestNote);
+      return true;
+    }
+
+    return false;
+  };
+
+  const waitForNewNote = () => {
+    let intervalId: ReturnType<typeof setInterval> | null = setInterval(async () => {
+      const hasNew = await checkForNewNote();
+      if (hasNew && intervalId) {
+        clearInterval(intervalId);
+        intervalId = null;
+        onRecordingComplete();
+      }
+    }, 4000);
+  };
+
   const handleRecordingFinish = () => {
     setIsRecordingModalOpen(false);
     setIsExpanded(false);
-    const interval = setInterval(() => {
-      onRecordingComplete();
-      fetchNotes();
-    }, 3000);
-
-    setTimeout(() => {
-      clearInterval(interval);
-    }, 10000);
+    waitForNewNote();
   };
 
   return {

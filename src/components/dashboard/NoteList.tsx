@@ -7,6 +7,7 @@ import { NoteMoveButton } from "./NoteMoveButton";
 type NoteListProps = {
   notes: VoiceNote[];
   isLoading: boolean;
+  isProcessing?: boolean;
   handleNoteClick: (note: VoiceNote) => void;
   setEditingNote: (note: VoiceNote) => void;
   setIsNoteModalOpen: (isOpen: boolean) => void;
@@ -17,6 +18,7 @@ type NoteListProps = {
 export const NoteList: React.FC<NoteListProps> = ({
   notes,
   isLoading,
+  isProcessing = false,
   handleNoteClick,
   setEditingNote,
   setIsNoteModalOpen,
@@ -28,52 +30,61 @@ export const NoteList: React.FC<NoteListProps> = ({
     return isValid(date) ? format(date, "PPpp") : "Invalid date";
   };
 
-  return isLoading ? (
-    <div className="flex justify-center">
-      <p className="inline-block border-gray-100 bg-gray-50 px-4 py-2 border rounded-full text-center text-gray-500 text-sm animate-pulse">
-        Loading...
-      </p>
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900" />
+      </div>
+    );
+  }
+
+  return (
+    <div className={`space-y-4 relative ${isProcessing ? "opacity-50" : ""}`}>
+      {isProcessing && (
+        <div className="absolute inset-0 flex items-center justify-center bg-white bg-opacity-50 z-10">
+          <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900" />
+        </div>
+      )}
+      <ul className="space-y-4" style={{ marginBottom: "10vh" }}>
+        {notes.map((note) => (
+          <DraggableNoteItem key={note.id} note={note} onClick={() => handleNoteClick(note)}>
+            <h3 className="mb-4 font-bold text-lg">{note.fileName || "Untitled"}</h3>
+            <p className="mb-4 text-gray-700">{note.transcription}</p>
+            <p className="mb-4 text-gray-500 text-sm">Tags: {note.tags?.join(", ") || ""}</p>
+            <p className="mb-4 text-gray-400 text-xs">Created: {formatDate(note.createdAt)}</p>
+            <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
+              <button
+                className="px-3 py-1 border rounded-full"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setEditingNote(note);
+                  setIsNoteModalOpen(true);
+                }}
+              >
+                Éditer
+              </button>
+              <NoteMoveButton
+                note={note}
+                isLoading={isLoading}
+                onMoveComplete={() => {
+                  const event = new Event("noteMoved");
+                  window.dispatchEvent(event);
+                }}
+              />
+              <button
+                className="px-3 py-1 border rounded-full"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setDeleteNoteId(note.id);
+                  setIsDeleteModalOpen(true);
+                }}
+              >
+                Supprimer
+              </button>
+            </div>
+          </DraggableNoteItem>
+        ))}
+      </ul>
     </div>
-  ) : (
-    <ul className="space-y-4" style={{ marginBottom: "10vh" }}>
-      {notes.map((note) => (
-        <DraggableNoteItem key={note.id} note={note} onClick={() => handleNoteClick(note)}>
-          <h3 className="mb-4 font-bold text-lg">{note.fileName || "Untitled"}</h3>
-          <p className="mb-4 text-gray-700">{note.transcription}</p>
-          <p className="mb-4 text-gray-500 text-sm">Tags: {note.tags?.join(", ") || ""}</p>
-          <p className="mb-4 text-gray-400 text-xs">Created: {formatDate(note.createdAt)}</p>
-          <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
-            <button
-              className="px-3 py-1 border rounded-full"
-              onClick={(e) => {
-                e.stopPropagation();
-                setEditingNote(note);
-                setIsNoteModalOpen(true);
-              }}
-            >
-              Éditer
-            </button>
-            <NoteMoveButton
-              note={note}
-              isLoading={isLoading}
-              onMoveComplete={() => {
-                const event = new Event("noteMoved");
-                window.dispatchEvent(event);
-              }}
-            />
-            <button
-              className="px-3 py-1 border rounded-full"
-              onClick={(e) => {
-                e.stopPropagation();
-                setDeleteNoteId(note.id);
-                setIsDeleteModalOpen(true);
-              }}
-            >
-              Supprimer
-            </button>
-          </div>
-        </DraggableNoteItem>
-      ))}
-    </ul>
   );
 };
