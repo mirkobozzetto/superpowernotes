@@ -1,5 +1,6 @@
 import { cn } from "@chadcn/lib/utils";
 import { type Folder } from "@prisma/client";
+import { useFolderCache } from "@src/stores/folderCacheStore";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { ChevronDown, FolderIcon, Globe } from "lucide-react";
 import { useEffect } from "react";
@@ -53,8 +54,9 @@ const FolderItem = ({ folder, depth = 0, onSelect, selectedFolderId }: FolderIte
 };
 
 export function Sidebar({ onProjectSelect }: { onProjectSelect?: () => void }) {
-  const { rootFolders, selectedFolderId, selectFolder, isLoading, error, fetchFolders } =
+  const { rootFolders, selectedFolderId, selectFolder, error, fetchFolders } =
     useNoteManagerStore();
+  const folderCache = useFolderCache((state) => state.cachedFolders);
 
   useEffect(() => {
     fetchFolders();
@@ -65,11 +67,11 @@ export function Sidebar({ onProjectSelect }: { onProjectSelect?: () => void }) {
     onProjectSelect?.();
   };
 
-  if (isLoading || error) {
+  if (!folderCache && error) {
     return (
       <div className="flex h-screen w-64 flex-col border-r bg-white p-4">
         <h2 className="mb-4 text-lg font-semibold">Projects</h2>
-        <div className="text-sm text-gray-500">{isLoading ? "Loading projects..." : error}</div>
+        <div className="text-sm text-gray-500">{error}</div>
       </div>
     );
   }

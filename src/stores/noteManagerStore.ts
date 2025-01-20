@@ -6,6 +6,7 @@ import type {
   VoiceNoteUpdateInput,
 } from "@src/validations/routes/voiceNoteRoutes";
 import { create } from "zustand";
+import { useFolderCache } from "./folderCacheStore";
 
 const SELECTED_FOLDER_KEY = "lastSelectedFolder";
 
@@ -115,11 +116,28 @@ export const useNoteManagerStore = create<NoteManagerStore>((set, get) => ({
 
   fetchFolders: async () => {
     const store = get();
+    const folderCache = useFolderCache.getState();
+
+    if (folderCache.cachedFolders) {
+      set({
+        folders: folderCache.cachedFolders.folders,
+        rootFolders: folderCache.cachedFolders.rootFolders,
+        subFolders: folderCache.cachedFolders.subFolders,
+      });
+    }
+
     store.setLoading(true);
     try {
       const folders = await folderService.getFolders();
       const rootFolders = store.computeRootFolders(folders);
       const subFolders = store.computeSubFolders(folders);
+
+      folderCache.setCachedFolders({
+        folders,
+        rootFolders,
+        subFolders,
+      });
+
       set({ folders, rootFolders, subFolders });
     } catch (error) {
       store.setError("Failed to fetch folders");
@@ -200,13 +218,12 @@ export const useNoteManagerStore = create<NoteManagerStore>((set, get) => ({
     const store = get();
     store.setLoading(true);
     try {
-      const response = await fetch("/api/folders", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!response.ok) throw new Error("Failed to create folder");
+      const result = await folderService.createFolder(data);
+      if (result.error) {
+        store.setError(result.error.message);
+        return;
+      }
+      useFolderCache.getState().clearCache();
       await store.fetchFolders();
     } catch (error) {
       store.setError("Failed to create folder");
