@@ -7,11 +7,23 @@ import type {
 export type FetchNotesResponse = {
   voiceNotes: VoiceNote[];
   remainingTime?: number;
+  hasMore?: boolean;
+  total?: number;
 };
 
 export const voiceNotesApi = {
-  async fetchAll(folderId?: string | null): Promise<FetchNotesResponse> {
-    const url = folderId ? `/api/folders/${folderId}/notes` : "/api/voice-notes";
+  async fetchAll(
+    folderId?: string | null,
+    skip?: number,
+    take?: number
+  ): Promise<FetchNotesResponse> {
+    const queryParams = new URLSearchParams();
+    if (skip !== undefined) queryParams.append("skip", skip.toString());
+    if (take !== undefined) queryParams.append("take", take.toString());
+
+    const url = folderId
+      ? `/api/folders/${folderId}/notes${queryParams.toString() ? `?${queryParams.toString()}` : ""}`
+      : `/api/voice-notes${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
 
     const response = await fetch(url);
     if (!response.ok) {

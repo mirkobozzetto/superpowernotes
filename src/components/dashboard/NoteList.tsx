@@ -1,7 +1,7 @@
 import { VoiceNote } from "@prisma/client";
 import { CopyToClipboard } from "@src/components/actions/CopyToClipboard";
 import { format, isValid } from "date-fns";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { DraggableNoteItem } from "./DraggableNote";
 import { NoteMoveButton } from "./NoteMoveButton";
 
@@ -14,6 +14,8 @@ type NoteListProps = {
   setIsNoteModalOpen: (isOpen: boolean) => void;
   setDeleteNoteId: (id: string) => void;
   setIsDeleteModalOpen: (isOpen: boolean) => void;
+  onLoadMore?: (skip: number) => void;
+  hasMore?: boolean;
 };
 
 export const NoteList: React.FC<NoteListProps> = ({
@@ -25,13 +27,35 @@ export const NoteList: React.FC<NoteListProps> = ({
   setIsNoteModalOpen,
   setDeleteNoteId,
   setIsDeleteModalOpen,
+  onLoadMore,
+  hasMore = false,
 }) => {
+  const loadMoreRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const target = entries[0];
+        if (target.isIntersecting && hasMore && !isLoading && onLoadMore) {
+          onLoadMore(notes.length);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [notes.length, hasMore, isLoading, onLoadMore]);
+
   const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
     return isValid(date) ? format(date, "PPpp") : "Invalid date";
   };
 
-  if (isLoading) {
+  if (isLoading && notes.length === 0) {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900" />
@@ -91,6 +115,13 @@ export const NoteList: React.FC<NoteListProps> = ({
           </DraggableNoteItem>
         ))}
       </ul>
+      {hasMore && (
+        <div ref={loadMoreRef} className="h-10 flex items-center justify-center">
+          {isLoading && (
+            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900" />
+          )}
+        </div>
+      )}
     </div>
   );
 };

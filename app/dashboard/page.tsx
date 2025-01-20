@@ -28,6 +28,8 @@ export default function Dashboard() {
     handleSaveAndClose,
     handleInputChange,
     handleDeleteConfirm,
+    onLoadMore,
+    hasMore,
   } = useDashboard();
 
   return (
@@ -58,6 +60,8 @@ export default function Dashboard() {
         setIsNoteModalOpen={setIsNoteModalOpen}
         setDeleteNoteId={setDeleteNoteId}
         setIsDeleteModalOpen={setIsDeleteModalOpen}
+        onLoadMore={onLoadMore}
+        hasMore={hasMore}
       />
 
       <NoteModal

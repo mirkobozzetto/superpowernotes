@@ -8,19 +8,44 @@ import { voiceNotesApi } from "./routes/voiceNotesApi";
 export type NotesWithTimeLimit = {
   notes: VoiceNote[];
   remainingTime?: number;
+  hasMore?: boolean;
+  total?: number;
 };
 
 export type SearchNotesParams = SearchParamsType & {
   folderId?: string | null;
 };
 
+export type GetNotesOptions = {
+  skip?: number;
+  take?: number;
+};
+
 export const voiceNotesService = {
-  async getAllNotes(folderId?: string | null): Promise<NotesWithTimeLimit> {
+  async getAllNotes(
+    folderIdOrOptions?: string | null | GetNotesOptions
+  ): Promise<NotesWithTimeLimit> {
     try {
-      const { voiceNotes, remainingTime } = await voiceNotesApi.fetchAll(folderId);
+      if (typeof folderIdOrOptions === "string" || folderIdOrOptions === null) {
+        const { voiceNotes, remainingTime } = await voiceNotesApi.fetchAll(folderIdOrOptions);
+        return {
+          notes: this.sortNotesByDate(voiceNotes),
+          remainingTime,
+        };
+      }
+
+      const options = folderIdOrOptions || {};
+      const { voiceNotes, remainingTime, hasMore, total } = await voiceNotesApi.fetchAll(
+        null,
+        options.skip,
+        options.take
+      );
+
       return {
         notes: this.sortNotesByDate(voiceNotes),
         remainingTime,
+        hasMore,
+        total,
       };
     } catch (error) {
       console.error("Error in getAllNotes", error);
