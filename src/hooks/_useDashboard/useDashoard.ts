@@ -2,6 +2,7 @@ import { VoiceNote } from "@prisma/client";
 import { voiceNotesService } from "@src/services/voiceNotesService";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { useCallback, useEffect, useState } from "react";
+import { useSyncNotes } from "./useSyncNotes";
 
 export const useDashboard = () => {
   const {
@@ -20,6 +21,11 @@ export const useDashboard = () => {
     setLoading,
     setError,
   } = useNoteManagerStore();
+
+  const { startSync, isSyncing, isProcessing } = useSyncNotes({
+    notes,
+    fetchNotes,
+  });
 
   const [editingNote, setEditingNote] = useState<VoiceNote>();
   const [deleteNoteId, setDeleteNoteId] = useState<string | null>(null);
@@ -85,8 +91,9 @@ export const useDashboard = () => {
 
   const handleRecordingComplete = useCallback(() => {
     setHasMore(true);
+    startSync();
     fetchNotes();
-  }, [fetchNotes]);
+  }, [fetchNotes, startSync]);
 
   const closeNoteModal = useCallback(() => {
     setIsNoteModalOpen(false);
@@ -136,7 +143,8 @@ export const useDashboard = () => {
 
   return {
     notes,
-    isLoading,
+    isLoading: isLoading || isSyncing,
+    isProcessing,
     error,
     searchParams,
     editingNote,

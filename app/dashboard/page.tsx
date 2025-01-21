@@ -12,6 +12,7 @@ export default function Dashboard() {
   const {
     notes,
     isLoading,
+    isProcessing,
     error,
     searchParams,
     editingNote,
@@ -55,6 +56,7 @@ export default function Dashboard() {
       <NoteList
         notes={notes}
         isLoading={isLoading}
+        isProcessing={isProcessing}
         handleNoteClick={handleNoteClick}
         setEditingNote={setEditingNote}
         setIsNoteModalOpen={setIsNoteModalOpen}

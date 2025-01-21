@@ -1,8 +1,11 @@
 "use client";
+
+import { useSyncNotes } from "@src/hooks/_useDashboard/useSyncNotes";
 import { useLastRecordedMessage } from "@src/hooks/useLastRecordedMessage";
+import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AudioRecorder } from "./AudioRecorder";
 import { LastRecordedMessage } from "./_ui/LastRecordedMessage";
 
@@ -20,19 +23,41 @@ export const DynamicAudioRecorder = ({
   const [shouldRefresh, setShouldRefresh] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
 
-  const { lastMessage, isLoading, error, isNewRecording } = useLastRecordedMessage(
-    userId || "",
-    shouldRefresh,
-    isRecording
-  );
+  const {
+    lastMessage,
+    isLoading: isMessageLoading,
+    error,
+    isNewRecording,
+  } = useLastRecordedMessage(userId || "", shouldRefresh, isRecording);
+
+  const { notes, fetchNotes } = useNoteManagerStore();
+  const { startSync, stopSync, isSyncing, isProcessing } = useSyncNotes({
+    notes,
+    fetchNotes,
+  });
+
+  useEffect(() => {
+    if (!isProcessing && shouldRefresh) {
+      setShouldRefresh(false);
+    }
+  }, [isProcessing, shouldRefresh]);
 
   const handleRecordingComplete = useCallback(() => {
     setShouldRefresh(true);
-  }, []);
+    startSync();
+  }, [startSync]);
 
-  const handleRecordingStateChange = useCallback((recording: boolean) => {
-    setIsRecording(recording);
-  }, []);
+  const handleRecordingStateChange = useCallback(
+    (recording: boolean) => {
+      setIsRecording(recording);
+      if (!recording) {
+        stopSync();
+      }
+    },
+    [stopSync]
+  );
+
+  const isLoading = isMessageLoading || isSyncing || isProcessing;
 
   return (
     <div className="flex flex-col items-center w-full">
@@ -49,7 +74,11 @@ export const DynamicAudioRecorder = ({
               ) : error ? (
                 <p className="text-center text-red-500">{error}</p>
               ) : (
-                <LastRecordedMessage voiceNote={lastMessage} isNewRecording={isNewRecording} />
+                <LastRecordedMessage
+                  voiceNote={lastMessage}
+                  isNewRecording={isNewRecording}
+                  isProcessing={isProcessing}
+                />
               )}
             </div>
           )}
