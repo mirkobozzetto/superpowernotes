@@ -70,7 +70,7 @@ export const DynamicAudioRecorder = ({
           {showLastMessage && (
             <div className="mb-[10vh] w-full max-w-md">
               {isLoading ? (
-                <p className="text-center">Loading last message...</p>
+                <p className="text-center">Chargement...</p>
               ) : error ? (
                 <p className="text-center text-red-500">{error}</p>
               ) : (
@@ -86,7 +86,7 @@ export const DynamicAudioRecorder = ({
       ) : (
         <div className="mx-auto">
           <p className="p-4 font-light text-blue-700 text-center text-xs md:text-sm lg:text-2xl italic">
-            {"Sign in to start recording your audio notes"}
+            {"Vous devez vous connecter pour utiliser cette fonctionnalité."}
           </p>
         </div>
       )}
