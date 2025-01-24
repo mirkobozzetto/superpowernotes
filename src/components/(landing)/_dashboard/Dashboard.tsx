@@ -8,7 +8,7 @@ import { FolderHeader } from "@src/components/dashboard/FolderHeader";
 import { NoteList } from "@src/components/dashboard/NoteList";
 import { useDashboard } from "@src/hooks/_useDashboard/useDashoard";
 
-export default function Dashboard() {
+export const Dashboard = () => {
   const {
     notes,
     isLoading,
@@ -82,4 +82,4 @@ export default function Dashboard() {
       />
     </div>
   );
-}
+};

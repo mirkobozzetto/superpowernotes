@@ -3,6 +3,7 @@ import { useDashboardActions } from "@src/hooks/_useDashboardActions/useDashboar
 import { ProjectManagementModal } from "../_modals/ProjectManagementModal";
 import { ActionButtons } from "./ActionButtons";
 import { ExpandButton } from "./ExpandButton";
+import { RecordActionButton } from "./RecordActionButton";
 import { RecordingModal } from "./RecordingDialog";
 
 type DashboardActionsProps = {
@@ -40,6 +41,13 @@ export const DashboardActions = ({
 
   return (
     <div className="space-y-4">
+      <RecordActionButton
+        isLoading={isLoading}
+        isRecording={isRecording}
+        selectedFolderId={selectedFolderId}
+        handleRecordClick={handleRecordClick}
+      />
+
       <ExpandButton onClick={() => setIsExpanded(!isExpanded)} isLoading={isLoading} />
 
       {isExpanded && (
@@ -47,7 +55,6 @@ export const DashboardActions = ({
           isLoading={isLoading}
           handleProjectClick={handleProjectClick}
           handleCreateNoteClick={handleCreateNoteClick}
-          handleRecordClick={handleRecordClick}
           isRecording={isRecording}
           selectedFolderId={selectedFolderId}
         />

@@ -16,12 +16,8 @@ import AuthButton from "../auth/AuthButton";
 
 const navigationItems = (isAdmin: boolean) => [
   {
-    name: "Record",
-    href: "/",
-  },
-  {
     name: "Dashboard",
-    href: "/dashboard",
+    href: "/",
   },
   ...(isAdmin
     ? [

@@ -1,7 +1,7 @@
 import { cn } from "@chadcn/lib/utils";
+import { DashboardLayout } from "@src/components/(landing)/_dashboard/DashboardLayout";
 import { Footer } from "@src/components/navigation/Footer";
 import { Navigation } from "@src/components/navigation/Navigation";
-
 import { ClientProviders } from "@src/providers/ClientProviders";
 import type { Metadata } from "next";
 import localFont from "next/font/local";
@@ -38,7 +38,9 @@ export default function RootLayout({
       >
         <ClientProviders>
           <Navigation />
-          <div className="md:mt-16 mt-0">{children}</div>
+          <DashboardLayout>
+            <div className="md:mt-16 mt-0">{children}</div>
+          </DashboardLayout>
           <Footer />
         </ClientProviders>
       </body>

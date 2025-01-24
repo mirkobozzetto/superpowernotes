@@ -1,10 +1,10 @@
-import { FileText, Mic, Settings } from "lucide-react";
+import { FileText, Settings } from "lucide-react";
 
 type ActionButtonsProps = {
   isLoading: boolean;
   handleProjectClick: () => void;
   handleCreateNoteClick: () => void;
-  handleRecordClick: () => void;
+  // handleRecordClick: () => void;
   isRecording: boolean;
   selectedFolderId: string | null;
 };
@@ -13,7 +13,7 @@ export const ActionButtons = ({
   isLoading,
   handleProjectClick,
   handleCreateNoteClick,
-  handleRecordClick,
+  // handleRecordClick,
   isRecording,
   selectedFolderId,
 }: ActionButtonsProps) => (
@@ -36,7 +36,7 @@ export const ActionButtons = ({
       Créer une note {selectedFolderId ? "dans le projet" : ""}
     </button>
 
-    <button
+    {/* <button
       onClick={handleRecordClick}
       className="flex items-center justify-center gap-2 bg-white hover:bg-gray-100 px-4 py-2 border rounded-full w-full font-bold transition-colors duration-200"
       disabled={isLoading}
@@ -45,6 +45,6 @@ export const ActionButtons = ({
       {isRecording
         ? "Enregistrement en cours..."
         : `Enregistrer une note${selectedFolderId ? " dans le projet" : ""}`}
-    </button>
+    </button> */}
   </div>
 );

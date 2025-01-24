@@ -11,7 +11,7 @@ type DashboardLayoutProps = {
   children: ReactNode;
 };
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isOpen, setIsOpen] = useState(false);
   useSelectedFolder();
 
@@ -50,4 +50,4 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
     </DndProvider>
   );
-}
+};
