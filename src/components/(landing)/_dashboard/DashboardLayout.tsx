@@ -3,6 +3,7 @@
 import { Sidebar } from "@src/components/dashboard/_sidebar/Sidebar";
 import { SidebarTrigger } from "@src/components/dashboard/_sidebar/SidebarTrigger";
 import { useSelectedFolder } from "@src/hooks/_useFolder/useSelectedFolder";
+import { usePathname } from "next/navigation";
 import { type ReactNode, useState } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
@@ -13,6 +14,7 @@ type DashboardLayoutProps = {
 
 export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const pathname = usePathname();
   useSelectedFolder();
 
   const handleProjectSelect = () => {
@@ -22,6 +24,10 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const handleOverlayClick = () => {
     setIsOpen(false);
   };
+
+  if (pathname !== "/") {
+    return children;
+  }
 
   return (
     <DndProvider backend={HTML5Backend}>

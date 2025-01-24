@@ -8,7 +8,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="flex">
-      {/* Sidebar */}
       <nav className="fixed bg-gradient-to-bl from-gray-900/95 to-gray-950/95 backdrop-blur-sm p-4 w-64 h-[calc(100vh-4rem)]">
         <ul className="space-y-4 mt-8 text-lg text-white/70">
           <li>
