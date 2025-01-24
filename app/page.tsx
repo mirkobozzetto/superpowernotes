@@ -12,7 +12,7 @@ export default async function Home() {
   const session = await auth();
 
   return (
-    <main className="flex flex-col flex-grow items-center mx-auto px-4 sm:px-6 lg:px-8 pb-8 h-[calc(100vh-64px)] container">
+    <main className="flex flex-col flex-grow items-center mx-auto px-4 sm:px-6 lg:px-8 pb-8 h-[calc(110vh-64px)] container">
       {!session && (
         <div className="w-full">
           <RotatingHeadline phrases={[...headlines]} className="mt-12" />

@@ -13,7 +13,7 @@ export const RemainingTimeDisplay: React.FC<RemainingTimeDisplayProps> = ({ rema
   const seconds = remainingTime % 60;
 
   return (
-    <div className="flex justify-center items-center my-4">
+    <div className="flex justify-center items-center mt-8">
       <div className="flex items-center bg-blue-100 px-4 py-2 rounded-full font-medium text-blue-800 text-sm">
         <svg
           className="mr-2 w-4 h-4"

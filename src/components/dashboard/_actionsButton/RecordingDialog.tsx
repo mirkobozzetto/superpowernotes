@@ -22,8 +22,8 @@ export const RecordingModal = ({
   setIsRecording,
 }: RecordingModalProps) => (
   <Dialog open={isRecordingModalOpen} onOpenChange={setIsRecordingModalOpen}>
-    <DialogOverlay className="bg-black/30 backdrop-blur-[6px]" />
-    <DialogContent className="w-full max-w-[40vw] bg-white rounded-lg border-0 shadow-lg">
+    <DialogOverlay className="fixed inset-0 bg-black/30 backdrop-blur-[8px] z-[60]" />
+    <DialogContent className="fixed z-[70] w-[90vw] xl:w-[30vw] lg:w-[40vw] md:w-[50vw] bg-white rounded-lg border-0 shadow-lg">
       <DialogHeader>
         <DialogTitle>Enregistrer une note vocale</DialogTitle>
         <DialogDescription>

@@ -34,7 +34,7 @@ export const Dashboard = () => {
   } = useDashboard();
 
   return (
-    <div className="space-y-4 mx-auto p-4 container md:pt-4 pt-20 pb-20">
+    <div className="mx-auto p-4 container md:pt-4 pt-20 pb-20">
       {error && <div className="mb-4 text-red-500">{error}</div>}
 
       <FolderHeader />

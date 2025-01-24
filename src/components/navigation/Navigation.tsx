@@ -29,7 +29,7 @@ const navigationItems = (isAdmin: boolean) => [
     : []),
 ];
 
-export function Navigation() {
+export const Navigation = () => {
   const pathname = usePathname();
   const { data: session, status } = useSession();
   const isAdmin = session?.user?.role === "ADMIN";
@@ -42,8 +42,7 @@ export function Navigation() {
     <nav
       className={cn(
         "fixed top-0 left-0 right-0 z-50 h-16",
-        "bg-gradient-to-bl from-gray-900/95 to-gray-950/95",
-        "backdrop-blur-sm"
+        "bg-gradient-to-bl from-gray-900/95 to-gray-950/95"
       )}
     >
       <div className="relative flex justify-between items-center mx-auto px-3 h-full container">
@@ -87,4 +86,4 @@ export function Navigation() {
       </div>
     </nav>
   );
-}
+};

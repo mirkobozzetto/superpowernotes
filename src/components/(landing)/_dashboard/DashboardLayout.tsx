@@ -36,7 +36,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"
               onClick={handleOverlayClick}
             />
-            <div className="relative h-full w-[300px] bg-white shadow-xl">
+            <div className="relative h-full w-[270px] bg-white shadow-xl">
               <Sidebar onProjectSelect={handleProjectSelect} />
             </div>
           </div>

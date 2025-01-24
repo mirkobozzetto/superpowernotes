@@ -40,7 +40,7 @@ export const DashboardActions = ({
   });
 
   return (
-    <div className="space-y-4">
+    <div className="mb-4">
       <RecordActionButton
         isLoading={isLoading}
         isRecording={isRecording}
