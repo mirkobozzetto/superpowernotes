@@ -48,7 +48,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         )}
         <SidebarTrigger setIsOpen={setIsOpen} />
         <main className="flex-1 overflow-y-auto">
-          <div className="container mx-auto p-4">{children}</div>
+          <div className="container mx-auto">{children}</div>
         </main>
       </div>
     </DndProvider>
