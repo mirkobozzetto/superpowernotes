@@ -39,7 +39,7 @@ export default function RootLayout({
         <ClientProviders>
           <Navigation />
           <DashboardLayout>
-            <div className="md:mt-16 mt-0">{children}</div>
+            <div className="mt-0">{children}</div>
           </DashboardLayout>
           <Footer />
         </ClientProviders>

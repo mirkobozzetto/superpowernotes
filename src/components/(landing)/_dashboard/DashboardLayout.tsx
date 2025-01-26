@@ -31,13 +31,12 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="flex h-screen overflow-hidden bg-background">
+      <div className="flex h-[calc(100vh-4rem)] mt-16 overflow-hidden bg-background">
         <div className="hidden md:block">
           <Sidebar />
         </div>
-
         {isOpen && (
-          <div className="md:hidden fixed inset-0 z-40">
+          <div className="md:hidden fixed inset-0 top-16 z-40">
             <div
               className="absolute inset-0 bg-black/20 backdrop-blur-[2px]"
               onClick={handleOverlayClick}
@@ -47,9 +46,7 @@ export const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </div>
           </div>
         )}
-
         <SidebarTrigger setIsOpen={setIsOpen} />
-
         <main className="flex-1 overflow-y-auto">
           <div className="container mx-auto p-4">{children}</div>
         </main>
