@@ -19,7 +19,6 @@ export const ScrollIndicator = ({ targetRef }: ScrollIndicatorProps) => {
       const elapsed = currentTime - startTime;
       const progress = Math.min(elapsed / duration, 1);
 
-      // Cubic easing
       const t = progress < 0.5 ? 4 * progress ** 3 : 1 - (-2 * progress + 2) ** 3 / 2;
 
       window.scrollTo(0, start + distance * t);

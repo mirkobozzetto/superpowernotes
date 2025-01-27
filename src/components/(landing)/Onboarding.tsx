@@ -4,7 +4,6 @@ import { useRef } from "react";
 import { LandingCTA } from "./_sections/LandingCTA";
 import { LandingFeatures } from "./_sections/LandingFeatures";
 import { ScrollIndicator } from "./_sections/ScrollIndicator";
-import { YouTubeModal } from "./_sections/YouTubeModal";
 export const Onboarding = () => {
   const ctaRef = useRef<HTMLDivElement>(null);
 
@@ -17,8 +16,8 @@ export const Onboarding = () => {
         <LandingFeatures />
       </div>
 
-      <div className="mb-56 px-4 min-h-[200px]">
-        <YouTubeModal videoId="-3nD2ejroFk" className="mx-auto max-w-3xl" />
+      <div className="mb-8 px-4">
+        {/* <YouTubeModal videoId="-3nD2ejroFk" className="mx-auto max-w-3xl" /> */}
       </div>
       <ScrollIndicator targetRef={ctaRef} />
     </div>

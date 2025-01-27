@@ -1,12 +1,11 @@
+"use client";
+
 import { Card, CardContent } from "@chadcn/components/ui/card";
 import { NewsletterForm } from "@src/components/newsletter/NewsletterForm";
-import { useScrollThreshold } from "@src/hooks/_ui/useScrollThreshold";
 import { motion } from "framer-motion";
 import { features } from "./featureData";
 
 export const LandingFeatures = () => {
-  const hasScrolled10vh = useScrollThreshold(10);
-
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -55,7 +54,8 @@ export const LandingFeatures = () => {
       <motion.div
         variants={container}
         initial="hidden"
-        animate={hasScrolled10vh ? "show" : "hidden"}
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
         className="gap-6 grid grid-cols-1 md:grid-cols-2 mx-auto mb-16 max-w-4xl"
       >
         {features.map((feature) => (
@@ -76,17 +76,15 @@ export const LandingFeatures = () => {
       <motion.div
         variants={newsletterAnimation}
         initial="hidden"
-        animate={hasScrolled10vh ? "show" : "hidden"}
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
         className="relative"
       >
         <motion.div
           className="-z-10 absolute"
           initial={{ opacity: 0, scale: 0.8 }}
-          animate={
-            hasScrolled10vh
-              ? { opacity: 1, scale: 1, transition: { delay: 1.8, duration: 0.5 } }
-              : { opacity: 0, scale: 0.8 }
-          }
+          whileInView={{ opacity: 1, scale: 1, transition: { delay: 1.8, duration: 0.5 } }}
+          viewport={{ once: true }}
         />
         <NewsletterForm className="relative" />
       </motion.div>

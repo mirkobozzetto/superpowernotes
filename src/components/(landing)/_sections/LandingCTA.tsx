@@ -5,7 +5,7 @@ import { DemoRecorder } from "../_onboarding/DemoRecorder";
 
 export const LandingCTA = () => {
   return (
-    <div className="relative space-y-6 mt-4 mb-12 pt-2 text-center">
+    <div className="relative space-y-6 mt-4 mb-36 pt-2 text-center">
       <DemoRecorder />
       <p>Essayez-moi, il suffit de cliquer !</p>
       <AuthButton className="inline-flex relative justify-center items-center bg-gradient-to-r from-blue-600 to-blue-800 rounded-full w-48 h-14 text-md text-white transform transition-all hover:-translate-y-1 active:translate-y-0 duration-200 overflow-hidden ease-in-out">
