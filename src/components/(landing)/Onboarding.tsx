@@ -3,7 +3,6 @@
 import { useRef } from "react";
 import { LandingCTA } from "./_sections/LandingCTA";
 import { LandingFeatures } from "./_sections/LandingFeatures";
-import { ScrollIndicator } from "./_sections/ScrollIndicator";
 export const Onboarding = () => {
   const ctaRef = useRef<HTMLDivElement>(null);
 
@@ -19,7 +18,7 @@ export const Onboarding = () => {
       <div className="mb-8 px-4">
         {/* <YouTubeModal videoId="-3nD2ejroFk" className="mx-auto max-w-3xl" /> */}
       </div>
-      <ScrollIndicator targetRef={ctaRef} />
+      {/* <ScrollIndicator targetRef={ctaRef} /> */}
     </div>
   );
 };
