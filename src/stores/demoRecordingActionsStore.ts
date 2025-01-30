@@ -1,4 +1,4 @@
-import { COOLDOWN_TIME, MAX_DEMO_DURATION } from "@src/constants/demoConstants";
+import { MAX_DEMO_DURATION } from "@src/constants/demoConstants";
 import { demoTranscriptionService } from "@src/services/demoTranscriptionService";
 import { DemoRecordingStore } from "@src/types/demoRecordingActions";
 import { create } from "zustand";
@@ -14,7 +14,7 @@ export const useDemoRecordingActionsStore = create<DemoRecordingStore>((set, get
   trialCount: 0,
   showLimitModal: false,
   isCooldownActive: false,
-  cooldownTimeLeft: COOLDOWN_TIME,
+  cooldownTimeLeft: 0,
   chunks: [],
   shouldProcess: true,
   timer: null,
@@ -29,37 +29,11 @@ export const useDemoRecordingActionsStore = create<DemoRecordingStore>((set, get
   setShowLimitModal: (show) => set({ showLimitModal: show }),
   decrementTrialCount: () => set((state) => ({ trialCount: state.trialCount - 1 })),
 
-  startCountdown: () => {
-    set({ isCooldownActive: true, cooldownTimeLeft: COOLDOWN_TIME });
-    const countdownInterval = setInterval(() => {
-      set((state) => {
-        if (state.cooldownTimeLeft <= 1) {
-          clearInterval(countdownInterval);
-          return { cooldownTimeLeft: 0, isCooldownActive: false };
-        }
-        return { cooldownTimeLeft: state.cooldownTimeLeft - 1 };
-      });
-    }, 1000);
-  },
-
-  handleCountdownComplete: () => {
-    set({ trialLimitReached: false, trialCount: 0, showLimitModal: false });
-  },
+  startCountdown: () => {},
+  handleCountdownComplete: () => {},
 
   startRecording: async (startAudioRecording, getAudioMimeType) => {
-    const {
-      trialLimitReached,
-      setError,
-      setDemoResult,
-      setRecordingTime,
-      setIsRecording,
-      setIsPaused,
-    } = get();
-
-    if (trialLimitReached) {
-      setError("Limite d'essais atteinte. Veuillez réessayer plus tard ou vous inscrire.");
-      return;
-    }
+    const { setError, setDemoResult, setRecordingTime, setIsRecording, setIsPaused } = get();
 
     setError(null);
     setDemoResult(null);
@@ -153,18 +127,8 @@ export const useDemoRecordingActionsStore = create<DemoRecordingStore>((set, get
   },
 
   finishRecording: async (stopAudioRecording, cleanupAudioResources, getAudioMimeType) => {
-    const {
-      chunks,
-      shouldProcess,
-      trialLimitReached,
-      recordingTime,
-      decrementTrialCount,
-      startCountdown,
-      setTrialLimitReached,
-      setError,
-      setDemoResult,
-      setIsProcessing,
-    } = get();
+    const { chunks, shouldProcess, recordingTime, setError, setDemoResult, setIsProcessing } =
+      get();
 
     stopAudioRecording();
     set((state) => {
@@ -178,27 +142,16 @@ export const useDemoRecordingActionsStore = create<DemoRecordingStore>((set, get
       };
     });
 
-    if (chunks.length > 0 && shouldProcess && !trialLimitReached) {
+    if (chunks.length > 0 && shouldProcess) {
       setIsProcessing(true);
       const audioBlob = new Blob(chunks, { type: getAudioMimeType() });
 
       try {
         const result = await demoTranscriptionService(audioBlob, recordingTime);
-        decrementTrialCount();
-        const newTrialCount = get().trialCount;
-        if (newTrialCount <= 0) {
-          setTrialLimitReached(true);
-          startCountdown();
-        }
         setDemoResult(result);
       } catch (error: unknown) {
         console.error("Error processing demo recording:", error);
-        if (error instanceof Error && "status" in error && error.status === 429) {
-          setTrialLimitReached(true);
-          setError("Limite d'essais atteinte. Veuillez réessayer plus tard ou vous inscrire.");
-        } else {
-          setError("Échec du traitement de l'enregistrement. Veuillez réessayer.");
-        }
+        setError("Échec du traitement de l'enregistrement. Veuillez réessayer.");
       } finally {
         setIsProcessing(false);
       }

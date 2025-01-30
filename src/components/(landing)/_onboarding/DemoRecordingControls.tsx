@@ -9,15 +9,15 @@ type RecordingControlsProps = {
   isPaused: boolean;
   isProcessing: boolean;
   recordingTime: number;
-  isCooldownActive: boolean;
-  cooldownTimeLeft: number;
-  trialLimitReached: boolean;
   onRecordClick: () => void;
   onPauseResume: () => void;
   onCancel: () => void;
   onFinish: () => void;
   maxRecordingDuration: number;
   isIOS: boolean;
+  isCooldownActive: boolean;
+  cooldownTimeLeft: number;
+  trialLimitReached: boolean;
 };
 
 export const DemoRecordingControls: React.FC<RecordingControlsProps> = ({
@@ -25,9 +25,6 @@ export const DemoRecordingControls: React.FC<RecordingControlsProps> = ({
   isPaused,
   isProcessing,
   recordingTime,
-  isCooldownActive,
-  cooldownTimeLeft,
-  trialLimitReached,
   onRecordClick,
   onPauseResume,
   onCancel,
@@ -40,14 +37,9 @@ export const DemoRecordingControls: React.FC<RecordingControlsProps> = ({
       <RecordButton
         isRecording={isRecording}
         onClick={onRecordClick}
-        disabled={isCooldownActive || trialLimitReached}
+        disabled={false}
         isIOS={isIOS}
       />
-      {isCooldownActive && (
-        <p className="mt-4 text-blue-600">
-          Vous pourrez enregistrer à nouveau dans {cooldownTimeLeft} secondes.
-        </p>
-      )}
       <div className="flex flex-col items-center w-full">
         <div className="flex justify-center items-center h-12">
           {isRecording && !isProcessing && <RecordingAnimation />}

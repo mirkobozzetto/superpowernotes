@@ -1,12 +1,10 @@
-import { COOLDOWN_TIME, MAX_DEMO_DURATION } from "@src/constants/demoConstants";
+import { MAX_DEMO_DURATION } from "@src/constants/demoConstants";
 import { useDemoAudioHandling } from "@src/hooks/_useDemoRecorder/useDemoAudioHandling";
 import { useDemoRecordingActions } from "@src/hooks/_useDemoRecorder/useDemoRecordingActions";
 import { useAudioHandlingStore } from "@src/stores/audioHandlingStore";
-import { useCountdownStore } from "@src/stores/countdownStore";
 import { useTrialManagementStore } from "@src/stores/trialManagementStore";
 import React, { useCallback, useEffect } from "react";
 import { MicrophonePermissionCheck } from "../../recorder/_utils/MicrophonePermissionCheck";
-import { DemoLimitModal } from "./DemoLimitModal";
 import { DemoRecordingControls } from "./DemoRecordingControls";
 import { DemoTranscriptionResult } from "./DemoTranscriptionResult";
 
@@ -26,21 +24,7 @@ export const DemoRecorder: React.FC = () => {
     cleanupAudioResources,
   } = useDemoAudioHandling();
 
-  const {
-    timeLeft: cooldownTimeLeft,
-    isActive: isCooldownActive,
-    startCountdown,
-    setInitialTime,
-    setOnComplete,
-  } = useCountdownStore();
-
-  const {
-    trialLimitReached,
-    showLimitModal,
-    setShowLimitModal,
-    decrementTrialCount,
-    handleCountdownComplete,
-  } = useTrialManagementStore();
+  const { setShowLimitModal } = useTrialManagementStore();
 
   const {
     isRecording,
@@ -62,28 +46,13 @@ export const DemoRecorder: React.FC = () => {
     getAudioMimeType
   );
 
-  useEffect(() => {
-    setInitialTime(COOLDOWN_TIME);
-    setOnComplete(handleCountdownComplete);
-  }, [setInitialTime, setOnComplete, handleCountdownComplete]);
-
-  useEffect(() => {
-    if (trialLimitReached && !isCooldownActive) {
-      setShowLimitModal(true);
-      startCountdown();
-    }
-  }, [trialLimitReached, isCooldownActive, setShowLimitModal, startCountdown]);
-
   const handleCloseModal = useCallback(() => {
     setShowLimitModal(false);
   }, [setShowLimitModal]);
 
   const handleFinishRecording = useCallback(async () => {
     await finishRecording();
-    if (!trialLimitReached) {
-      decrementTrialCount();
-    }
-  }, [finishRecording, trialLimitReached, decrementTrialCount]);
+  }, [finishRecording]);
 
   const handleRecordButtonClick = useCallback(() => {
     if (isRecording) {
@@ -111,15 +80,15 @@ export const DemoRecorder: React.FC = () => {
           isPaused={isPaused}
           isProcessing={isProcessing}
           recordingTime={recordingTime}
-          isCooldownActive={isCooldownActive}
-          cooldownTimeLeft={cooldownTimeLeft}
-          trialLimitReached={trialLimitReached}
           onRecordClick={handleRecordButtonClick}
           onPauseResume={pauseResumeRecording}
           onCancel={cancelRecording}
           onFinish={handleFinishRecording}
           maxRecordingDuration={MAX_DEMO_DURATION}
           isIOS={isIOS}
+          isCooldownActive={false}
+          cooldownTimeLeft={0}
+          trialLimitReached={false}
         />
       )}
 
@@ -128,13 +97,6 @@ export const DemoRecorder: React.FC = () => {
       )}
 
       {demoResult && <DemoTranscriptionResult result={demoResult} />}
-
-      <DemoLimitModal
-        isOpen={showLimitModal}
-        onClose={handleCloseModal}
-        cooldownTimeLeft={cooldownTimeLeft}
-        isIOS={isIOS}
-      />
     </div>
   );
 };
