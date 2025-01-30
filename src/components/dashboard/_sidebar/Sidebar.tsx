@@ -70,7 +70,7 @@ export function Sidebar({ onProjectSelect }: { onProjectSelect?: () => void }) {
   if (!folderCache && error) {
     return (
       <div className="flex h-screen w-64 flex-col border-r bg-white p-4">
-        <h2 className="mb-4 text-lg font-semibold">Projects</h2>
+        <h2 className="mb-4 text-lg font-semibold">Projets</h2>
         <div className="text-sm text-gray-500">{error}</div>
       </div>
     );
@@ -78,10 +78,7 @@ export function Sidebar({ onProjectSelect }: { onProjectSelect?: () => void }) {
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-white">
-      <div className="border-b p-4">
-        <h2 className="text-lg font-semibold">Projects</h2>
-      </div>
-      <div className="flex-1 space-y-1 overflow-y-auto p-2 bg-white">
+      <div className="flex-1 space-y-1 overflow-y-auto p-2 bg-white mt-1">
         <DroppableButton
           folderId={null}
           onClick={() => handleSelect(null)}
@@ -99,7 +96,7 @@ export function Sidebar({ onProjectSelect }: { onProjectSelect?: () => void }) {
         <div className="w-full h-px bg-gray-200 my-2" />
 
         {rootFolders.length === 0 ? (
-          <div className="p-4 text-sm text-gray-500">No projects available</div>
+          <div className="p-4 text-sm text-gray-500">Aucun projet disponible</div>
         ) : (
           rootFolders.map((folder) => (
             <FolderItem
