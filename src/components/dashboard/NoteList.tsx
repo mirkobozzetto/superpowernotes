@@ -1,6 +1,7 @@
 import { VoiceNote } from "@prisma/client";
 import { CopyToClipboard } from "@src/components/actions/CopyToClipboard";
 import { format, isValid } from "date-fns";
+import { fr } from "date-fns/locale";
 import React, { useEffect, useRef } from "react";
 import { DraggableNoteItem } from "./DraggableNote";
 import { NoteMoveButton } from "./NoteMoveButton";
@@ -52,7 +53,9 @@ export const NoteList: React.FC<NoteListProps> = ({
 
   const formatDate = (dateString: string | Date) => {
     const date = new Date(dateString);
-    return isValid(date) ? format(date, "PPpp") : "Invalid date";
+    return isValid(date)
+      ? format(date, "d MMMM yyyy 'à' HH'h'mm", { locale: fr })
+      : "Date invalide";
   };
 
   if (isLoading && notes.length === 0) {
@@ -81,7 +84,7 @@ export const NoteList: React.FC<NoteListProps> = ({
             </div>
             <p className="mb-4 text-gray-700">{note.transcription}</p>
             <p className="mb-4 text-gray-500 text-sm">Tags: {note.tags?.join(", ") || ""}</p>
-            <p className="mb-4 text-gray-400 text-xs">Created: {formatDate(note.createdAt)}</p>
+            <p className="mb-4 text-gray-400 text-xs">{formatDate(note.createdAt)}</p>
             <div className="flex flex-wrap gap-2" onClick={(e) => e.stopPropagation()}>
               <button
                 className="px-3 py-1 border rounded-full"
