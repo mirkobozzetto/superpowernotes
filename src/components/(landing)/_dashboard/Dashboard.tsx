@@ -33,24 +33,27 @@ export const Dashboard = () => {
     hasMore,
   } = useDashboard();
 
+  const searchForm = (
+    <SearchForm
+      searchParams={searchParams}
+      handleSearch={handleSearch}
+      handleInputChange={handleInputChange}
+      isLoading={isLoading}
+    />
+  );
+
   return (
     <div className="mx-auto container">
       {error && <div className="mb-4 text-red-500">{error}</div>}
 
       <FolderHeader />
 
-      <SearchForm
-        searchParams={searchParams}
-        handleSearch={handleSearch}
-        handleInputChange={handleInputChange}
-        isLoading={isLoading}
-      />
-
       <DashboardActions
         isLoading={isLoading}
         setEditingNote={setEditingNote}
         setIsNoteModalOpen={setIsNoteModalOpen}
         onRecordingComplete={handleRecordingComplete}
+        searchForm={searchForm}
       />
 
       <NoteList

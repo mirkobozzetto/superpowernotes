@@ -1,6 +1,7 @@
 import { VoiceNote } from "@prisma/client";
 import { useDashboardActions } from "@src/hooks/_useDashboardActions/useDashboardActions";
 import { ProjectManagementModal } from "../_modals/ProjectManagementModal";
+import { CreateNoteButton } from "../CreateNoteButton";
 import { ActionButtons } from "./ActionButtons";
 import { ExpandButton } from "./ExpandButton";
 import { RecordActionButton } from "./RecordActionButton";
@@ -11,6 +12,7 @@ type DashboardActionsProps = {
   setEditingNote: (note: VoiceNote | undefined) => void;
   setIsNoteModalOpen: (isOpen: boolean) => void;
   onRecordingComplete: () => void;
+  searchForm?: React.ReactNode;
 };
 
 export const DashboardActions = ({
@@ -18,6 +20,7 @@ export const DashboardActions = ({
   setEditingNote,
   setIsNoteModalOpen,
   onRecordingComplete,
+  searchForm,
 }: DashboardActionsProps) => {
   const {
     isExpanded,
@@ -30,7 +33,6 @@ export const DashboardActions = ({
     setIsRecording,
     selectedFolderId,
     handleProjectClick,
-    handleCreateNoteClick,
     handleRecordClick,
     handleRecordingFinish,
   } = useDashboardActions({
@@ -38,6 +40,10 @@ export const DashboardActions = ({
     setIsNoteModalOpen,
     onRecordingComplete,
   });
+
+  const handleSetEditingNote = (note: Partial<VoiceNote>) => {
+    setEditingNote(note as VoiceNote);
+  };
 
   return (
     <div className="mb-4">
@@ -48,16 +54,25 @@ export const DashboardActions = ({
         handleRecordClick={handleRecordClick}
       />
 
+      <div className="my-4">
+        <CreateNoteButton
+          isLoading={isLoading}
+          setEditingNote={handleSetEditingNote}
+          setIsNoteModalOpen={setIsNoteModalOpen}
+        />
+      </div>
+
       <ExpandButton onClick={() => setIsExpanded(!isExpanded)} isLoading={isLoading} />
 
       {isExpanded && (
-        <ActionButtons
-          isLoading={isLoading}
-          handleProjectClick={handleProjectClick}
-          handleCreateNoteClick={handleCreateNoteClick}
-          isRecording={isRecording}
-          selectedFolderId={selectedFolderId}
-        />
+        <>
+          <ActionButtons
+            isLoading={isLoading}
+            handleProjectClick={handleProjectClick}
+            selectedFolderId={selectedFolderId}
+          />
+          {searchForm}
+        </>
       )}
 
       <ProjectManagementModal
