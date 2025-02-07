@@ -1,11 +1,20 @@
-import winston from "winston";
-
-export const logger = winston.createLogger({
-  level: process.env.LOG_LEVEL || "info",
-  format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
-  transports: [
-    new winston.transports.Console(),
-    new winston.transports.File({ filename: "error.log", level: "error" }),
-    new winston.transports.File({ filename: "combined.log" }),
-  ],
-});
+let logger;
+if (typeof window === "undefined") {
+  const winston = require("winston");
+  logger = winston.createLogger({
+    level: process.env.LOG_LEVEL || "info",
+    format: winston.format.combine(winston.format.timestamp(), winston.format.json()),
+    transports: [
+      new winston.transports.Console(),
+      new winston.transports.File({ filename: "error.log", level: "error" }),
+      new winston.transports.File({ filename: "combined.log" }),
+    ],
+  });
+} else {
+  logger = {
+    info: (...args: any[]) => console.info(...args),
+    error: (...args: any[]) => console.error(...args),
+    warn: (...args: any[]) => console.warn(...args),
+  };
+}
+export { logger };

@@ -1,5 +1,6 @@
 import { logger } from "@src/lib/logger";
 import { OpenAIServiceError } from "../_openai/openAIError";
+import { generateSummaryPrompt } from "../_openai/summaryPrompt";
 import { generateTagsPrompt } from "../_openai/tagsPrompt";
 import { generateTitlePrompt } from "../_openai/titlePrompt";
 import {
@@ -76,6 +77,26 @@ export const openAIService = {
         error: error instanceof Error ? error.message : "Unknown error",
       });
       return "Note sans titre";
+    }
+  },
+
+  async summarizeTranscription(transcription: string): Promise<string> {
+    try {
+      const validatedTranscription = TranscriptionSchema.parse(transcription);
+      const data = await makeOpenAIRequest(generateSummaryPrompt(validatedTranscription));
+      const summary = data.choices[0].message.content.trim();
+
+      logger.info("Summary generated successfully", {
+        transcriptionLength: validatedTranscription.length,
+        summaryLength: summary.length,
+      });
+
+      return summary;
+    } catch (error) {
+      logger.error("Error generating summary", {
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+      return "Résumé indisponible";
     }
   },
 };

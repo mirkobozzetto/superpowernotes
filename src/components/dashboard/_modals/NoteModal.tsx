@@ -1,4 +1,8 @@
+"use client";
+
 import { VoiceNote } from "@prisma/client";
+import { MagicButton } from "@src/components/actions/MagicButton";
+import { summarizeTranscriptionClient } from "@src/services/_openai/openAISummarizeService";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import TagInput from "../TagInput";
 
@@ -16,24 +20,37 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
     tags: [],
     duration: 0,
   });
-
+  const [isSummarizing, setIsSummarizing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
-      if (note) {
-        setEditedNote(note);
-      } else {
-        setEditedNote({ fileName: "", transcription: "", tags: [], duration: 0 });
-      }
+      setEditedNote(note ?? { fileName: "", transcription: "", tags: [], duration: 0 });
     }
   }, [isOpen, note]);
+
+  const handleMagicSummarize = useCallback(async () => {
+    if (!editedNote.transcription) {
+      alert("Aucune transcription à résumer");
+      return;
+    }
+    setIsSummarizing(true);
+    try {
+      const summary = await summarizeTranscriptionClient(editedNote.transcription);
+      setEditedNote((prev) => ({ ...prev, transcription: summary }));
+    } catch (error) {
+      console.error("Erreur lors de la synthèse:", error);
+      alert("Échec de la synthèse de la note");
+    } finally {
+      setIsSummarizing(false);
+    }
+  }, [editedNote.transcription]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
       if (!editedNote.fileName || !editedNote.transcription) {
-        alert("Please fill in both title and content");
+        alert("Veuillez remplir le titre et le contenu");
         return;
       }
       await onSave(editedNote);
@@ -43,20 +60,14 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
 
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
+      if (event.key === "Escape") onClose();
     },
     [onClose]
   );
 
   useEffect(() => {
-    if (isOpen) {
-      document.addEventListener("keydown", handleKeyDown);
-    }
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
+    if (isOpen) document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, handleKeyDown]);
 
   const handleChange = useCallback(
@@ -84,13 +95,16 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
         className="bg-white shadow-xl mx-4 p-8 rounded-lg w-full max-w-4xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 className="mb-6 font-bold text-2xl text-gray-800">
-          {isTextNote
-            ? editedNote.id
-              ? "Modifier la note"
-              : "Créer une note"
-            : "Modifier la note vocale"}
-        </h2>
+        <div className="mb-6 flex justify-between items-center">
+          <h2 className="font-bold text-2xl text-gray-800">
+            {isTextNote
+              ? editedNote.id
+                ? "Modifier la note"
+                : "Créer une note"
+              : "Modifier la note vocale"}
+          </h2>
+          <MagicButton onClick={handleMagicSummarize} isLoading={isSummarizing} />
+        </div>
         <form onSubmit={handleSubmit} className="flex flex-col space-y-4">
           <input
             ref={inputRef}
