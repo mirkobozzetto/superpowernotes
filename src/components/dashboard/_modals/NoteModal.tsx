@@ -101,7 +101,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
               ? editedNote.id
                 ? "Modifier la note"
                 : "Créer une note"
-              : "Modifier la note vocale"}
+              : "Modifier la note"}
           </h2>
           <MagicButton onClick={handleMagicSummarize} isLoading={isSummarizing} />
         </div>
