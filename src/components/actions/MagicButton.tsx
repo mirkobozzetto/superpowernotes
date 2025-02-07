@@ -10,7 +10,7 @@ export const MagicButton: React.FC<MagicButtonProps> = ({ onClick, isLoading = f
     <button
       onClick={onClick}
       disabled={isLoading}
-      className="bg-yellow-200 hover:bg-yellow-300 text-yellow-700 font-bold py-2 px-4 rounded-full flex items-center gap-2 transition-colors duration-200"
+      className="bg-yellow-200 hover:bg-yellow-300 text-yellow-600 font-bold py-2 px-4 rounded-full flex items-center gap-2 transition-colors duration-200 border border-yellow-300"
     >
       {isLoading ? (
         "…"
