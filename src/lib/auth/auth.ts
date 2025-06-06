@@ -1,3 +1,5 @@
+// src/lib/auth/auth.ts
+
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import NextAuth, { type DefaultSession } from "next-auth";
 import Google from "next-auth/providers/google";
