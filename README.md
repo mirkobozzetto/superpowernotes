@@ -83,39 +83,6 @@ Super Power Notes is an intelligent note-taking web application designed to func
 - **React Email** for email templates
 - **Vercel** ready for deployment
 
-## 📊 Database Architecture
-
-```sql
--- Users with quota management
-User {
-  id, email, name, role (ADMIN|USER|BETA)
-  timeLimit, currentPeriodUsedTime, currentPeriodRemainingTime
-  lastResetDate, newsletterSubscribed
-}
-
--- Voice notes with AI metadata
-VoiceNote {
-  id, transcription, fileName, tags[], duration
-  userId, createdAt, modifiedAt
-}
-
--- Hierarchical folder system
-Folder {
-  id, name, description, userId
-  parentId (self-reference), createdAt, updatedAt
-}
-
--- Many-to-many notes/folders relations
-NotesToFolders {
-  id, folderId, noteId, createdAt
-}
-
--- Newsletter subscribers
-NewsletterSubscriber {
-  id, email, name, subscribed, lastEmailSent
-}
-```
-
 ## 🚀 Installation and Development
 
 ### Prerequisites
