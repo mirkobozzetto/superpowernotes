@@ -63,19 +63,18 @@ export const Navigation = () => {
               <NavigationMenuList>
                 {navigationItems(isAdmin).map((item) => (
                   <NavigationMenuItem key={item.href}>
-                    <Link href={item.href} legacyBehavior passHref>
-                      <NavigationMenuLink
-                        className={cn(
-                          navigationMenuTriggerStyle(),
-                          "text-white transition-colors",
-                          "hover:bg-gray-800",
-                          pathname === item.href && "bg-gray-800",
-                          "rounded-full"
-                        )}
-                      >
-                        {item.name}
-                      </NavigationMenuLink>
-                    </Link>
+                    <NavigationMenuLink
+                      asChild
+                      className={cn(
+                        navigationMenuTriggerStyle(),
+                        "text-white transition-colors",
+                        "hover:bg-gray-800",
+                        pathname === item.href && "bg-gray-800",
+                        "rounded-full"
+                      )}
+                    >
+                      <Link href={item.href}>{item.name}</Link>
+                    </NavigationMenuLink>
                   </NavigationMenuItem>
                 ))}
               </NavigationMenuList>
