@@ -1,5 +1,3 @@
-export const maxDuration = 60;
-
 import type { Folder } from "@prisma/client";
 import { auth } from "@src/lib/auth/auth";
 import { logger } from "@src/lib/logger";
@@ -15,12 +13,13 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   const session = await auth();
-  if (!session?.user?.id) {
+  const userId = session?.user?.id;
+
+  if (!userId) {
     logger.warn("Unauthorized transcription attempt");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const userId = session.user.id;
   let foundFolder: Folder | null = null;
 
   try {

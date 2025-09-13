@@ -77,7 +77,7 @@ export const NoteModal: React.FC<NoteModalProps> = ({ isOpen, onClose, onSave, n
 
   return (
     <div
-      className="z-50 fixed inset-0 flex justify-center items-center bg-gray-900 bg-opacity-50 backdrop-blur-sm"
+      className="z-50 fixed inset-0 flex justify-center items-center bg-gray-900/40 backdrop-blur-md transition-all duration-200"
       onClick={onClose}
     >
       <div

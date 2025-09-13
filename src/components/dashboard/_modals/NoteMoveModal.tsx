@@ -44,7 +44,7 @@ export const NoteMoveModal: React.FC<NoteMoveModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-gray-900/40 backdrop-blur-md flex items-center justify-center z-50 transition-all duration-200"
       onClick={onClose}
     >
       <div
