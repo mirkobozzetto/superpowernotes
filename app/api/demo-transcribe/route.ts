@@ -12,7 +12,7 @@ import { z } from "zod";
 const ipRequestCounts = new Map<string, { count: number; timestamp: number }>();
 
 export async function POST(req: NextRequest) {
-  const clientIp = req.ip || "unknown";
+  const clientIp = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
 
   const now = Date.now();
   const requestInfo = ipRequestCounts.get(clientIp);

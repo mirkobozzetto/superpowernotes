@@ -5,17 +5,18 @@ import { MoveFolderSchema } from "@src/validations/routes/notesMoveRoute";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) {
     logger.warn("Unauthorized note move attempt");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const { id: noteId } = await params;
+
   try {
     const body = await request.json();
     const validatedData = MoveFolderSchema.parse(body);
-    const noteId = params.id;
 
     const note = await moveNoteQueries.validateNoteAccess(noteId, session.user.id);
     if (!note) {
@@ -54,7 +55,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     if (error instanceof z.ZodError) {
       logger.warn("Invalid request data for note move", {
         userId: session.user.id,
-        noteId: params.id,
+        noteId,
         errors: error.errors,
       });
       return NextResponse.json(
@@ -66,7 +67,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
     logger.error("Error moving note", {
       error: error instanceof Error ? error.message : "Unknown error",
       userId: session.user.id,
-      noteId: params.id,
+      noteId,
     });
 
     if (error instanceof Error && error.message.includes("not found")) {

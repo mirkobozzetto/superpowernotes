@@ -4,16 +4,17 @@ import { prisma } from "@src/lib/prisma";
 import { CreateFolderSchema } from "@src/validations/routes/folderRoute";
 import { NextResponse } from "next/server";
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
+    const { id } = await params;
     await prisma.$transaction(async (tx) => {
       const notes = await tx.notesToFolders.findMany({
-        where: { folderId: params.id },
+        where: { folderId: id },
         select: { noteId: true },
       });
 
@@ -24,7 +25,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
       }
 
       await tx.folder.delete({
-        where: { id: params.id },
+        where: { id },
       });
     });
 
@@ -34,7 +35,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) {
     logger.warn("Unauthorized folder update attempt");
@@ -44,10 +45,11 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   try {
     const data = await request.json();
     const validatedData = CreateFolderSchema.parse(data);
+    const { id } = await params;
 
     const folder = await prisma.folder.findUnique({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id,
       },
     });
@@ -57,7 +59,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     }
 
     const updatedFolder = await prisma.folder.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: validatedData.name,
         description: validatedData.description,
@@ -66,7 +68,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
 
     logger.info("Folder updated successfully", {
       userId: session.user.id,
-      folderId: params.id,
+      folderId: id,
     });
 
     return NextResponse.json(updatedFolder);

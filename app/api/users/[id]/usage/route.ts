@@ -3,17 +3,18 @@ import { logger } from "@src/lib/logger";
 import { userUsageQueryBuilder } from "@src/services/routes/userUsageQueryBuilder";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session || (!session.user?.id && session.user?.role !== "ADMIN")) {
+    const { id: targetId } = await params;
     logger.warn("Unauthorized usage access attempt", {
       userId: session?.user?.id,
-      targetId: params.id,
+      targetId,
     });
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { id } = params;
+  const { id } = await params;
 
   try {
     const usage = await userUsageQueryBuilder.getUserUsage(id);

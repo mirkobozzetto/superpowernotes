@@ -3,7 +3,7 @@ import { DashboardLayout } from "@src/components/(landing)/_dashboard/DashboardL
 import { Footer } from "@src/components/navigation/Footer";
 import { Navigation } from "@src/components/navigation/Navigation";
 import { ClientProviders } from "@src/providers/ClientProviders";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 
@@ -22,6 +22,9 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
     shortcut: "/favicon.svg",
   },
+};
+
+export const viewport: Viewport = {
   themeColor: "#ffffff",
 };
 

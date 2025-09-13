@@ -18,7 +18,7 @@ export type DemoRecordingActionsState = {
   cooldownTimeLeft: number;
   chunks: Blob[];
   shouldProcess: boolean;
-  timer: NodeJS.Timeout | null;
+  timer: ReturnType<typeof setTimeout> | null;
 };
 
 export type DemoRecordingActions = {

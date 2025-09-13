@@ -28,7 +28,7 @@ export const useRecordingActions = (
   setIsCancelling: Function,
   chunksRef: React.MutableRefObject<Blob[]>,
   startTimeRef: React.MutableRefObject<number | null>,
-  timerRef: React.MutableRefObject<NodeJS.Timeout | null>,
+  timerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>,
   actualRecordingTimeRef: React.MutableRefObject<number>
 ) => {
   const store = useRecordingActionsStore();

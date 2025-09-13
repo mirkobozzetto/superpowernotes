@@ -55,7 +55,7 @@ export const YouTubeModal = ({ videoId, className }: YouTubeModalProps) => {
                   filter: "blur(0px)",
                   transition: {
                     duration: 0.3,
-                    ease: "easeOut",
+                    ease: "easeOut" as const,
                   },
                 }}
                 exit={{
@@ -64,7 +64,7 @@ export const YouTubeModal = ({ videoId, className }: YouTubeModalProps) => {
                   filter: "blur(10px)",
                   transition: {
                     duration: 0.2,
-                    ease: "easeIn",
+                    ease: "easeIn" as const,
                   },
                 }}
                 className="relative bg-black/95 rounded-xl w-full overflow-hidden"

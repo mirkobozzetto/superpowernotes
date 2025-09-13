@@ -8,7 +8,7 @@ export const useRecordingState = () => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const startTimeRef = useRef<number | null>(null);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   return {
     isRecording,

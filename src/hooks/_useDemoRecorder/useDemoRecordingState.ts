@@ -10,7 +10,7 @@ export const useDemoRecordingState = () => {
   );
   const [recordingTime, setRecordingTime] = useState(0);
 
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const shouldProcessRef = useRef(true);
 
   return {

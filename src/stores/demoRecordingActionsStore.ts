@@ -69,7 +69,7 @@ export const useDemoRecordingActionsStore = create<DemoRecordingStore>((set, get
             }
             return { recordingTime: newTime };
           });
-        }, 1000) as NodeJS.Timeout,
+        }, 1000) as ReturnType<typeof setTimeout>,
       });
     } catch (error) {
       console.error("Error starting demo recording:", error);
@@ -99,7 +99,7 @@ export const useDemoRecordingActionsStore = create<DemoRecordingStore>((set, get
         resumeRecording();
         const newTimer = setInterval(() => {
           set((s) => ({ recordingTime: s.recordingTime + 1 }));
-        }, 1000) as NodeJS.Timeout;
+        }, 1000) as ReturnType<typeof setTimeout>;
         return { isPaused: newIsPaused, timer: newTimer };
       }
       return { isPaused: newIsPaused, timer: null };

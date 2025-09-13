@@ -11,7 +11,7 @@ type RecordingActionsState = {
   recordingTime: number;
   chunks: Blob[];
   startTime: number | null;
-  timer: NodeJS.Timeout | null;
+  timer: ReturnType<typeof setTimeout> | null;
   actualRecordingTime: number;
 
   setIsRecording: (isRecording: boolean) => void;
@@ -23,7 +23,7 @@ type RecordingActionsState = {
   setIsSuccess: (isSuccess: boolean) => void;
   setRecordingTime: (time: number | ((prevTime: number) => number)) => void;
   setStartTime: (time: number | null) => void;
-  setTimer: (timer: NodeJS.Timeout | null) => void;
+  setTimer: (timer: ReturnType<typeof setTimeout> | null) => void;
   addChunk: (chunk: Blob) => void;
   clearChunks: () => void;
   incrementActualRecordingTime: () => void;

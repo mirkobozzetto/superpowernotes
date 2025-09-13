@@ -8,7 +8,7 @@ export const RecordingTimer = ({ isPaused }: Props) => {
   const [seconds, setSeconds] = useState(0);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setTimeout>;
     if (!isPaused) {
       interval = setInterval(() => {
         setSeconds((prevSeconds) => prevSeconds + 1);

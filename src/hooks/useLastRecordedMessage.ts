@@ -11,7 +11,7 @@ export const useLastRecordedMessage = (
   const [isNewRecording, setIsNewRecording] = useState(false);
   const lastKnownIdRef = useRef<string | null>(null);
   const isFirstFetchRef = useRef(true);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

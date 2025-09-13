@@ -20,14 +20,18 @@ export const useDashboardActions = ({
   const [isRecording, setIsRecording] = useState(false);
   const [referenceNote, setReferenceNote] = useState<VoiceNote | null>(null);
   const { selectedFolderId, fetchNotes, notes } = useNoteManagerStore();
-  const checkingInterval = useRef<ReturnType<typeof setInterval>>();
-  const initialNoteId = useRef<string>();
+  const checkingInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const initialNoteId = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (notes.length > 0 && !referenceNote) {
       setReferenceNote(notes[0]);
     }
-    return () => checkingInterval.current && clearInterval(checkingInterval.current);
+    return () => {
+      if (checkingInterval.current) {
+        clearInterval(checkingInterval.current);
+      }
+    };
   }, [notes, referenceNote]);
 
   const handleProjectClick = () => {
@@ -61,7 +65,9 @@ export const useDashboardActions = ({
     const checkForNewNote = async () => {
       const hasNewNote = await voiceNotesService.checkForNewNoteAfter(initialNoteId.current!);
       if (hasNewNote) {
-        checkingInterval.current && clearInterval(checkingInterval.current);
+        if (checkingInterval.current) {
+          clearInterval(checkingInterval.current);
+        }
         await fetchNotes();
         onRecordingComplete();
       }

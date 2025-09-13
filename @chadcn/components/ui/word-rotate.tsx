@@ -19,7 +19,7 @@ export default function WordRotate({
     initial: { opacity: 0, y: -50 },
     animate: { opacity: 1, y: 0 },
     exit: { opacity: 0, y: 50 },
-    transition: { duration: 0.25, ease: "easeOut" },
+    transition: { duration: 0.25, ease: "easeOut" as const },
   },
   className,
 }: WordRotateProps) {
@@ -37,11 +37,7 @@ export default function WordRotate({
   return (
     <div className="overflow-hidden py-2">
       <AnimatePresence mode="wait">
-        <motion.h1
-          key={words[index]}
-          className={cn(className)}
-          {...framerProps}
-        >
+        <motion.h1 key={words[index]} className={cn(className)} {...framerProps}>
           {words[index]}
         </motion.h1>
       </AnimatePresence>

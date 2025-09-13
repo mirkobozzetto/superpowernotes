@@ -3,7 +3,7 @@ import { logger } from "@src/lib/logger";
 import { prisma } from "@src/lib/prisma";
 import { NextResponse } from "next/server";
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) {
     logger.warn("Unauthorized folder notes access attempt");
@@ -11,9 +11,10 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 
   try {
+    const { id } = await params;
     const folder = await prisma.folder.findUnique({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id,
       },
       include: {
@@ -39,7 +40,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session?.user?.id) {
     logger.warn("Unauthorized note to folder addition attempt");
@@ -48,11 +49,12 @@ export async function POST(request: Request, { params }: { params: { id: string 
 
   try {
     const { noteId } = await request.json();
+    const { id } = await params;
 
     const [folder, note] = await Promise.all([
       prisma.folder.findUnique({
         where: {
-          id: params.id,
+          id,
           userId: session.user.id,
         },
       }),

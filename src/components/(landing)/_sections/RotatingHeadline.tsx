@@ -48,7 +48,7 @@ export const RotatingHeadline = ({
           exit={{ y: -10, opacity: 0 }}
           transition={{
             duration: 0.3,
-            ease: "easeOut",
+            ease: "easeOut" as const,
           }}
           className="absolute inset-0 bg-clip-text bg-gradient-to-r from-blue-950 to-blue-800 font-extrabold text-2xl text-center text-transparent md:text-4xl lg:text-6xl"
         >

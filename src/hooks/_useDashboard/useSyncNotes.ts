@@ -11,13 +11,13 @@ const SYNC_INTERVAL = 3000;
 export const useSyncNotes = ({ notes, fetchNotes }: UseSyncNotesProps) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const syncIntervalRef = useRef<NodeJS.Timeout>();
-  const latestNoteRef = useRef<string>();
+  const syncIntervalRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const latestNoteRef = useRef<string | undefined>(undefined);
 
   const stopSync = useCallback(() => {
     if (syncIntervalRef.current) {
       clearInterval(syncIntervalRef.current);
-      syncIntervalRef.current = undefined;
+      syncIntervalRef.current = null;
     }
     setIsSyncing(false);
     setIsProcessing(false);

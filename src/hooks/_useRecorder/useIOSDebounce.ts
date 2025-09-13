@@ -4,7 +4,7 @@ type DebounceFunction = (callback: () => Promise<void>) => Promise<void>;
 
 export const useIOSDebounce = (delay: number = 1000): DebounceFunction => {
   const processingRef = useRef(false);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const debounce: DebounceFunction = async (callback) => {
     if (processingRef.current) {
