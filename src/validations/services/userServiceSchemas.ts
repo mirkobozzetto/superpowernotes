@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 import { z } from "zod";
 
 export const RemainingTimeSchema = z.object({
@@ -29,7 +28,7 @@ export const LastVoiceNoteSchema = z.object({
 
 export const UserDataSchema = z
   .object({
-    role: z.nativeEnum(UserRole).optional(),
+    role: z.enum(["ADMIN", "USER", "BETA"]).optional(),
     timeLimit: z.number().optional(),
     currentPeriodRemainingTime: z.number().min(0).optional(),
     currentPeriodUsedTime: z.number().min(0).optional(),

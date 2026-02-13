@@ -1,4 +1,4 @@
-import { VoiceNote } from "@prisma/client";
+import type { VoiceNote } from "@prisma/client";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import TagInput from "../TagInput";
 

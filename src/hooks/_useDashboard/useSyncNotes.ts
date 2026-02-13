@@ -1,4 +1,4 @@
-import { VoiceNote } from "@prisma/client";
+import type { VoiceNote } from "@prisma/client";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type UseSyncNotesProps = {

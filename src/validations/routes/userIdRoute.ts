@@ -1,8 +1,7 @@
-import { UserRole } from "@prisma/client";
 import { z } from "zod";
 
 export const UserUpdateSchema = z.object({
-  role: z.nativeEnum(UserRole).optional(),
+  role: z.enum(["ADMIN", "USER", "BETA"]).optional(),
   timeLimit: z.union([z.string().transform((val) => parseInt(val, 10)), z.number()]).optional(),
   currentPeriodRemainingTime: z.number().optional(),
   currentPeriodUsedTime: z.number().optional(),

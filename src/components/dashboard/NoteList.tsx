@@ -1,4 +1,4 @@
-import { VoiceNote } from "@prisma/client";
+import type { VoiceNote } from "@prisma/client";
 import { CopyToClipboard } from "@src/components/actions/CopyToClipboard";
 import { format, isValid } from "date-fns";
 import { fr } from "date-fns/locale";
