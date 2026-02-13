@@ -1,9 +1,13 @@
 import { prisma } from "@src/lib/prisma";
 import { NextResponse } from "next/server";
+import { z } from "zod";
+
+const tokenSchema = z.string().min(1);
 
 export async function GET(request: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
-    const { token } = await params;
+    const { token: rawToken } = await params;
+    const token = tokenSchema.parse(rawToken);
     const subscriber = await prisma.newsletterSubscriber.findFirst({
       where: { id: token },
     });

@@ -49,7 +49,7 @@ export const voiceNotesService = {
       };
     } catch (error) {
       console.error("Error in getAllNotes", error);
-      throw new Error("Failed to fetch notes");
+      throw new Error("Failed to fetch notes", { cause: error });
     }
   },
 
@@ -59,7 +59,7 @@ export const voiceNotesService = {
       return this.sortNotesByDate(notes);
     } catch (error) {
       console.error("Error in searchNotes", error);
-      throw new Error("Failed to search notes");
+      throw new Error("Failed to search notes", { cause: error });
     }
   },
 
@@ -68,7 +68,7 @@ export const voiceNotesService = {
       return await voiceNotesApi.save(note);
     } catch (error) {
       console.error("Error in saveNote", error);
-      throw new Error("Failed to save note");
+      throw new Error("Failed to save note", { cause: error });
     }
   },
 
@@ -77,7 +77,7 @@ export const voiceNotesService = {
       await voiceNotesApi.delete(noteId);
     } catch (error) {
       console.error("Error in deleteNote", error);
-      throw new Error("Failed to delete note");
+      throw new Error("Failed to delete note", { cause: error });
     }
   },
 

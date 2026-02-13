@@ -18,23 +18,27 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const body = await request.json();
     const validatedData = MoveFolderSchema.parse(body);
 
-    const note = await moveNoteQueries.validateNoteAccess(noteId, session.user.id);
-    if (!note) {
-      logger.warn("Note not found or unauthorized access", { noteId, userId: session.user.id });
-      return NextResponse.json({ error: "Note not found" }, { status: 404 });
-    }
-
     if (validatedData.folderId) {
-      const folder = await moveNoteQueries.validateFolderAccess(
-        validatedData.folderId,
-        session.user.id
-      );
+      const [note, folder] = await Promise.all([
+        moveNoteQueries.validateNoteAccess(noteId, session.user.id),
+        moveNoteQueries.validateFolderAccess(validatedData.folderId, session.user.id),
+      ]);
+      if (!note) {
+        logger.warn("Note not found or unauthorized access", { noteId, userId: session.user.id });
+        return NextResponse.json({ error: "Note not found" }, { status: 404 });
+      }
       if (!folder) {
         logger.warn("Folder not found or unauthorized access", {
           folderId: validatedData.folderId,
           userId: session.user.id,
         });
         return NextResponse.json({ error: "Folder not found" }, { status: 404 });
+      }
+    } else {
+      const note = await moveNoteQueries.validateNoteAccess(noteId, session.user.id);
+      if (!note) {
+        logger.warn("Note not found or unauthorized access", { noteId, userId: session.user.id });
+        return NextResponse.json({ error: "Note not found" }, { status: 404 });
       }
     }
 
@@ -59,7 +63,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         errors: error.errors,
       });
       return NextResponse.json(
-        { error: "Invalid request data", details: error.errors },
+        { error: "Invalid request data" },
         { status: 400 }
       );
     }

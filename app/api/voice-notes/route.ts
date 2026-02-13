@@ -14,38 +14,37 @@ export async function GET(request: Request) {
     const skip = parseInt(searchParams.get("skip") ?? "0");
     const take = parseInt(searchParams.get("take") ?? "4");
 
-    const total = await prisma.voiceNote.count({
-      where: { userId: session.user.id },
-    });
-
-    const voiceNotes = await prisma.voiceNote.findMany({
-      where: { userId: session.user.id },
-      include: {
-        folders: {
-          include: {
-            folder: {
-              select: {
-                id: true,
-                name: true,
-                description: true,
-                parentId: true,
+    const [total, voiceNotes, user] = await Promise.all([
+      prisma.voiceNote.count({
+        where: { userId: session.user.id },
+      }),
+      prisma.voiceNote.findMany({
+        where: { userId: session.user.id },
+        include: {
+          folders: {
+            include: {
+              folder: {
+                select: {
+                  id: true,
+                  name: true,
+                  description: true,
+                  parentId: true,
+                },
               },
             },
           },
         },
-      },
-      orderBy: { createdAt: "desc" },
-      skip,
-      take,
-    });
+        orderBy: { createdAt: "desc" },
+        skip,
+        take,
+      }),
+      prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { timeLimit: true, currentPeriodRemainingTime: true },
+      }),
+    ]);
 
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id },
-      select: { timeLimit: true },
-    });
-
-    const totalUsedTime = voiceNotes.reduce((acc, note) => acc + (note.duration ?? 0), 0);
-    const remainingTime = user ? user.timeLimit - totalUsedTime : 0;
+    const remainingTime = user ? user.currentPeriodRemainingTime : 0;
 
     const formattedNotes = voiceNotes.map((note) => ({
       ...note,

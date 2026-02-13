@@ -1,7 +1,9 @@
 import { z } from "zod";
 
 export const TranscribeRequestSchema = z.object({
-  audio: z.any(),
+  audio: z
+    .unknown()
+    .refine((val): val is File => val instanceof Blob || val instanceof File, "Must be an audio file"),
   duration: z.number(),
   folderId: z.string().nullable().optional(),
 });

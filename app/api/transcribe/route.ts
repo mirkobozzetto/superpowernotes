@@ -23,8 +23,10 @@ export async function POST(req: Request) {
   let foundFolder: Folder | null = null;
 
   try {
-    const user = await transcribeQueryBuilder.getUserTimeInfo(userId);
-    const formData = await req.formData();
+    const [user, formData] = await Promise.all([
+      transcribeQueryBuilder.getUserTimeInfo(userId),
+      req.formData(),
+    ]);
 
     const validatedData = TranscribeRequestSchema.parse({
       audio: formData.get("audio"),
