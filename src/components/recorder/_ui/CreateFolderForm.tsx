@@ -3,7 +3,7 @@ import { DialogContent, DialogHeader, DialogTitle } from "@chadcn/components/ui/
 import { Input } from "@chadcn/components/ui/input";
 import { Label } from "@chadcn/components/ui/label";
 import { Textarea } from "@chadcn/components/ui/textarea";
-import type { Folder } from "@prisma/client";
+import type { Folder } from "@generated/prisma/client";
 import { useState } from "react";
 
 type CreateFolderFormProps = {

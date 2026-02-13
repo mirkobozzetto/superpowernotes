@@ -1,4 +1,4 @@
-import type { Folder, VoiceNote } from "@prisma/client";
+import type { Folder, VoiceNote } from "@generated/prisma/client";
 import { folderService } from "@src/services/folderService";
 import { voiceNotesService } from "@src/services/voiceNotesService";
 import type {

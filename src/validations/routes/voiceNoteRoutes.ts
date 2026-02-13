@@ -1,4 +1,4 @@
-import type { VoiceNote } from "@prisma/client";
+import type { VoiceNote } from "@generated/prisma/client";
 import { z } from "zod";
 
 export const VoiceNoteSchema = z.object({

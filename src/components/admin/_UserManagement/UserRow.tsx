@@ -1,4 +1,4 @@
-import type { User } from "@prisma/client";
+import type { User } from "@generated/prisma/client";
 import { useAdminUser } from "@src/hooks/admin/useAdminUser";
 import { useSession } from "next-auth/react";
 import React from "react";

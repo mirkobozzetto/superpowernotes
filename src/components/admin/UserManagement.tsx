@@ -2,7 +2,7 @@
 
 import { Button } from "@chadcn/components/ui/button";
 import { Card } from "@chadcn/components/ui/card";
-import type { User, UserRole } from "@prisma/client";
+import type { User, UserRole } from "@generated/prisma/client";
 import { useUserManagement } from "@src/hooks/admin/useUserManagement";
 import { UserRow } from "./_UserManagement/UserRow";
 

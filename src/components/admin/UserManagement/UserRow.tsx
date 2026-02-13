@@ -1,4 +1,4 @@
-import type { User } from "@prisma/client";
+import type { User } from "@generated/prisma/client";
 import { useAdminUser } from "@src/hooks/admin/useAdminUser";
 import React from "react";
 

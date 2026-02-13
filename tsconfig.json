@@ -33,6 +33,12 @@
       ],
       "@email/*": [
         "./@email/*"
+      ],
+      "@generated/*": [
+        "./src/generated/*"
+      ],
+      "@prisma/client": [
+        "./src/generated/prisma/client"
       ]
     },
     "target": "ES2017"

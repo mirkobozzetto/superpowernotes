@@ -1,4 +1,4 @@
-import type { VoiceNote } from "@prisma/client";
+import type { VoiceNote } from "@generated/prisma/client";
 import { noteMoveService } from "@src/services/noteMoveService";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { FolderIcon, Globe } from "lucide-react";

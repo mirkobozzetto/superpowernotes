@@ -1,4 +1,4 @@
-import type { User, UserRole } from "@prisma/client";
+import type { User, UserRole } from "@generated/prisma/client";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 

@@ -1,4 +1,4 @@
-import type { User, VoiceNote } from "@prisma/client";
+import type { User, VoiceNote } from "@generated/prisma/client";
 import {
   LastVoiceNoteSchema,
   RemainingTimeSchema,

@@ -1,4 +1,4 @@
-import type { Folder } from "@prisma/client";
+import type { Folder } from "@generated/prisma/client";
 import { auth } from "@src/lib/auth/auth";
 import { logger } from "@src/lib/logger";
 import { prisma } from "@src/lib/prisma";

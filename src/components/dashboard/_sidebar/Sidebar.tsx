@@ -1,5 +1,5 @@
 import { cn } from "@chadcn/lib/utils";
-import type { Folder } from "@prisma/client";
+import type { Folder } from "@generated/prisma/client";
 import { useFolderCache } from "@src/stores/folderCacheStore";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { ChevronDown, FolderIcon, Globe } from "lucide-react";

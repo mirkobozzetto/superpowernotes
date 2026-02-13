@@ -1,4 +1,4 @@
-import type { VoiceNote } from "@prisma/client";
+import type { VoiceNote } from "@generated/prisma/client";
 import { FolderCog } from "lucide-react";
 import React, { useState } from "react";
 import { NoteMoveModal } from "./_modals/NoteMoveModal";
