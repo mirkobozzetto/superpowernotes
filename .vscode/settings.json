@@ -1,9 +1,0 @@
-{
-  "WillLuke.nextjs.addTypesOnSave": true,
-  "WillLuke.nextjs.hasPrompted": true,
-  "github.copilot.chat.search.semanticTextResults": true,
-  "github.copilot.chat.inlineChatHint.enabled": true,
-  "github.copilot.chat.inlineChatCompletionTrigger.enabled": true,
-  "github.copilot.chat.generateTests.codeLens": true,
-  "conventionalCommits.scopes": ["LP UI Modal Defined"]
-}
