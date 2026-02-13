@@ -1,4 +1,4 @@
-import type { Folder } from "@prisma/client";
+import type { Folder } from "@generated/prisma/client";
 import { create } from "zustand";
 
 export type LocalFolderCache = {

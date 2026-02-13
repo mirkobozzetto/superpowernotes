@@ -1,4 +1,4 @@
-import type { Folder } from "@prisma/client";
+import type { Folder } from "@generated/prisma/client";
 
 export type CreateFolderData = {
   name: string;

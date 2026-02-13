@@ -1,4 +1,4 @@
-import { VoiceNote } from "@prisma/client";
+import type { VoiceNote } from "@generated/prisma/client";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { FileText } from "lucide-react";
 import React from "react";

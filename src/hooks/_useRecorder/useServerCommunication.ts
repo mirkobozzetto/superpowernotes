@@ -26,7 +26,7 @@ export const useServerCommunication = (
         throw new Error(`Transcription error: ${response.status} ${response.statusText}`);
 
       const data = await response.json();
-      if (!data.transcription) throw new Error("No transcription received from server");
+      if (!data || !data.transcription) throw new Error("No transcription received from server");
 
       if (data.remainingTime !== undefined) {
         updateRemainingTime(duration);

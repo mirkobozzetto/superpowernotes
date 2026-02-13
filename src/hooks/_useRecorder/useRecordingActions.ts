@@ -44,7 +44,6 @@ export const useRecordingActions = (
 
     console.log("Starting finishRecording");
     isFinishingRef.current = true;
-    setIsFinishing(true);
     store.setIsFinishing(true);
     stopAudioRecording();
 
@@ -66,17 +65,13 @@ export const useRecordingActions = (
         }
       } catch (error) {
         console.error("Error sending audio to server:", error);
-        setError("Failed to process recording. Please try again.");
         store.setError("Failed to process recording. Please try again.");
       }
     }
 
     cleanupAudioResources();
-    setIsFinishing(false);
     store.setIsFinishing(false);
-    setIsRecording(false);
     store.setIsRecording(false);
-    setRecordingTime(0);
     store.setRecordingTime(0);
     isFinishingRef.current = false;
     console.log("Exiting finishRecording");
@@ -86,14 +81,10 @@ export const useRecordingActions = (
     chunksRef,
     actualRecordingTimeRef,
     cleanupAudioResources,
-    setIsRecording,
-    setRecordingTime,
     sendAudioToServer,
     getAudioMimeType,
-    setError,
     store,
     isIOS,
-    setIsFinishing,
   ]);
 
   const startRecording = useCallback(async () => {
@@ -155,7 +146,7 @@ export const useRecordingActions = (
           actualRecordingTimeRef.current = newTime;
           store.incrementActualRecordingTime();
           if (newTime >= MAX_RECORDING_DURATION - 1) {
-            finishRecording();
+            stopAudioRecording();
             return MAX_RECORDING_DURATION;
           }
           return newTime;
@@ -175,7 +166,7 @@ export const useRecordingActions = (
     setError,
     setIsSuccess,
     setRecordingTime,
-    finishRecording,
+    stopAudioRecording,
     chunksRef,
     startTimeRef,
     timerRef,

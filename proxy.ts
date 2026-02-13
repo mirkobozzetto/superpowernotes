@@ -9,7 +9,7 @@ const PUBLIC_ROUTES = [
   "/public",
 ] as const;
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const isPublicPath = PUBLIC_ROUTES.some((route) => request.nextUrl.pathname.startsWith(route));
 
   if (isPublicPath) {

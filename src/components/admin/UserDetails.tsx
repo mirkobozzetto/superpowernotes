@@ -1,4 +1,4 @@
-import { User } from "@prisma/client";
+import type { User } from "@generated/prisma/client";
 import React from "react";
 
 type UserDetailsProps = {

@@ -11,8 +11,19 @@ import { z } from "zod";
 
 const ipRequestCounts = new Map<string, { count: number; timestamp: number }>();
 
+function cleanupStaleEntries() {
+  const now = Date.now();
+  for (const [ip, info] of ipRequestCounts) {
+    if (now - info.timestamp >= RATE_LIMIT_WINDOW) {
+      ipRequestCounts.delete(ip);
+    }
+  }
+}
+
 export async function POST(req: NextRequest) {
   const clientIp = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+
+  cleanupStaleEntries();
 
   const now = Date.now();
   const requestInfo = ipRequestCounts.get(clientIp);

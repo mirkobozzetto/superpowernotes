@@ -1,4 +1,4 @@
-import { VoiceNote } from "@prisma/client";
+import type { VoiceNote } from "@generated/prisma/client";
 import { useDashboardActions } from "@src/hooks/_useDashboardActions/useDashboardActions";
 import { ProjectManagementModal } from "../_modals/ProjectManagementModal";
 import { CreateNoteButton } from "../CreateNoteButton";

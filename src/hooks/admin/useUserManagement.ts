@@ -1,4 +1,4 @@
-import { User, UserRole } from "@prisma/client";
+import type { User, UserRole } from "@generated/prisma/client";
 import { userService } from "@src/services/userService";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";

@@ -1,4 +1,4 @@
-import type { Folder } from "@prisma/client";
+import type { Folder } from "@generated/prisma/client";
 import { folderService } from "@src/services/folderService";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { FolderDown, FolderPlus, Pencil, Trash2 } from "lucide-react";

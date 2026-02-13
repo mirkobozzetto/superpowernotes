@@ -1,4 +1,4 @@
-import type { Folder } from "@prisma/client";
+import type { Folder } from "@generated/prisma/client";
 import { folderService } from "@src/services/hooks/folderService";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { useCallback, useEffect, useState } from "react";

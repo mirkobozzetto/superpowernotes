@@ -29,6 +29,7 @@ Thumbs.db
 
 # Prisma
 prisma/migrations
+src/generated
 
 # Cache
 .cache

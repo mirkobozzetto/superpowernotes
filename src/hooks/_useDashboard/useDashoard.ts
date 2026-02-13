@@ -1,26 +1,24 @@
-import { VoiceNote } from "@prisma/client";
+import type { VoiceNote } from "@generated/prisma/client";
 import { voiceNotesService } from "@src/services/voiceNotesService";
 import { useNoteManagerStore } from "@src/stores/noteManagerStore";
 import { useCallback, useEffect, useState } from "react";
 import { useSyncNotes } from "./useSyncNotes";
 
 export const useDashboard = () => {
-  const {
-    initialize,
-    notes,
-    isLoading,
-    error,
-    searchParams,
-    handleSearch,
-    updateSearchParams,
-    saveNote,
-    deleteNote,
-    fetchNotes,
-    selectedFolderId,
-    setNotes,
-    setLoading,
-    setError,
-  } = useNoteManagerStore();
+  const initialize = useNoteManagerStore((s) => s.initialize);
+  const notes = useNoteManagerStore((s) => s.notes);
+  const isLoading = useNoteManagerStore((s) => s.isLoading);
+  const error = useNoteManagerStore((s) => s.error);
+  const searchParams = useNoteManagerStore((s) => s.searchParams);
+  const handleSearch = useNoteManagerStore((s) => s.handleSearch);
+  const updateSearchParams = useNoteManagerStore((s) => s.updateSearchParams);
+  const saveNote = useNoteManagerStore((s) => s.saveNote);
+  const deleteNote = useNoteManagerStore((s) => s.deleteNote);
+  const fetchNotes = useNoteManagerStore((s) => s.fetchNotes);
+  const selectedFolderId = useNoteManagerStore((s) => s.selectedFolderId);
+  const setNotes = useNoteManagerStore((s) => s.setNotes);
+  const setLoading = useNoteManagerStore((s) => s.setLoading);
+  const setError = useNoteManagerStore((s) => s.setError);
 
   const { startSync, isSyncing, isProcessing } = useSyncNotes({
     notes,

@@ -2,7 +2,7 @@
 
 import { Button } from "@chadcn/components/ui/button";
 import { Card } from "@chadcn/components/ui/card";
-import { User, UserRole } from "@prisma/client";
+import type { User, UserRole } from "@generated/prisma/client";
 import { useUserManagement } from "@src/hooks/admin/useUserManagement";
 import { UserRow } from "./_UserManagement/UserRow";
 
@@ -22,7 +22,7 @@ type UserTableProps = {
 function RoleFilter({ activeRole, onRoleChange }: RoleFilterProps) {
   return (
     <div className="flex flex-wrap gap-2 mb-4">
-      {["ALL", ...Object.values(UserRole)].map((role) => (
+      {["ALL", "ADMIN", "USER", "BETA"].map((role) => (
         <Button
           key={role}
           variant={activeRole === role ? "default" : "secondary"}

@@ -12,6 +12,15 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
   try {
     const { id } = await params;
+    const userId = session.user.id;
+
+    const folder = await prisma.folder.findUnique({
+      where: { id, userId },
+    });
+    if (!folder) {
+      return NextResponse.json({ error: "Folder not found" }, { status: 404 });
+    }
+
     await prisma.$transaction(async (tx) => {
       const notes = await tx.notesToFolders.findMany({
         where: { folderId: id },
@@ -25,7 +34,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
       }
 
       await tx.folder.delete({
-        where: { id },
+        where: { id, userId },
       });
     });
 
@@ -59,7 +68,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 
     const updatedFolder = await prisma.folder.update({
-      where: { id },
+      where: { id, userId: session.user.id },
       data: {
         name: validatedData.name,
         description: validatedData.description,
