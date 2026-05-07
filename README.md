@@ -53,5 +53,3 @@ superpowernotes/
 ## License
 
 Copyright © 2025 Bozzetto Mirko. All rights reserved.
-
-Contact: bozzettomirko88@gmail.com
